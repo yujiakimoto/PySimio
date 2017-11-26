@@ -182,12 +182,12 @@ class Person:
 class Route:
     """ Models 1 of 3 bus routes around Ithaca.
     
-    Attribtues:
-        stopList (list): A list of BusStop objects representing all the stops on this route. Includes starting 
+    Attributes:
+        stop_list (list): A list of BusStop objects representing all the stops on this route. Includes starting
             stop as both the first and last element if the route is a loop (which they all are).
-        distanceList (list): A list of floats representing the distances between each of the stops on the route.
+        distance_list (list): A list of floats representing the distances between each of the stops on the route.
             Length should be one less than the length of stopList.
-        number (int): Route number as defined in writeup.
+        num (int): Route number as defined in writeup.
     
     """
     
