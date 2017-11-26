@@ -1,5 +1,9 @@
 import numpy as np
 
+MAX_TIME = 18*60    # simulate buses for 18 hour periods
+PEOPLE = {}         # global dict of all people in bus system
+ITHACA = {}         # global dict of all bus stops in Ithaca
+
 
 class Bus:
     """ Models a bus travelling around Ithaca.
@@ -24,7 +28,7 @@ class Bus:
         
         self.route = route
         self.next_stop_num = 1                             # bus starts at first stop, i.e. index 0
-        self.next_stop = self.route[1]
+        self.next_stop = self.route.stops[1]
         
         self.passengers = []                               # bus starts with nobody on it
         self.occupancy = 0
@@ -49,9 +53,13 @@ class Bus:
             return True
 
     def arrive(self, stop, time):
+        """Models a bus arriving a BusStop stop at a given time"""
+        if time > MAX_TIME:
+            return
 
         assert(isinstance(stop, BusStop)), "must arrive at a BusStop"
-        self.next_stop_num = self.next_stop_num % len(self.route.stops) + 1    # update next stop number
+        print('Arrived at', self.next_stop.name)
+        self.next_stop_num = self.next_stop_num % (len(self.route.stops) - 1) + 1    # update next stop number
         self.next_stop = self.route.stops[self.next_stop_num]
 
         # if current stop is destination, passenger will get off
@@ -61,8 +69,10 @@ class Bus:
                 self.occupancy -= 1
 
                 person.state = 'arrived'
+        print('After arrival, occupancy =', self.occupancy)
 
         # people waiting at bus stop will get on if bus goes to desired destination and there is space on the bus
+        stop.update(time)
         boarding_time = time
         for person in stop.people_waiting:
             if self.goes_to(person.destination) and self.occupancy < self.max_cap:
@@ -72,9 +82,11 @@ class Bus:
                 stop.people_waiting.remove(person)
                 stop.num_waiting -= 1
 
-                boarding_time += np.random.triangular(0, 1/60, 5/60)    # boarding times have triangular distribution
+                person.waiting_time = boarding_time - person.start_time    # record waiting time
+                boarding_time += np.random.triangular(0, 1/60, 5/60)       # boarding times have triangular distribution
+                stop.update(boarding_time)                                 # people arrive while bus is boarding
                 person.state = 'standing'
-                person.waiting_time = boarding_time - person.start_time
+        print('After boarding, occupancy =', self.occupancy)
 
         # first 25 passengers will sit down (or all, if less than 25 people on bus)
         for i in range(min(self.occupancy, 25)):
@@ -87,6 +99,8 @@ class Bus:
 
     def depart(self, time):
         """Models a bus driving from one stop to another"""
+        if time > MAX_TIME:
+            return
 
         distance_travelled = self.route.distances[self.next_stop_num - 1]
 
@@ -97,6 +111,7 @@ class Bus:
         else:
             driving_time = np.random.uniform(5, 7)         # average speed of 20km/hr, +/-1 min variability
 
+        print('Departed for', self.next_stop.name)
         self.arrive(self.next_stop, time + driving_time)   # arrive at next bus stop
 
 
@@ -106,20 +121,38 @@ class BusStop:
     Attributes:
         name (str): Name of the bus stop.
         num_waiting (int): Number of people currently waiting at this bus stop.
+        people_waiting (list): List of person objects representing people waiting at this bus stop
+
+        times (dict): Dict of arrival times of people arriving at this bus stop
     
     """
-    def __init__(self, name):
+    def __init__(self, name, times):
         
         self.name = name            # name of bus stop
         self.num_waiting = 0        # bus stop starts with nobody waiting
         self.people_waiting = []    # list of people waiting at this stop; initially empty
+        self.times = times          # dict of arrival times (key:destination, value:list of times)
+
+        ITHACA[self.name] = self    # add bus stop to global dict
         
     def arrival(self, person):
-                
+        """Models the arrival of a person to a bus stop"""
+
         self.num_waiting += 1
         self.people_waiting.append(person)
-        
-        
+
+    def update(self, time):
+        """Updates arrivals to this bus stop until a given time"""
+
+        for destination_name, arrival_times in self.times.items():
+            for arrival_time in arrival_times:
+                if arrival_time < time:
+                    PEOPLE[arrival_time] = Person(self, ITHACA[destination_name], arrival_time)
+                    arrival_times.remove(arrival_time)
+                else:
+                    break
+
+
 class Person:
     """ Models a person trying to get around Ithaca.
     
