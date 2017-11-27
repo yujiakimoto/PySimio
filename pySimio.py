@@ -145,12 +145,10 @@ class Bus:
         distance_travelled = self.route.distances[self.next_stop_num - 1]
         self.distance += distance_travelled                # add distance travelled by bus
 
-        # TODO: move driving_time generation to Map
-        """if distance_travelled < 2:
+        if distance_travelled < 2:
             driving_time = (distance_travelled/20) * 60    # average speed of 20km/hr, convert to minutes
         else:
             driving_time = np.random.uniform(5, 7)         # average speed of 20km/hr, +/-1 min variability
-`       """
 
         done_boarding = self.board(stop, time)
         if done_boarding < earliest_depart:
@@ -160,7 +158,7 @@ class Bus:
         for i in range(min(self.occupancy, 25)):
             self.passengers[i].state = 'sitting'
 
-        return Event(done_boarding, self, self.next_stop, 'arrival')
+        return Event(done_boarding + driving_time, self, self.next_stop, 'arrival')
 
 
 class BusStop:
