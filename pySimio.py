@@ -92,47 +92,12 @@ class Bus:
 
     def change_route(self, route):
         """Change the route that this bus travels on"""
+        # TODO: implement better logic to find appropriate next stop
         self.route = route
         self.next_stop_num = 1
         self.next_stop = self.route.stops[1]
 
-    def arrive(self, stop, time):
-        """Models a bus arriving a BusStop stop at a given time"""
-        if time > MAX_TIME:
-            return
-
-        assert(isinstance(stop, BusStop)), "must arrive at a BusStop"
-        print('Arrived at', self.next_stop.name)
-        self.next_stop_num = self.next_stop_num % (len(self.route.stops) - 1) + 1    # update next stop number
-        self.next_stop = self.route.stops[self.next_stop_num]
-
-        # if current stop is destination, passenger will get off
-        for person in self.passengers:
-            if person.destination == stop:
-                self.passengers.remove(person)
-                self.occupancy -= 1
-            # TODO: add time taken for people to get off
-
-                person.state = 'arrived'
-        print('After arrival, occupancy =', self.occupancy)
-
-
-
-    def wait(self):
-
-    def depart(self, time, stop):
-        """Models a bus driving from one stop to another"""
-
-        distance_travelled = self.route.distances[self.next_stop_num - 1]
-        self.distance += distance_travelled                # add distance travelled by bus
-
-        # TODO: move driving_time generation to Map
-        """if distance_travelled < 2:
-            driving_time = (distance_travelled/20) * 60    # average speed of 20km/hr, convert to minutes
-        else:
-            driving_time = np.random.uniform(5, 7)         # average speed of 20km/hr, +/-1 min variability
-`       """
-
+    def board(self, stop, time):
         # people waiting at bus stop will get on if bus goes to desired destination and there is space on the bus
         stop.update(time)
         boarding_time = time
@@ -148,13 +113,49 @@ class Bus:
                 boarding_time += np.random.triangular(0, 1 / 60, 5 / 60)  # boarding times have triangular distribution
                 stop.update(boarding_time)  # people arrive while bus is boarding
                 person.state = 'standing'
-        print('After boarding, occupancy =', self.occupancy)
+        return boarding_time
+
+    def arrive(self, stop, time):
+        """Models a bus arriving a BusStop stop at a given time"""
+
+        assert(isinstance(stop, BusStop)), "must arrive at a BusStop"
+        print('Arrived at', self.next_stop.name)
+        self.next_stop_num = self.next_stop_num % (len(self.route.stops) - 1) + 1    # update next stop number
+        self.next_stop = self.route.stops[self.next_stop_num]
+
+        # if current stop is destination, passenger will get off
+        for person in self.passengers:
+            if person.destination == stop:
+                self.passengers.remove(person)
+                self.occupancy -= 1
+                # TODO: add time taken for people to get off?
+                person.state = 'arrived'
+        print('After arrival, occupancy =', self.occupancy)
+
+        return Event(time, self, stop, 'departure')
+
+    def depart(self, stop, time, earliest_depart):
+        """Models a bus driving from one stop to another"""
+
+        distance_travelled = self.route.distances[self.next_stop_num - 1]
+        self.distance += distance_travelled                # add distance travelled by bus
+
+        # TODO: move driving_time generation to Map
+        """if distance_travelled < 2:
+            driving_time = (distance_travelled/20) * 60    # average speed of 20km/hr, convert to minutes
+        else:
+            driving_time = np.random.uniform(5, 7)         # average speed of 20km/hr, +/-1 min variability
+`       """
+
+        done_boarding = self.board(stop, time)
+        if done_boarding < earliest_depart:
+            done_boarding = self.board(stop, time)
 
         # first 25 passengers will sit down (or all, if less than 25 people on bus)
         for i in range(min(self.occupancy, 25)):
             self.passengers[i].state = 'sitting'
 
-        return boarding_time
+        return Event(done_boarding, self, self.next_stop, 'arrival')
 
 
 class BusStop:
