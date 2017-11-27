@@ -44,13 +44,7 @@ class Bus:
         leave it) and False otherwise"""
 
         assert(isinstance(stop, BusStop)), "stop must be a BusStop"
-
-        in_route = stop in self.route.stops
-        if not in_route:
-            return False
-        else:
-            # TODO: implement better decision logic of whether or not to board a given bus
-            return True
+        return stop in self.route.stops
 
     def arrive(self, stop, time):
         """Models a bus arriving a BusStop stop at a given time"""
