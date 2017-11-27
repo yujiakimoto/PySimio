@@ -22,13 +22,37 @@ class Map:
         self.event_queue = []
 
     def process(self, event):
-        # TODO: find earliest event, process
-        pass
+
+        # sort the event queue
+        sorted_queue = sorted(self.event_queue, key = lambda x:x.time)
+
+        self.event_queue = self.event_queue[1:]
+        next_event = self.event_queue[0]
+
+
+
+        if next_event.time < MAX_TIME:
+
+            if next_event.type = "arrival":
+                
+                if next_event.bus_stop.name == "TDOG Depot":
+                    # TODO: define the optimal policy to re-route buses
+                    new_route = next_event.bus.route
+                    next_event.bus.change_route(new_route)
+
+                dpt_event = next_event.bus.arrive(next_event.bus_stop, next_event.time)
+                self.event_queue.append(dpt_event)
+
+            else:
+                # TODO: calculate the waiting time for the bus
+                wait = 0
+                arv_event = next_event.bus.depart(next_event.bus_stop, next_event.time, wait)
+                self.event_queue.append(dpt_event)
 
 
 class Bus:
     """ Models a bus travelling around Ithaca.
-    
+
     Attributes:
         route (Route): A Route object denoting which route this bus takes.
         next_stop_num (int): The stop number of the next stop this bus will stop at.
@@ -41,22 +65,22 @@ class Bus:
         max_cap(int): The maximum total capacity of this bus.
 
         distance (float): Total distance travelled by this bus
-        
+
     """
     def __init__(self, route):
 
         assert(isinstance(route, Route)), "route must be a Route object"
-        
+
         self.route = route
         self.next_stop_num = 1                             # bus starts at first stop, i.e. index 0
         self.next_stop = self.route.stops[1]
-        
+
         self.passengers = []                               # bus starts with nobody on it
         self.occupancy = 0
         self.num_seats = 25                                # default number of seats is 25
         self.standing_cap = 10                             # default standing capacity is 10
         self.max_cap = self.num_seats + self.standing_cap  # default total capacity is 25+10=35
-        
+
         self.distance = 0                                  # distance travelled by this bus
         # TODO: other relevant performance metrics?
 
@@ -135,22 +159,22 @@ class Bus:
 
 class BusStop:
     """ Models a bus stop somewhere in Ithaca.
-    
+
     Attributes:
         name (str): Name of the bus stop.
         num_waiting (int): Number of people currently waiting at this bus stop.
         people_waiting (list): List of person objects representing people waiting at this bus stop
 
         times (dict): Dict of arrival times of people arriving at this bus stop
-    
+
     """
     def __init__(self, name, times):
-        
+
         self.name = name            # name of bus stop
         self.num_waiting = 0        # bus stop starts with nobody waiting
         self.people_waiting = []    # list of people waiting at this stop; initially empty
         self.times = times          # dict of arrival times (key:destination, value:list of times)
-        
+
     def arrival(self, person):
         """Models the arrival of a person to a bus stop"""
         self.num_waiting += 1
@@ -169,7 +193,7 @@ class BusStop:
 
 class Person:
     """ Models a person trying to get around Ithaca.
-    
+
     Attributes:
         origin (BusStop): Where this person starts.
         destination (BusStop): Where this person is trying to get to.
@@ -177,13 +201,13 @@ class Person:
         state (str): Describes state of person. One of 'waiting', 'sitting', 'standing', 'arrived'.
         start_time (float): Time at which person arrived at origin bus stop.
         waiting_time (float): Time spent waiting at origin bus stop.
-    
-    """    
+
+    """
     def __init__(self, origin, destination, time):
-        
+
         assert(isinstance(origin, BusStop)), "origin must be a BusStop"
         assert(isinstance(destination, BusStop)), "destination must be a BusStop"
-        
+
         self.origin = origin               # origin bus stop
         self.destination = destination     # destination bus stop
 
@@ -195,20 +219,20 @@ class Person:
 
 class Route:
     """ Models 1 of 3 bus routes around Ithaca.
-    
+
     Attributes:
         stops (list): A list of BusStop objects representing all the stops on this route. Includes starting
             stop as both the first and last element if the route is a loop (which they all are).
         distances (list): A list of floats representing the distances between each of the stops on the route.
             Length should be one less than the length of stopList.
         num (int): Route number as defined in writeup.
-    
+
     """
     def __init__(self, stop_list, distance_list, number):
-        
+
         assert(all(isinstance(stop, BusStop) for stop in stop_list)), "stopList must be a list of BusStop objects"
         assert (len(distance_list) == len(stop_list) - 1), "Input arguments have wrong length!"
-        
+
         self.stops = stop_list
         self.distances = distance_list
         self.num = number
