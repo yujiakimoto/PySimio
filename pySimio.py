@@ -1,8 +1,29 @@
 import numpy as np
 
 MAX_TIME = 18*60    # simulate buses for 18 hour periods
+# TODO: remove global variables, replace with Map class
 PEOPLE = {}         # global dict of all people in bus system
 ITHACA = {}         # global dict of all bus stops in Ithaca
+
+
+class Event:
+    def __init__(self, time, bus, bus_stop, event_type):
+        self.time = time
+        self.bus = bus
+        self.bus_stop = bus_stop
+        self.type = event_type
+
+
+class Map:
+    def __init__(self, routes, buses, bus_stops):
+        self.routes = routes
+        self.buses = buses
+        self.bus_stops = bus_stops
+        self.event_queue = []
+
+    def process(self, event):
+        # TODO: find earliest event, process
+        pass
 
 
 class Bus:
@@ -45,6 +66,12 @@ class Bus:
         assert(isinstance(stop, BusStop)), "stop must be a BusStop"
         return stop in self.route.stops
 
+    def change_route(self, route):
+        """Change the route that this bus travels on"""
+        self.route = route
+        self.next_stop_num = 1
+        self.next_stop = self.route.stops[1]
+
     def arrive(self, stop, time):
         """Models a bus arriving a BusStop stop at a given time"""
         if time > MAX_TIME:
@@ -60,9 +87,27 @@ class Bus:
             if person.destination == stop:
                 self.passengers.remove(person)
                 self.occupancy -= 1
+            # TODO: add time taken for people to get off
 
                 person.state = 'arrived'
         print('After arrival, occupancy =', self.occupancy)
+
+
+
+    def wait(self):
+
+    def depart(self, time, stop):
+        """Models a bus driving from one stop to another"""
+
+        distance_travelled = self.route.distances[self.next_stop_num - 1]
+        self.distance += distance_travelled                # add distance travelled by bus
+
+        # TODO: move driving_time generation to Map
+        """if distance_travelled < 2:
+            driving_time = (distance_travelled/20) * 60    # average speed of 20km/hr, convert to minutes
+        else:
+            driving_time = np.random.uniform(5, 7)         # average speed of 20km/hr, +/-1 min variability
+`       """
 
         # people waiting at bus stop will get on if bus goes to desired destination and there is space on the bus
         stop.update(time)
@@ -75,9 +120,9 @@ class Bus:
                 stop.people_waiting.remove(person)
                 stop.num_waiting -= 1
 
-                person.waiting_time = boarding_time - person.start_time    # record waiting time
-                boarding_time += np.random.triangular(0, 1/60, 5/60)       # boarding times have triangular distribution
-                stop.update(boarding_time)                                 # people arrive while bus is boarding
+                person.waiting_time = boarding_time - person.start_time  # record waiting time
+                boarding_time += np.random.triangular(0, 1 / 60, 5 / 60)  # boarding times have triangular distribution
+                stop.update(boarding_time)  # people arrive while bus is boarding
                 person.state = 'standing'
         print('After boarding, occupancy =', self.occupancy)
 
@@ -85,26 +130,7 @@ class Bus:
         for i in range(min(self.occupancy, 25)):
             self.passengers[i].state = 'sitting'
 
-        # TODO: buses can wait at stops for longer if necessary
-
-        # when done boarding, depart from bus stop
-        self.depart(boarding_time)
-
-    def depart(self, time):
-        """Models a bus driving from one stop to another"""
-        if time > MAX_TIME:
-            return
-
-        distance_travelled = self.route.distances[self.next_stop_num - 1]
-        self.distance += distance_travelled                # add distance travelled by bus
-
-        if distance_travelled < 2:
-            driving_time = (distance_travelled/20) * 60    # average speed of 20km/hr, convert to minutes
-        else:
-            driving_time = np.random.uniform(5, 7)         # average speed of 20km/hr, +/-1 min variability
-
-        print('Departed for', self.next_stop.name)
-        self.arrive(self.next_stop, time + driving_time)   # arrive at next bus stop
+        return boarding_time
 
 
 class BusStop:
@@ -124,8 +150,6 @@ class BusStop:
         self.num_waiting = 0        # bus stop starts with nobody waiting
         self.people_waiting = []    # list of people waiting at this stop; initially empty
         self.times = times          # dict of arrival times (key:destination, value:list of times)
-
-        ITHACA[self.name] = self    # add bus stop to global dict
         
     def arrival(self, person):
         """Models the arrival of a person to a bus stop"""
@@ -180,7 +204,6 @@ class Route:
         num (int): Route number as defined in writeup.
     
     """
-    
     def __init__(self, stop_list, distance_list, number):
         
         assert(all(isinstance(stop, BusStop) for stop in stop_list)), "stopList must be a list of BusStop objects"
