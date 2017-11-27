@@ -1,9 +1,6 @@
 import numpy as np
 
 MAX_TIME = 18*60    # simulate buses for 18 hour periods
-# TODO: remove global variables, replace with Map class
-PEOPLE = {}         # global dict of all people in bus system
-ITHACA = {}         # global dict of all bus stops in Ithaca
 
 
 class Event:
@@ -21,19 +18,27 @@ class Map:
         self.bus_stops = bus_stops
         self.event_queue = []
 
-    def process(self, event):
+    def process(self):
 
-        # sort the event queue
-        sorted_queue = sorted(self.event_queue, key = lambda x:x.time)
+        time = 0
+        for bus in self.buses:
+            # TODO: implement staggered departures
+            self.event_queue.append(Event(0, bus, self.bus_stops['TDOG Depot'], 'departure'))
 
-        self.event_queue = self.event_queue[1:]
-        next_event = self.event_queue[0]
+        while time < MAX_TIME:
 
+            # sort the event queue
+            sorted_queue = sorted(self.event_queue, key=lambda x: x.time)
 
+            self.event_queue = sorted_queue[1:]
+            next_event = sorted_queue[0]
+            time = next_event.time
 
-        if next_event.time < MAX_TIME:
+            # TODO: make this less stupid
+            if time > MAX_TIME:
+                break
 
-            if next_event.type = "arrival":
+            if next_event.type == "arrival":
                 
                 if next_event.bus_stop.name == "TDOG Depot":
                     # TODO: define the optimal policy to re-route buses
@@ -44,10 +49,10 @@ class Map:
                 self.event_queue.append(dpt_event)
 
             else:
-                # TODO: calculate the waiting time for the bus
-                wait = 0
-                arv_event = next_event.bus.depart(next_event.bus_stop, next_event.time, wait)
-                self.event_queue.append(dpt_event)
+                # TODO: calculate the delay time for the bus
+                delay = 0
+                arv_event = next_event.bus.depart(next_event.bus_stop, next_event.time, time + delay)
+                self.event_queue.append(arv_event)
 
 
 class Bus:
