@@ -40,8 +40,7 @@ class Bus:
         # TODO: other relevant performance metrics?
 
     def goes_to(self, stop):
-        """Returns True if this bus goes to the specified stop (in logical fashion, i.e. it did not just
-        leave it) and False otherwise"""
+        """Returns True if this bus goes to the specified stop and False otherwise"""
 
         assert(isinstance(stop, BusStop)), "stop must be a BusStop"
         return stop in self.route.stops
@@ -97,7 +96,6 @@ class Bus:
             return
 
         distance_travelled = self.route.distances[self.next_stop_num - 1]
-
         self.distance += distance_travelled                # add distance travelled by bus
 
         if distance_travelled < 2:
@@ -131,13 +129,11 @@ class BusStop:
         
     def arrival(self, person):
         """Models the arrival of a person to a bus stop"""
-
         self.num_waiting += 1
         self.people_waiting.append(person)
 
     def update(self, time):
         """Updates arrivals to this bus stop until a given time"""
-
         for destination_name, arrival_times in self.times.items():
             for arrival_time in arrival_times:
                 if arrival_time < time:
@@ -155,7 +151,7 @@ class Person:
         destination (BusStop): Where this person is trying to get to.
 
         state (str): Describes state of person. One of 'waiting', 'sitting', 'standing', 'arrived'.
-        start_time (float): Time at which person arrived at origin bus stop
+        start_time (float): Time at which person arrived at origin bus stop.
         waiting_time (float): Time spent waiting at origin bus stop.
     
     """    
@@ -177,9 +173,9 @@ class Route:
     """ Models 1 of 3 bus routes around Ithaca.
     
     Attributes:
-        stop_list (list): A list of BusStop objects representing all the stops on this route. Includes starting
+        stops (list): A list of BusStop objects representing all the stops on this route. Includes starting
             stop as both the first and last element if the route is a loop (which they all are).
-        distance_list (list): A list of floats representing the distances between each of the stops on the route.
+        distances (list): A list of floats representing the distances between each of the stops on the route.
             Length should be one less than the length of stopList.
         num (int): Route number as defined in writeup.
     
