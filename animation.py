@@ -1,50 +1,81 @@
 import sys
 import numpy as np
+import pygame
 from pySimio import *
 
 
-def create_map(arrival_rates=None):
+def create_map(arrival_times=None):
 
-    if arrival_rates is None:
+    if arrival_times is None:
         rate = 5
         num_people = 20
 
-        WegE_ComE = list(np.cumsum(np.random.exponential(rate, num_people)))
-        WegE_Ctown = list(np.cumsum(np.random.exponential(rate, num_people)))
-        ComE_Ctown = list(np.cumsum(np.random.exponential(rate, num_people)))
-        Ctown_ComW = list(np.cumsum(np.random.exponential(rate, num_people)))
-        Ctown_WegW = list(np.cumsum(np.random.exponential(rate, num_people)))
-        ComW_WegW = list(np.cumsum(np.random.exponential(rate, num_people)))
+        weg_e_com_e = list(np.cumsum(np.random.exponential(rate, num_people)))
+        weg_e_ctown = list(np.cumsum(np.random.exponential(rate, num_people)))
+        com_e_ctown = list(np.cumsum(np.random.exponential(rate, num_people)))
+        ctown_com_w = list(np.cumsum(np.random.exponential(rate, num_people)))
+        ctown_weg_w = list(np.cumsum(np.random.exponential(rate, num_people)))
+        com_w_weg_w = list(np.cumsum(np.random.exponential(rate, num_people)))
 
     else:
-        WegE_ComE, WegE_Ctown, ComE_Ctown, Ctown_ComW, Ctown_WegW, ComW_WegW = arrival_rates
+        weg_e_com_e, weg_e_ctown, com_e_ctown, ctown_com_w, ctown_weg_w, com_w_weg_w = arrival_times
 
-    TDOG = BusStop('TDOG Depot')
-    WegE = BusStop('Wegmans-Eastbound')
-    WegW = BusStop('Wegmans-Westbound')
-    ComE = BusStop('Commons-Eastbound')
-    ComW = BusStop('Commons-Westbound')
-    Ctown = BusStop('Collegetown')
+    depot = BusStop('TDOG Depot')
+    weg_east = BusStop('Wegmans-Eastbound')
+    weg_west = BusStop('Wegmans-Westbound')
+    com_east = BusStop('Commons-Eastbound')
+    com_west = BusStop('Commons-Westbound')
+    ctown = BusStop('Collegetown')
 
-    WegE.add_data({ComE: WegE_ComE, Ctown: WegE_Ctown})
-    ComE.add_data({Ctown: ComE_Ctown})
-    ComW.add_data({WegW: ComW_WegW})
-    Ctown.add_data({ComW: Ctown_ComW, WegW: Ctown_WegW})
+    weg_east.add_data({com_east: weg_e_com_e, ctown: weg_e_ctown})
+    com_east.add_data({ctown: com_e_ctown})
+    com_west.add_data({weg_west: com_w_weg_w})
+    ctown.add_data({com_west: ctown_com_w, weg_west: ctown_weg_w})
 
     # create a Route object for each of the 3 routes
-    Route1 = Route([TDOG, WegE, ComE, Ctown, ComW, WegE, TDOG], [0.5, 2, 2, 2, 2, 0.5], 1)
-    Route2 = Route([ComE, Ctown, ComW, ComE], [2, 2, 0.3], 2)
-    Route3 = Route([TDOG, WegE, ComE, ComW, WegW, TDOG], [0.5, 2, 2, 2, 0.5], 3)
+    route1 = Route([depot, weg_east, com_east, ctown, com_west, weg_east, depot], [0.5, 2, 2, 2, 2, 0.5], 1)
+    route2 = Route([com_east, ctown, com_west, com_east], [2, 2, 0.3], 2)
+    route3 = Route([depot, weg_east, com_east, com_west, weg_west, depot], [0.5, 2, 2, 2, 0.5], 3)
 
-    Bus1 = Bus('Bus 1', Route1)
-    Bus2 = Bus('The Kenta Bus', Route2)
+    bus1 = Bus('Bus 1', route1)
+    bus2 = Bus('The Kenta Bus', route2)
 
-    Ithaca = Map([Route1, Route2, Route3], [Bus1, Bus2],
-                 {'TDOG Depot': TDOG, 'Wegmans-Eastbound': WegE, 'Wegmans-Westbound': WegW,
-                  'Commons-Eastbound': ComE, 'Commons-Westbound': ComW, 'Collegetown': Ctown})
-    
-    return Ithaca
+    return Map([route1, route2, route3], [bus1, bus2],
+               {'TDOG Depot': depot, 'Wegmans-Eastbound': weg_east, 'Wegmans-Westbound': weg_west,
+                'Commons-Eastbound': com_east, 'Commons-Westbound': com_west, 'Collegetown': ctown})
 
+
+def make_button(picture, coords, surface):
+    image = pygame.image.load(picture)
+    image_rect = image.get_rect()
+    image_rect.topleft = coords
+    surface.blit(image, image_rect)
+    return image, image_rect
+
+
+def animate(map):
+
+    pygame.init()
+    size = width, height = 1080, 720
+    screen = pygame.display.set_mode(size)
+
+    # TODO: initialize map with all stops, route
+
+    start = make_button('images/start.png', (width - 32 - 10, 10), screen)
+    # TODO: pause, stop (reset) buttons
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                mouse = pygame.mouse.get_pos()
+                if start[1].collidepoint(mouse):
+                    print('Start')
+                    map.simulate(18*60)
+
+        pygame.display.flip()
 
 if __name__ == "__main__":
-    create_map()
+    ithaca = create_map()
+    animate(ithaca)
