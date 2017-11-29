@@ -75,10 +75,11 @@ class Bus:
         distance (float): Total distance travelled by this bus
 
     """
-    def __init__(self, route):
+    def __init__(self, name, route):
 
         assert(isinstance(route, Route)), "route must be a Route object"
 
+        self.name = name
         self.route = route
         self.next_stop_num = 1                             # bus starts at first stop, i.e. index 0
         self.next_stop = self.route.stops[1]
@@ -128,7 +129,7 @@ class Bus:
         """Models a bus arriving a BusStop stop at a given time"""
 
         assert(isinstance(stop, BusStop)), "must arrive at a BusStop"
-        print('Arrived at', self.next_stop.name)
+        print('Bus {} arrived at {} at t = {}'.format(self.name, self.next_stop.name, time))
         self.next_stop_num = self.next_stop_num % (len(self.route.stops) - 1) + 1    # update next stop number
         self.next_stop = self.route.stops[self.next_stop_num]
 
