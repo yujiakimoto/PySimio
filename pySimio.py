@@ -41,7 +41,8 @@ class Map:
             next_event = sorted_queue[0]
             time = next_event.time
 
-            next_event.print_event()
+            if debug:
+                next_event.print_event()
 
             # TODO: make this less stupid
             if time > max_time:
@@ -64,8 +65,21 @@ class Map:
                 delay = 0
                 arv_event = next_event.bus.depart(next_event.bus_stop, next_event.time, time + delay)
                 self.event_queue.append(arv_event)
+            if debug:
+                print ('')
 
-            print ('')
+    def collect_stats(self):
+        """ called after the simulation to collect the stats
+        """
+        # traveling distance for each bus
+        stats = {}
+        total_traveled = 0
+        for b in self.buses:
+            stats[b.name + " distance"] = b.distance
+            total_traveled += b.distance
+        stats['total distance'] = total_traveled
+
+        return stats
 
 
 class Bus:
@@ -137,7 +151,7 @@ class Bus:
                 person.state = 'standing'
         return boarding_time
 
-    def arrive(self, stop, time, new_route=None):
+    def arrive(self, stop, time, new_route=None, debug = False):
         """Models a bus arriving a BusStop stop at a given time"""
 
         assert(isinstance(stop, BusStop)), "must arrive at a BusStop"
@@ -156,7 +170,8 @@ class Bus:
                 self.occupancy -= 1
                 # TODO: add time taken for people to get off?
                 person.state = 'arrived'
-        print('After arrival, occupancy =', self.occupancy)
+        if debug:
+            print('After arrival, occupancy =', self.occupancy)
 
         return Event(time, self, stop, 'departure')
 
