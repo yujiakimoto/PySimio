@@ -19,6 +19,8 @@ class Map:
         self.bus_stops = bus_stops
         self.event_queue = []
 
+    # TODO: implement pause, stop methods
+
     def simulate(self, max_time, debug=False):
 
         time = 0

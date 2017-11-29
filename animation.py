@@ -48,7 +48,7 @@ def create_map(arrival_times=None):
 def make_button(picture, coords, surface):
     image = pygame.image.load(picture)
     image_rect = image.get_rect()
-    image_rect.topleft = coords
+    image_rect.center = coords
     surface.blit(image, image_rect)
     return image, image_rect
 
@@ -59,10 +59,22 @@ def animate(map):
     size = width, height = 1080, 720
     screen = pygame.display.set_mode(size)
 
-    # TODO: initialize map with all stops, route
+    button_size = 32
+    margin = 10
+    start = make_button('images/start.png', (width - 0.5*button_size - margin, 0.5*button_size + margin), screen)
+    pause = make_button('images/pause.png', (width - 0.5*button_size - margin, 1.5*button_size + 2*margin), screen)
+    stop = make_button('images/stop.png', (width - 0.5*button_size - margin, 2.5*button_size + 3*margin), screen)
 
-    start = make_button('images/start.png', (width - 32 - 10, 10), screen)
-    # TODO: pause, stop (reset) buttons
+    coordinates = {'TDOG Depot': (0.1*width, 0.5*height),
+                   'Wegmans-Eastbound': (0.3*width, 0.3*height),
+                   'Wegmans-Westbound': (0.3*width, 0.7*height),
+                   'Commons-Eastbound': (0.6*width, 0.3*height),
+                   'Commons-Westbound': (0.6*width, 0.7*height),
+                   'Collegetown': (0.9*width, 0.5*height)}
+
+    bus_stop_icons = {}
+    for bus_stop in map.bus_stops.values():
+        bus_stop_icons[bus_stop.name] = make_button('images/bus_stop.png', coordinates[bus_stop.name], screen)
 
     while True:
         for event in pygame.event.get():
