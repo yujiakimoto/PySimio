@@ -172,12 +172,15 @@ class BusStop:
         times (dict): Dict of arrival times of people arriving at this bus stop
 
     """
-    def __init__(self, name, times):
+    def __init__(self, name):
 
         self.name = name            # name of bus stop
         self.num_waiting = 0        # bus stop starts with nobody waiting
         self.people_waiting = []    # list of people waiting at this stop; initially empty
-        self.times = times          # dict of arrival times (key:destination, value:list of times)
+        self.times = {}             # dict of arrival times (key:destination, value:list of times)
+
+    def add_data(self, times):
+        self.times = times
 
     def arrival(self, person):
         """Models the arrival of a person to a bus stop"""
