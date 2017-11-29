@@ -18,7 +18,7 @@ class Map:
         self.bus_stops = bus_stops
         self.event_queue = []
 
-    def process(self):
+    def simulate(self):
 
         time = 0
         for bus in self.buses:
@@ -186,10 +186,10 @@ class BusStop:
 
     def update(self, time):
         """Updates arrivals to this bus stop until a given time"""
-        for destination_name, arrival_times in self.times.items():
+        for destination, arrival_times in self.times.items():
             for arrival_time in arrival_times:
                 if arrival_time < time:
-                    PEOPLE[arrival_time] = Person(self, ITHACA[destination_name], arrival_time)
+                    self.arrival(Person(self, destination, arrival_time))
                     arrival_times.remove(arrival_time)
                 else:
                     break
