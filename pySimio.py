@@ -19,10 +19,13 @@ class Map:
         self.bus_stops = bus_stops
         self.event_queue = []
 
-    def simulate(self, max_time, debug = False):
+    def simulate(self, max_time, debug=False):
 
         time = 0
         for bus in self.buses:
+            if bus.route == self.routes[1]:     # buses on Route 2 must start at depot, then change
+                bus.route = self.routes[0]
+
             # TODO: implement staggered departures
             self.event_queue.append(Event(0, bus, self.bus_stops['TDOG Depot'], 'departure'))
 
@@ -46,12 +49,14 @@ class Map:
 
             if next_event.type == "arrival":
 
+                new_route = None
+                if next_event.bus.route2 and next_event.bus.distance == 2.5:
+                    new_route = self.routes[1]
                 if next_event.bus_stop.name == "TDOG Depot":
                     # TODO: define the optimal policy to re-route buses
                     new_route = next_event.bus.route
-                    next_event.bus.change_route(new_route)
 
-                dpt_event = next_event.bus.arrive(next_event.bus_stop, next_event.time)
+                dpt_event = next_event.bus.arrive(next_event.bus_stop, next_event.time, new_route)
                 self.event_queue.append(dpt_event)
 
             else:
@@ -86,6 +91,8 @@ class Bus:
 
         self.name = name
         self.route = route
+        self.route2 = False                                # indicates whether bus is supposed to be on route 2
+
         self.next_stop_num = 1                             # bus starts at first stop, i.e. index 0
         self.next_stop = self.route.stops[1]
 
@@ -130,13 +137,17 @@ class Bus:
                 person.state = 'standing'
         return boarding_time
 
-    def arrive(self, stop, time):
+    def arrive(self, stop, time, new_route=None):
         """Models a bus arriving a BusStop stop at a given time"""
 
         assert(isinstance(stop, BusStop)), "must arrive at a BusStop"
         # print('{} arrived at {} at t = {}'.format(self.name, self.next_stop.name, time))
         self.next_stop_num = self.next_stop_num % (len(self.route.stops) - 1) + 1    # update next stop number
         self.next_stop = self.route.stops[self.next_stop_num]
+
+        # change route if necessary
+        if new_route is not None:
+            self.change_route(new_route)
 
         # if current stop is destination, passenger will get off
         for person in self.passengers:
