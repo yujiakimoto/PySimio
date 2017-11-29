@@ -16,7 +16,7 @@ class Map:
         self.bus_stops = bus_stops
         self.event_queue = []
 
-    def simulate(self, max_time):
+    def simulate(self, max_time, debug = False):
 
         time = 0
         for bus in self.buses:
@@ -24,6 +24,9 @@ class Map:
             self.event_queue.append(Event(0, bus, self.bus_stops['TDOG Depot'], 'departure'))
 
         while time < max_time:
+
+            if debug:
+                input()
 
             # sort the event queue
             sorted_queue = sorted(self.event_queue, key=lambda x: x.time)
@@ -37,7 +40,7 @@ class Map:
                 break
 
             if next_event.type == "arrival":
-                
+
                 if next_event.bus_stop.name == "TDOG Depot":
                     # TODO: define the optimal policy to re-route buses
                     new_route = next_event.bus.route
@@ -116,6 +119,7 @@ class Bus:
                 person.waiting_time = boarding_time - person.start_time  # record waiting time
                 boarding_time += np.random.triangular(0, 1 / 60, 5 / 60)  # boarding times have triangular distribution
                 stop.update(boarding_time)  # people arrive while bus is boarding
+
                 person.state = 'standing'
         return boarding_time
 
