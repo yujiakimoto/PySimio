@@ -1,7 +1,5 @@
 import numpy as np
 
-MAX_TIME = 18*60    # simulate buses for 18 hour periods
-
 
 class Event:
     def __init__(self, time, bus, bus_stop, event_type):
@@ -18,14 +16,14 @@ class Map:
         self.bus_stops = bus_stops
         self.event_queue = []
 
-    def simulate(self):
+    def simulate(self, max_time):
 
         time = 0
         for bus in self.buses:
             # TODO: implement staggered departures
             self.event_queue.append(Event(0, bus, self.bus_stops['TDOG Depot'], 'departure'))
 
-        while time < MAX_TIME:
+        while time < max_time:
 
             # sort the event queue
             sorted_queue = sorted(self.event_queue, key=lambda x: x.time)
@@ -35,7 +33,7 @@ class Map:
             time = next_event.time
 
             # TODO: make this less stupid
-            if time > MAX_TIME:
+            if time > max_time:
                 break
 
             if next_event.type == "arrival":
@@ -72,10 +70,11 @@ class Bus:
         distance (float): Total distance travelled by this bus
 
     """
-    def __init__(self, route):
+    def __init__(self, route, name):
 
         assert(isinstance(route, Route)), "route must be a Route object"
 
+        self.name = name
         self.route = route
         self.next_stop_num = 1                             # bus starts at first stop, i.e. index 0
         self.next_stop = self.route.stops[1]
