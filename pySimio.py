@@ -8,6 +8,9 @@ class Event:
         self.bus_stop = bus_stop
         self.type = event_type
 
+    def print_event(self):
+        print ("{} : {} event at {} at t = {}".format(self.bus.name, self.type, self.bus_stop.name, self.time))
+
 
 class Map:
     def __init__(self, routes, buses, bus_stops):
@@ -35,6 +38,8 @@ class Map:
             next_event = sorted_queue[0]
             time = next_event.time
 
+            next_event.print_event()
+
             # TODO: make this less stupid
             if time > max_time:
                 break
@@ -54,6 +59,8 @@ class Map:
                 delay = 0
                 arv_event = next_event.bus.depart(next_event.bus_stop, next_event.time, time + delay)
                 self.event_queue.append(arv_event)
+
+            print ('')
 
 
 class Bus:
@@ -127,7 +134,7 @@ class Bus:
         """Models a bus arriving a BusStop stop at a given time"""
 
         assert(isinstance(stop, BusStop)), "must arrive at a BusStop"
-        print('Bus {} arrived at {} at t = {}'.format(self.name, self.next_stop.name, time))
+        # print('{} arrived at {} at t = {}'.format(self.name, self.next_stop.name, time))
         self.next_stop_num = self.next_stop_num % (len(self.route.stops) - 1) + 1    # update next stop number
         self.next_stop = self.route.stops[self.next_stop_num]
 
