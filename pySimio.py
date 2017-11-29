@@ -23,8 +23,8 @@ class Map:
 
         time = 0
         for bus in self.buses:
-            if bus.route == self.routes[1]:     # buses on Route 2 must start at depot, then change
-                bus.route = self.routes[0]
+            if bus.route == self.routes[1]:         # buses on Route 2 must start at depot, then change
+                bus.change_route(self.routes[0])
 
             # TODO: implement staggered departures
             self.event_queue.append(Event(0, bus, self.bus_stops['TDOG Depot'], 'departure'))
@@ -91,7 +91,7 @@ class Bus:
 
         self.name = name
         self.route = route
-        self.route2 = False                                # indicates whether bus is supposed to be on route 2
+        self.route2 = route.num == 2                       # indicates whether bus is supposed to be on route 2
 
         self.next_stop_num = 1                             # bus starts at first stop, i.e. index 0
         self.next_stop = self.route.stops[1]
