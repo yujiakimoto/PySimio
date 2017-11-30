@@ -99,6 +99,13 @@ class Map:
 
         return stats
 
+    def reset(self):
+        """
+        reset simulation
+        """
+        for bus in self.buses:
+            bus.distance = 0
+
 
 class Bus:
     """ Models a bus travelling around Ithaca.
@@ -347,4 +354,3 @@ class Route:
         self.stops = stop_list
         self.distances = distance_list
         self.num = number
-
