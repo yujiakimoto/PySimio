@@ -35,7 +35,7 @@ class Map:
                 bus_stop.add_animation(settings['surface'], settings['coordinates'][bus_stop.name])
             for bus in self.buses:
                 # bus.add_animation(settings['surface'], self.bus_stops['TDOG Depot'])
-                pass    
+                pass
 
         while time < max_time:
 

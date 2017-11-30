@@ -37,14 +37,18 @@ def create_map(arrival_times=None):
     route2 = Route([com_east, ctown, com_west, com_east], [2, 2, 0.3], 2)
     route3 = Route([depot, weg_east, com_east, com_west, weg_west, depot], [0.5, 2, 2, 2, 0.5], 3)
 
-    bus1 = Bus('Bus 1', route1)
-    bus2 = Bus('Bus 2', route2)
-    # bus3 = Bus('Bus 3', route3)
-    # bus4 = Bus('Bus 4', route1)
-    # bus5 = Bus('Bus 5', route2)
-    # bus6 = Bus('Bus 6', route3)
+    bus01 = Bus('Bus 1', route1)
+    bus02 = Bus('Bus 2', route1)
+    bus03 = Bus('Bus 3', route1)
+    bus04 = Bus('Bus 4', route1)
+    bus05 = Bus('Bus 5', route1)
+    bus06 = Bus('Bus 6', route1)
+    bus07 = Bus('Bus 7', route1)
+    bus08 = Bus('Bus 8', route1)
+    bus09 = Bus('Bus 9', route1)
+    bus10 = Bus('Bus 10', route1)
 
-    return Map([route1, route2, route3], [bus1,  bus2],
+    return Map([route1, route2, route3], [bus01,  bus02, bus03, bus04, bus05, bus06, bus07, bus08, bus09, bus10],
                {'TDOG Depot': depot, 'Wegmans-Eastbound': weg_east, 'Wegmans-Westbound': weg_west,
                 'Commons-Eastbound': com_east, 'Commons-Westbound': com_west, 'Collegetown': ctown},)
 
