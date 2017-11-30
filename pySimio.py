@@ -191,10 +191,7 @@ class Bus:
         self.distance = 0                                  # distance travelled by this bus
         # TODO: other relevant performance metrics?
         self.avg_occupancy = 0
-<<<<<<< HEAD
         self.avg_standing = 0
-=======
->>>>>>> 6fcd8cea36507c73dac6af38ba88ee802d23331d
 
         self.animate = False
         self.surface = None
