@@ -33,7 +33,7 @@ def create_map(arrival_times=None):
     ctown.add_data({com_west: ctown_com_w, weg_west: ctown_weg_w})
 
     # create a Route object for each of the 3 routes
-    route1 = Route([depot, weg_east, com_east, ctown, com_west, weg_east, depot], [0.5, 2, 2, 2, 2, 0.5], 1)
+    route1 = Route([depot, weg_east, com_east, ctown, com_west, weg_west, depot], [0.5, 2, 2, 2, 2, 0.5], 1)
     route2 = Route([com_east, ctown, com_west, com_east], [2, 2, 0.3], 2)
     route3 = Route([depot, weg_east, com_east, com_west, weg_west, depot], [0.5, 2, 2, 2, 0.5], 3)
 
@@ -47,8 +47,9 @@ def create_map(arrival_times=None):
     bus08 = Bus('Bus 8', route1)
     bus09 = Bus('Bus 9', route1)
     bus10 = Bus('Bus 10', route1)
+    bus_list = [bus01, bus02, bus03, bus04, bus05, bus06, bus07, bus08, bus09, bus10]
 
-    return Map([route1, route2, route3], [bus01,  bus02, bus03, bus04, bus05, bus06, bus07, bus08, bus09, bus10],
+    return Map([route1, route2, route3], bus_list,
                {'TDOG Depot': depot, 'Wegmans-Eastbound': weg_east, 'Wegmans-Westbound': weg_west,
                 'Commons-Eastbound': com_east, 'Commons-Westbound': com_west, 'Collegetown': ctown},)
 
@@ -67,6 +68,8 @@ def animate(map):
     size = width, height = 1080, 720
     screen = pygame.display.set_mode(size)
 
+    myfont = pygame.font.SysFont("Helvetica", 12)
+
     button_size = 32
     margin = 10
     start = make_button('images/start.png', (width - 0.5*button_size - margin, 0.5*button_size + margin), screen)
@@ -83,6 +86,8 @@ def animate(map):
     bus_stop_icons = {}
     for bus_stop in map.bus_stops.values():
         bus_stop_icons[bus_stop.name] = make_button('images/bus_stop.png', stop_coordinates[bus_stop.name], screen)
+        label = myfont.render(bus_stop.name, 1, (255, 255, 255))
+        screen.blit(label, (stop_coordinates[bus_stop.name][0] - 20, stop_coordinates[bus_stop.name][1] + 30))
 
     while True:
         for event in pygame.event.get():
@@ -95,7 +100,7 @@ def animate(map):
                 if start[1].collidepoint(mouse):
                     # TODO: disable start button after clicking?
                     print('Start')
-                    map.simulate(18*60, animate=True, surface=screen, coordinates=stop_coordinates)
+                    map.simulate(18*60, debug=False, animate=True, surface=screen, coordinates=stop_coordinates)
 
         pygame.display.flip()
 
