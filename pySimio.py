@@ -65,7 +65,7 @@ class Map:
                     # TODO: define the optimal policy to re-route buses
                     new_route = next_event.bus.route
 
-                dpt_event = next_event.bus.arrive(next_event.bus_stop, next_event.time, new_route)
+                dpt_event = next_event.bus.arrive(next_event.bus_stop, next_event.time, new_route, debug=debug)
                 self.event_queue.append(dpt_event)
 
             else:
@@ -168,7 +168,7 @@ class Bus:
                 stop.num_waiting -= 1
 
                 person.waiting_time = boarding_time - person.start_time  # record waiting time
-                boarding_time += np.random.triangular(0, 1 / 60, 5 / 60)  # boarding times have triangular distribution
+                boarding_time += np.random.triangular(0, 1/60, 5/60)     # boarding times have triangular distribution
                 stop.update(boarding_time)  # people arrive while bus is boarding
 
                 person.state = 'standing'
