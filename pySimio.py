@@ -2,7 +2,6 @@ import numpy as np
 import pygame
 from time import sleep
 
-
 class Event:
     def __init__(self, time, bus, bus_stop, event_type):
         self.time = time            # time at which the event occurs
@@ -12,16 +11,16 @@ class Event:
 
     def print_event(self):
         """ when the simulation is DEBUG mode, print the event on console """
-        print("{} : {} event at {} at t = {}".format(self.bus.name, self.type, self.bus_stop.name, self.time))
+        print("{} : {} event at {} at t = {}\n".format(self.bus.name, self.type, self.bus_stop.name, self.time))
 
 
 class Map:
     def __init__(self, routes, buses, bus_stops):
-        self.routes = routes
-        self.buses = buses
-        self.bus_stops = bus_stops
-        self.event_queue = []
-        self.prev_time = 0
+        self.routes = routes           # list of Route objects that the map provides
+        self.buses = buses             # list of Bus objects in this map
+        self.bus_stops = bus_stops     # list of BusStop objects
+        self.event_queue = []          # an event queue to manage discrete simulation
+        self.prev_time = 0             # keep track of previous event time
 
     def simulate(self, max_time, debug=False, animate=False, **settings):
         """Run simulation of this map
@@ -31,53 +30,50 @@ class Map:
             animate(boolean): whether or not to render an animation of the simulation
             **settings: keyword-arguments specfying settings of the animation
         """
-
         time = 0
+        # initilize the event queue
         for bus in self.buses:
             if bus.route == self.routes[1]:         # buses on Route 2 must start at depot, then change
                 bus.change_route(self.routes[0])
             # TODO: implement staggered departures
             self.event_queue.append(Event(0, bus, self.bus_stops['TDOG Depot'], 'departure'))
 
+        # draw bus stop
         if animate:
             for bus_stop in self.bus_stops.values():
                 bus_stop.add_animation(settings['surface'], settings['coordinates'][bus_stop.name])
             for bus in self.buses:
-                # bus.add_animation(settings['surface'], self.bus_stops['TDOG Depot'])
                 pass
 
+        # main loop
         while time < max_time:
-
-            if debug:
+            if debug: # wait for the user input to proceed
                 input()
 
-            # sort the event queue
-            sorted_queue = sorted(self.event_queue, key=lambda x: x.time)
+            sorted_queue = sorted(self.event_queue, key=lambda x: x.time) # sort the event queue
+            self.event_queue = sorted_queue[1:] # shift the queue by 1
+            next_event = sorted_queue[0] # get the next earliest event
+            time = next_event.time # current event time
+            delta_time = time - self.prev_time # time - time_lst to calculate the integral
 
-            self.event_queue = sorted_queue[1:]
-            next_event = sorted_queue[0]
-            time = next_event.time
-            delta_time = time - self.prev_time
-
-            if debug:
+            if debug: # print the event
                 next_event.print_event()
 
             # update the utility
             for b in self.buses:
-                b.avg_occupancy += delta_time * b.occupancy
-                b.avg_standing += delta_time * max(b.occupancy - b.num_seats ,0)
+                b.avg_occupancy += delta_time * b.occupancy # average occupancy of each bus
+                b.avg_standing += delta_time * max(b.occupancy - b.num_seats ,0) # average people standing for each bus
 
             for bs in self.bus_stops.keys():
                 bs = self.bus_stops[bs]
-                bs.avg_num_waiting += delta_time * bs.num_waiting
+                bs.avg_num_waiting += delta_time * bs.num_waiting # average people waiting at each busstops
 
-
-            # TODO: make this less stupid
+            # TODO: make this more elegant
             if time > max_time:
                 break
 
+            # process arriavl event
             if next_event.type == "arrival":
-
                 new_route = None
                 if next_event.bus.route2 and next_event.bus.distance == 2.5:
                     new_route = self.routes[1]
@@ -88,15 +84,14 @@ class Map:
                 dpt_event = next_event.bus.arrive(next_event.bus_stop, next_event.time, new_route, debug=debug)
                 self.event_queue.append(dpt_event)
 
+            # process departure event
             else:
                 # TODO: calculate the delay time for the bus
                 delay = 0
                 arv_event = next_event.bus.depart(next_event.bus_stop, next_event.time, time + delay)
-                self.event_queue.append(arv_event)
-            if debug:
-                print('')
+                self.event_queue.append(arv_event) # add arrival event to the queue
 
-            self.prev_time = time
+            self.prev_time = time # update the last event time
 
         # update the utility
         for b in self.buses:
@@ -191,10 +186,7 @@ class Bus:
         self.distance = 0                                  # distance travelled by this bus
         # TODO: other relevant performance metrics?
         self.avg_occupancy = 0
-<<<<<<< HEAD
         self.avg_standing = 0
-=======
->>>>>>> 6fcd8cea36507c73dac6af38ba88ee802d23331d
 
         self.animate = False
         self.surface = None
@@ -397,7 +389,7 @@ class Person:
         self.origin = origin               # origin bus stop
         self.destination = destination     # destination bus stop
 
-        self.state = 'waiting'
+        self.state = 'waiting'             # status of person, either 'waiting', 'standing' or 'sitting'
         self.start_time = time             # time at which person started waiting
         self.waiting_time = 0              # time spent waiting at bus stop
         origin.arrival(self)
@@ -419,6 +411,6 @@ class Route:
         assert(all(isinstance(stop, BusStop) for stop in stop_list)), "stopList must be a list of BusStop objects"
         assert (len(distance_list) == len(stop_list) - 1), "Input arguments have wrong length!"
 
-        self.stops = stop_list
-        self.distances = distance_list
+        self.stops = stop_list              # list of BusStop objects
+        self.distances = distance_list      # list of number, which represents the distance between stations
         self.num = number                   # Route number: one of [1,2,3]
