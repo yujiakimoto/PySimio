@@ -33,6 +33,9 @@ class Map:
         if animate:
             for bus_stop in self.bus_stops.values():
                 bus_stop.add_animation(settings['surface'], settings['coordinates'][bus_stop.name])
+            for bus in self.buses:
+                # bus.add_animation(settings['surface'], self.bus_stops['TDOG Depot'])
+                pass    
 
         while time < max_time:
 
@@ -134,6 +137,11 @@ class Bus:
         self.distance = 0                                  # distance travelled by this bus
         # TODO: other relevant performance metrics?
 
+        self.animate = False
+        self.surface = None
+        self.icon = None
+        self.icon_rect = None,
+
     def goes_to(self, stop):
         """Returns True if this bus goes to the specified stop and False otherwise"""
 
@@ -166,8 +174,12 @@ class Bus:
                 person.state = 'standing'
         return boarding_time
 
-    def arrive(self, stop, time, new_route=None, debug = False):
+    def arrive(self, stop, time, new_route=None, debug=False):
         """Models a bus arriving a BusStop stop at a given time"""
+
+        if self.animate:
+            # self.update_animation()
+            pass
 
         assert(isinstance(stop, BusStop)), "must arrive at a BusStop"
         # print('{} arrived at {} at t = {}'.format(self.name, self.next_stop.name, time))
@@ -211,6 +223,19 @@ class Bus:
 
         return Event(done_boarding + driving_time, self, self.next_stop, 'arrival')
 
+    def add_animation(self, surface, depot):
+        self.animate = True
+        self.surface = surface
+        self.icon = pygame.image.load('images/bus.png')
+        self.icon_rect = self.icon.get_rect()
+        self.icon_rect.center = (depot.surface_pos[0] - 55, depot.surface_pos[1])
+        self.surface.blit(self.icon, self.icon_rect)
+
+    def update_animation(self):
+        self.icon_rect.center = (self.next_stop.surface_pos[0] - 55, self.next_stop.surface_pos[1])
+        self.surface.blit(self.icon, self.icon_rect)
+        pygame.display.flip()
+
 
 class BusStop:
     """ Models a bus stop somewhere in Ithaca.
@@ -243,18 +268,18 @@ class BusStop:
         self.surface = surface
         self.surface_pos = coords
 
-    def update_animation(self, surface):
+    def update_animation(self):
         clear = pygame.image.load('images/rectangle.png')
         for i in range(self.prev_num_waiting):
             clear_rect = clear.get_rect()
             clear_rect.center = (self.surface_pos[0] + 35 + 5*i, self.surface_pos[1])
-            surface.blit(clear, clear_rect)
+            self.surface.blit(clear, clear_rect)
 
         person = pygame.image.load('images/person.png')
         for i in range(self.num_waiting):
             person_rect = person.get_rect()
             person_rect.center = (self.surface_pos[0] + 35 + 5*i, self.surface_pos[1])
-            surface.blit(person, person_rect)
+            self.surface.blit(person, person_rect)
         self.prev_num_waiting = self.num_waiting
 
     def arrival(self, person):
@@ -272,7 +297,7 @@ class BusStop:
                 else:
                     break
         if self.animate:
-            self.update_animation(self.surface)
+            self.update_animation()
             sleep(0.01)
             pygame.display.flip()
 
