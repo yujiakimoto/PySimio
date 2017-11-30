@@ -77,8 +77,6 @@ class Map:
             if time > max_time:
                 break
 
-
-
             # process arriavl event
             if next_event.type == "arrival":
                 new_route = None
@@ -126,34 +124,30 @@ class Map:
 
     def collect_stats(self):
         """ Called after the simulation to collect the stats"""
-        # traveling distance for each bus
         stats = {}
         total_traveled = 0
         for bus in self.buses:
-            stats[bus.name + " distance"] = bus.distance
-            total_traveled += bus.distance
-            stats[bus.name + " avg occupancy"] = bus.avg_occupancy
-            stats[bus.name + " avg standing"] = bus.avg_standing
+            stats[bus.name + " distance"] = bus.distance # traveling distance for each bus
+            total_traveled += bus.distance # traveling distance for all buses
+            stats[bus.name + " avg occupancy"] = bus.avg_occupancy # average occupancy for each buses
+            stats[bus.name + " avg standing"] = bus.avg_standing # average number of people standing for each bus
 
         for bs in self.bus_stops.keys():
             bs = self.bus_stops[bs]
-            stats[bs.name + " avg people waiting"] = bs.avg_num_waiting
+            stats[bs.name + " avg people waiting"] = bs.avg_num_waiting # average number of people waiting at each bus stop
 
-        stats['total distance'] = total_traveled
-
+        stats['total distance'] = total_traveled # total distance traveled
         return stats
 
     def reset(self):
-        """
-        reset simulation
-        """
+        """ reset simulation """
         self.prev_time = 0
-
+        # reset the stats for each bus
         for bus in self.buses:
             bus.distance = 0
             bus.avg_occupancy = 0
             bus.avg_standing = 0
-
+        # reset the stats for each bus stop
         for bus_stop in self.bus_stops.keys():
             bus_stop = self.bus_stops[bus_stop]
             bus_stop.num_waiting = 0
