@@ -86,8 +86,14 @@ def animate(map):
                         'Collegetown': (0.8*width, 0.5*height)}
 
     bus_stop_icons = {}
+    images = {'TDOG Depot': 'images/bus_stop_red.png',
+              'Wegmans-Eastbound': 'images/bus_stop_green.png',
+              'Wegmans-Westbound': 'images/bus_stop_green.png',
+              'Commons-Eastbound': 'images/bus_stop_blue.png',
+              'Commons-Westbound': 'images/bus_stop_blue.png',
+              'Collegetown': 'images/bus_stop_orange.png'}
     for bus_stop in map.bus_stops.values():
-        bus_stop_icons[bus_stop.name] = make_button('images/bus_stop.png', stop_coordinates[bus_stop.name], screen)
+        bus_stop_icons[bus_stop.name] = make_button(images[bus_stop.name], stop_coordinates[bus_stop.name], screen)
         label = font_small.render(bus_stop.name, 1, (255, 255, 255))
         screen.blit(label, (stop_coordinates[bus_stop.name][0] - 20, stop_coordinates[bus_stop.name][1] + 30))
 
@@ -106,6 +112,8 @@ def animate(map):
                     # TODO: disable start button after clicking?
                     print('Start')
                     map.simulate(18*60, debug=False, animate=True, surface=screen, coordinates=stop_coordinates)
+                if stop[1].collidepoint(mouse):
+                    sys.exit()
 
         pygame.display.flip()
 
