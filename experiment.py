@@ -3,6 +3,7 @@ from animation import create_map
 import pandas as pd
 from multiprocessing import Pool
 
+
 def thread_process(models):
     m = models['model']
     max_time = models['max_time']
