@@ -20,6 +20,7 @@ class Map:
         self.buses = buses
         self.bus_stops = bus_stops
         self.event_queue = []
+        self.prev_time = 0
 
     def simulate(self, max_time, debug=False, animate=False, **settings):
 
@@ -48,9 +49,18 @@ class Map:
             self.event_queue = sorted_queue[1:]
             next_event = sorted_queue[0]
             time = next_event.time
+            delta_time = time - self.prev_time
 
             if debug:
                 next_event.print_event()
+
+            # update the utility
+            for b in self.buses:
+                b.avg_occupancy += delta_time * b.occupancy
+
+            for bs in self.bus_stops.keys():
+                bs = self.bus_stops[bs]
+                bs.avg_num_waiting += delta_time * bs.num_waiting
 
             # TODO: make this less stupid
             if time > max_time:
@@ -76,6 +86,12 @@ class Map:
             if debug:
                 print('')
 
+            self.prev_time = time
+
+        # update the utility
+        for b in self.buses:
+            b.avg_occupancy /= max_time
+
         print('Simulation complete')
 
     def pause(self):
@@ -95,6 +111,12 @@ class Map:
         for bus in self.buses:
             stats[bus.name + " distance"] = bus.distance
             total_traveled += bus.distance
+            stats[bus.name + " avg occupancy"] = bus.avg_occupancy
+
+        for bs in self.bus_stops.keys():
+            bs = self.bus_stops[bs]
+            stats[bs.name + " avg people waiting"] = bs.avg_num_waiting
+
         stats['total distance'] = total_traveled
 
         return stats
@@ -103,8 +125,16 @@ class Map:
         """
         reset simulation
         """
+        self.prev_time = 0
+
         for bus in self.buses:
             bus.distance = 0
+            bus.avg_occupancy = 0
+
+        for bus_stop in self.bus_stops.keys():
+            bus_stop = self.bus_stops[bus_stop]
+            bus_stop.num_waiting = 0
+            bus_stop.avg_num_waiting = 0
 
 
 class Bus:
@@ -143,6 +173,8 @@ class Bus:
 
         self.distance = 0                                  # distance travelled by this bus
         # TODO: other relevant performance metrics?
+        self.avg_occupancy = 0
+
 
         self.animate = False
         self.surface = None
@@ -261,6 +293,8 @@ class BusStop:
         self.num_waiting = 0        # bus stop starts with nobody waiting
         self.people_waiting = []    # list of people waiting at this stop; initially empty
         self.times = {}             # dict of arrival times (key:destination, value:list of times)
+
+        self.avg_num_waiting = 0
 
         self.prev_num_waiting = 0
         self.animate = False
