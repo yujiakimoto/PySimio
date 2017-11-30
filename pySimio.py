@@ -316,11 +316,15 @@ class BusStop:
             clear_rect.center = (self.surface_pos[0] + 35 + 5*i, self.surface_pos[1])
             self.surface.blit(clear, clear_rect)
 
-        person = pygame.image.load('images/person.png')
-        for i in range(self.num_waiting):
-            person_rect = person.get_rect()
+        person_img = {'Wegmans-Eastbound': pygame.image.load('images/person_green.png'),
+                      'Wegmans-Westbound': pygame.image.load('images/person_green.png'),
+                      'Commons-Eastbound': pygame.image.load('images/person_blue.png'),
+                      'Commons-Westbound': pygame.image.load('images/person_blue.png'),
+                      'Collegetown': pygame.image.load('images/person_orange.png')}
+        for i, person in enumerate(self.people_waiting):
+            person_rect = person_img[person.destination.name].get_rect()
             person_rect.center = (self.surface_pos[0] + 35 + 5*i, self.surface_pos[1])
-            self.surface.blit(person, person_rect)
+            self.surface.blit(person_img[person.destination.name], person_rect)
         self.prev_num_waiting = self.num_waiting
 
     def arrival(self, person):
