@@ -44,7 +44,7 @@ def experiment(models, max_time, iteration, output_report = True, output = 'repo
 
 
 if __name__ == '__main__':
-    num_map = 5
+    num_map = 3
     maps = []
     for i in range(num_map):
         maps.append(create_map())
