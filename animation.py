@@ -7,8 +7,8 @@ from pySimio import *
 def create_map(arrival_times=None):
 
     if arrival_times is None:
-        rate = 20
-        num_people = 20
+        rate = 5
+        num_people = 200
 
         weg_e_com_e = list(np.cumsum(np.random.exponential(rate, num_people)))
         weg_e_ctown = list(np.cumsum(np.random.exponential(rate, num_people)))

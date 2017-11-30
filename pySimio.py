@@ -182,7 +182,6 @@ class Bus:
         # TODO: other relevant performance metrics?
         self.avg_occupancy = 0
 
-
         self.animate = False
         self.surface = None
         self.icon = None
