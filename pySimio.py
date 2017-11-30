@@ -135,12 +135,23 @@ class Map:
         for bs in self.bus_stops.keys():
             bs = self.bus_stops[bs]
             stats[bs.name + " avg people waiting"] = bs.avg_num_waiting # average number of people waiting at each bus stop
+            total_waiting = 0
+            total_people = 0
+            for dest in bs.waiting_time.keys():
+                avg_waiting = bs.waiting_time[dest]/bs.num_getoff[dest]
+                stats[bs.name+ "-" +dest+" waiting time"] = avg_waiting
+                total_waiting += bs.waiting_time[dest]
+                total_people += bs.num_getoff[dest]
+
+            if total_people != 0:
+                stats[bs.name+ " waiting time total"] = total_waiting/total_people
 
         stats['total distance'] = total_traveled # total distance traveled
         return stats
 
     def reset(self):
         """ reset simulation """
+        # TODO : make this cleaner
         self.prev_time = 0
         # reset the stats for each bus
         for bus in self.buses:
@@ -152,6 +163,8 @@ class Map:
             bus_stop = self.bus_stops[bus_stop]
             bus_stop.num_waiting = 0
             bus_stop.avg_num_waiting = 0
+            bus_stop.waiting_time = {}
+            bus_stop.num_getoff = {}
 
 
 class Bus:
@@ -225,6 +238,7 @@ class Bus:
                 stop.num_waiting -= 1
 
                 person.waiting_time = boarding_time - person.start_time  # record waiting time
+                person.origin.add_waiting_time(person.destination, person.waiting_time) # update the origin waiting time
                 boarding_time += np.random.triangular(0, 1/60, 5/60)     # boarding times have triangular distribution
                 stop.update(boarding_time)  # people arrive while bus is boarding
 
@@ -317,7 +331,9 @@ class BusStop:
         self.surface = None         # pygame.Surface object on which to render animation
         self.surface_pos = ()       # location on screen; (0,0) is the top left corner
 
-        self.avg_num_waiting = 0
+        self.avg_num_waiting = 0    # statistics for number of people waiting
+        self.waiting_time = {}      # destination(str) -> waiting time
+        self.num_getoff = {}        # destination(str) -> number of people used this path
 
     def add_data(self, times):
         """Record all arrival times to this bus stop as a dict (key: destination, value: list of times)"""
@@ -358,6 +374,15 @@ class BusStop:
         """Models the arrival of a person to a bus stop"""
         self.num_waiting += 1
         self.people_waiting.append(person)
+
+    def add_waiting_time(self, dest, time):
+        """Add waiting time in the dictionary """
+        if dest.name in self.waiting_time.keys():
+            self.waiting_time[dest.name] += time
+            self.num_getoff[dest.name] += 1
+        else:
+            self.waiting_time[dest.name] = time
+            self.num_getoff[dest.name] = 1
 
     def update(self, time):
         """Updates arrivals to this bus stop until a given time"""
