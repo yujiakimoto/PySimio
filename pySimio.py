@@ -5,12 +5,13 @@ from time import sleep
 
 class Event:
     def __init__(self, time, bus, bus_stop, event_type):
-        self.time = time
-        self.bus = bus
-        self.bus_stop = bus_stop
-        self.type = event_type
+        self.time = time            # time at which the event occurs
+        self.bus = bus              # bus object
+        self.bus_stop = bus_stop    # the event location of the bus object
+        self.type = event_type      # either 'departure' or 'arrival'
 
     def print_event(self):
+        """ when the simulation is DEBUG mode, print the event on console """
         print("{} : {} event at {} at t = {}".format(self.bus.name, self.type, self.bus_stop.name, self.time))
 
 
@@ -64,10 +65,12 @@ class Map:
             # update the utility
             for b in self.buses:
                 b.avg_occupancy += delta_time * b.occupancy
+                b.avg_standing += delta_time * max(b.occupancy - b.num_seats ,0)
 
             for bs in self.bus_stops.keys():
                 bs = self.bus_stops[bs]
                 bs.avg_num_waiting += delta_time * bs.num_waiting
+
 
             # TODO: make this less stupid
             if time > max_time:
@@ -98,6 +101,11 @@ class Map:
         # update the utility
         for b in self.buses:
             b.avg_occupancy /= max_time
+            b.avg_standing /= max_time
+
+        for bs in self.bus_stops.keys():
+            bs = self.bus_stops[bs]
+            bs.avg_num_waiting /= max_time
 
         print('Simulation complete')
 
@@ -119,6 +127,7 @@ class Map:
             stats[bus.name + " distance"] = bus.distance
             total_traveled += bus.distance
             stats[bus.name + " avg occupancy"] = bus.avg_occupancy
+            stats[bus.name + " avg standing"] = bus.avg_standing
 
         for bs in self.bus_stops.keys():
             bs = self.bus_stops[bs]
@@ -137,6 +146,7 @@ class Map:
         for bus in self.buses:
             bus.distance = 0
             bus.avg_occupancy = 0
+            bus.avg_standing = 0
 
         for bus_stop in self.bus_stops.keys():
             bus_stop = self.bus_stops[bus_stop]
@@ -181,7 +191,7 @@ class Bus:
         self.distance = 0                                  # distance travelled by this bus
         # TODO: other relevant performance metrics?
         self.avg_occupancy = 0
-
+        self.avg_standing = 0
 
         self.animate = False
         self.surface = None
