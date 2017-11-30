@@ -1,4 +1,6 @@
 import numpy as np
+import pygame
+from time import sleep
 
 
 class Event:
@@ -9,7 +11,7 @@ class Event:
         self.type = event_type
 
     def print_event(self):
-        print ("{} : {} event at {} at t = {}".format(self.bus.name, self.type, self.bus_stop.name, self.time))
+        print("{} : {} event at {} at t = {}".format(self.bus.name, self.type, self.bus_stop.name, self.time))
 
 
 class Map:
@@ -19,17 +21,18 @@ class Map:
         self.bus_stops = bus_stops
         self.event_queue = []
 
-    # TODO: implement pause, stop methods
-
-    def simulate(self, max_time, debug=False):
+    def simulate(self, max_time, debug=False, animate=False, **settings):
 
         time = 0
         for bus in self.buses:
             if bus.route == self.routes[1]:         # buses on Route 2 must start at depot, then change
                 bus.change_route(self.routes[0])
-
             # TODO: implement staggered departures
             self.event_queue.append(Event(0, bus, self.bus_stops['TDOG Depot'], 'departure'))
+
+        if animate:
+            for bus_stop in self.bus_stops.values():
+                bus_stop.add_animation(settings['surface'], settings['coordinates'][bus_stop.name])
 
         while time < max_time:
 
@@ -68,7 +71,17 @@ class Map:
                 arv_event = next_event.bus.depart(next_event.bus_stop, next_event.time, time + delay)
                 self.event_queue.append(arv_event)
             if debug:
-                print ('')
+                print('')
+
+        print('Simulation complete')
+
+    def pause(self):
+        # TODO: pause simulation
+        pass
+
+    def stop(self):
+        # TODO: stop and reset
+        pass
 
     def collect_stats(self):
         """ called after the simulation to collect the stats
@@ -76,9 +89,9 @@ class Map:
         # traveling distance for each bus
         stats = {}
         total_traveled = 0
-        for b in self.buses:
-            stats[b.name + " distance"] = b.distance
-            total_traveled += b.distance
+        for bus in self.buses:
+            stats[bus.name + " distance"] = bus.distance
+            total_traveled += bus.distance
         stats['total distance'] = total_traveled
 
         return stats
@@ -217,8 +230,32 @@ class BusStop:
         self.people_waiting = []    # list of people waiting at this stop; initially empty
         self.times = {}             # dict of arrival times (key:destination, value:list of times)
 
+        self.prev_num_waiting = 0
+        self.animate = False
+        self.surface = None
+        self.surface_pos = ()
+
     def add_data(self, times):
         self.times = times
+
+    def add_animation(self, surface, coords):
+        self.animate = True
+        self.surface = surface
+        self.surface_pos = coords
+
+    def update_animation(self, surface):
+        clear = pygame.image.load('images/rectangle.png')
+        for i in range(self.prev_num_waiting):
+            clear_rect = clear.get_rect()
+            clear_rect.center = (self.surface_pos[0] + 35 + 5*i, self.surface_pos[1])
+            surface.blit(clear, clear_rect)
+
+        person = pygame.image.load('images/person.png')
+        for i in range(self.num_waiting):
+            person_rect = person.get_rect()
+            person_rect.center = (self.surface_pos[0] + 35 + 5*i, self.surface_pos[1])
+            surface.blit(person, person_rect)
+        self.prev_num_waiting = self.num_waiting
 
     def arrival(self, person):
         """Models the arrival of a person to a bus stop"""
@@ -234,6 +271,10 @@ class BusStop:
                     arrival_times.remove(arrival_time)
                 else:
                     break
+        if self.animate:
+            self.update_animation(self.surface)
+            sleep(0.01)
+            pygame.display.flip()
 
 
 class Person:
@@ -282,4 +323,3 @@ class Route:
         self.distances = distance_list
         self.num = number
 
-        # TODO: all buses should start at Depot, including those on Route 2

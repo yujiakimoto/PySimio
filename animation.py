@@ -7,7 +7,7 @@ from pySimio import *
 def create_map(arrival_times=None):
 
     if arrival_times is None:
-        rate = 5
+        rate = 20
         num_people = 20
 
         weg_e_com_e = list(np.cumsum(np.random.exponential(rate, num_people)))
@@ -38,11 +38,15 @@ def create_map(arrival_times=None):
     route3 = Route([depot, weg_east, com_east, com_west, weg_west, depot], [0.5, 2, 2, 2, 0.5], 3)
 
     bus1 = Bus('Bus 1', route1)
-    bus2 = Bus('The Kenta Bus', route2)
+    bus2 = Bus('Bus 2', route2)
+    bus3 = Bus('Bus 3', route3)
+    bus4 = Bus('Bus 4', route1)
+    bus5 = Bus('Bus 5', route2)
+    bus6 = Bus('Bus 6', route3)
 
-    return Map([route1, route2, route3], [bus1, bus2],
+    return Map([route1, route2, route3], [bus1,  bus2, bus3, bus4, bus5, bus6],
                {'TDOG Depot': depot, 'Wegmans-Eastbound': weg_east, 'Wegmans-Westbound': weg_west,
-                'Commons-Eastbound': com_east, 'Commons-Westbound': com_west, 'Collegetown': ctown})
+                'Commons-Eastbound': com_east, 'Commons-Westbound': com_west, 'Collegetown': ctown},)
 
 
 def make_button(picture, coords, surface):
@@ -65,26 +69,29 @@ def animate(map):
     pause = make_button('images/pause.png', (width - 0.5*button_size - margin, 1.5*button_size + 2*margin), screen)
     stop = make_button('images/stop.png', (width - 0.5*button_size - margin, 2.5*button_size + 3*margin), screen)
 
-    coordinates = {'TDOG Depot': (0.1*width, 0.5*height),
-                   'Wegmans-Eastbound': (0.3*width, 0.3*height),
-                   'Wegmans-Westbound': (0.3*width, 0.7*height),
-                   'Commons-Eastbound': (0.6*width, 0.3*height),
-                   'Commons-Westbound': (0.6*width, 0.7*height),
-                   'Collegetown': (0.9*width, 0.5*height)}
+    stop_coordinates = {'TDOG Depot': (0.1*width, 0.5*height),
+                        'Wegmans-Eastbound': (0.3*width, 0.3*height),
+                        'Wegmans-Westbound': (0.3*width, 0.7*height),
+                        'Commons-Eastbound': (0.55*width, 0.3*height),
+                        'Commons-Westbound': (0.55*width, 0.7*height),
+                        'Collegetown': (0.8*width, 0.5*height)}
 
     bus_stop_icons = {}
     for bus_stop in map.bus_stops.values():
-        bus_stop_icons[bus_stop.name] = make_button('images/bus_stop.png', coordinates[bus_stop.name], screen)
+        bus_stop_icons[bus_stop.name] = make_button('images/bus_stop.png', stop_coordinates[bus_stop.name], screen)
 
     while True:
         for event in pygame.event.get():
+            # exit simulation
             if event.type == pygame.QUIT:
                 sys.exit()
+            # start simulation
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 mouse = pygame.mouse.get_pos()
                 if start[1].collidepoint(mouse):
+                    # TODO: disable start button after clicking?
                     print('Start')
-                    map.simulate(18*60)
+                    map.simulate(18*60, animate=True, surface=screen, coordinates=stop_coordinates)
 
         pygame.display.flip()
 
