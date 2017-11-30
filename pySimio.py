@@ -1,5 +1,6 @@
 import numpy as np
 import pygame
+import datetime
 from time import sleep
 
 class Event:
@@ -50,11 +51,15 @@ class Map:
             if debug: # wait for the user input to proceed
                 input()
 
+            if animate:
+                self.update_clock(settings['surface'], time)
+
             sorted_queue = sorted(self.event_queue, key=lambda x: x.time) # sort the event queue
             self.event_queue = sorted_queue[1:] # shift the queue by 1
             next_event = sorted_queue[0] # get the next earliest event
             time = next_event.time # current event time
             delta_time = time - self.prev_time # time - time_lst to calculate the integral
+
 
             if debug: # print the event
                 next_event.print_event()
@@ -71,6 +76,8 @@ class Map:
             # TODO: make this more elegant
             if time > max_time:
                 break
+
+
 
             # process arriavl event
             if next_event.type == "arrival":
@@ -104,17 +111,21 @@ class Map:
 
         print('Simulation complete')
 
-    def pause(self):
-        # TODO: pause simulation
-        pass
+    def update_clock(self, surface, elapsed):
+        """Updated clock in bottom right corner of animation"""
+        clear = pygame.image.load('images/blank.png')
+        clear_rect = clear.get_rect()
+        clear_rect.bottomright = (1080, 720)
+        surface.blit(clear, clear_rect)
 
-    def stop(self):
-        # TODO: stop and reset
-        pass
+        font_med = pygame.font.SysFont("Helvetica", 15)
+        start = datetime.datetime(2017, 12, 1, 6, 0)
+        current = (start + datetime.timedelta(minutes=elapsed)).time()
+        clock = font_med.render('Time: ' + str(current)[:5], 1, (255, 255, 255))
+        surface.blit(clock, (990, 690))
 
     def collect_stats(self):
-        """ called after the simulation to collect the stats
-        """
+        """ Called after the simulation to collect the stats"""
         # traveling distance for each bus
         stats = {}
         total_traveled = 0
@@ -331,7 +342,7 @@ class BusStop:
     def update_animation(self):
         """Updates the animation screen to reflect current people waiting at this bus stop"""
         # remove unused images
-        clear = pygame.image.load('images/rectangle.png')
+        clear = pygame.image.load('images/nobody.png')
         for i in range(self.prev_num_waiting):
             clear_rect = clear.get_rect()
             clear_rect.center = (self.surface_pos[0] + 35 + 5*i, self.surface_pos[1])
@@ -391,7 +402,7 @@ class Person:
 
         self.state = 'waiting'             # status of person, either 'waiting', 'standing' or 'sitting'
         self.start_time = time             # time at which person started waiting
-        self.waiting_time = 0              # time spent waiting at bus stop
+        self.waiting_time = None           # time spent waiting at bus stop
         origin.arrival(self)
 
 

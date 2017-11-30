@@ -1,6 +1,7 @@
 import sys
 import numpy as np
 import pygame
+import datetime
 from pySimio import *
 
 
@@ -68,7 +69,8 @@ def animate(map):
     size = width, height = 1080, 720
     screen = pygame.display.set_mode(size)
 
-    myfont = pygame.font.SysFont("Helvetica", 12)
+    font_small = pygame.font.SysFont("Helvetica", 12)
+    font_med = pygame.font.SysFont("Helvetica", 15)
 
     button_size = 32
     margin = 10
@@ -86,8 +88,11 @@ def animate(map):
     bus_stop_icons = {}
     for bus_stop in map.bus_stops.values():
         bus_stop_icons[bus_stop.name] = make_button('images/bus_stop.png', stop_coordinates[bus_stop.name], screen)
-        label = myfont.render(bus_stop.name, 1, (255, 255, 255))
+        label = font_small.render(bus_stop.name, 1, (255, 255, 255))
         screen.blit(label, (stop_coordinates[bus_stop.name][0] - 20, stop_coordinates[bus_stop.name][1] + 30))
+
+    clock = font_med.render('Time: ' + str(datetime.time(6, 0))[:5], 1, (255, 255, 255))
+    screen.blit(clock, (990, 690))
 
     while True:
         for event in pygame.event.get():
