@@ -1,6 +1,18 @@
 from pySimio import *
 from animation import create_map
 import pandas as pd
+from multiprocessing import Pool
+
+def thread_process(models):
+    m = models['model']
+    max_time = models['max_time']
+    debug = models['debug']
+    m.simulate(max_time, debug = debug)
+    stats = m.collect_stats()
+    stats["model"] = models['i']
+    m.reset()
+    return stats
+
 
 def experiment(models, max_time, iteration, output_report = True, output = 'reports.csv', debug = False):
     """ Run the experiment with input models
@@ -16,14 +28,13 @@ def experiment(models, max_time, iteration, output_report = True, output = 'repo
     print ("{} simulations with {} models begins ...".format(iteration, len(models)))
     results = []
     for i in range(iteration):
-        for i, m in enumerate(models):
-            m.simulate(max_time, debug = debug)
-            stats = m.collect_stats()
-            stats["model"] = i
-            results.append(stats)
-            m.reset()
+        thread = Pool(len(models))
+        args = [{'model':m, 'debug':debug, 'max_time':max_time, 'results':results, 'i':i} for i, m in enumerate(models)]
+        results += thread.map(thread_process, args)
 
-    print (pd.DataFrame(results).groupby('model').mean())
+        thread.terminate()
+
+    print (pd.DataFrame(results).head())
 
     print ("experiment done")
 
@@ -33,9 +44,9 @@ def experiment(models, max_time, iteration, output_report = True, output = 'repo
 
 
 if __name__ == '__main__':
-    num_map = 3
+    num_map = 5
     maps = []
     for i in range(num_map):
         maps.append(create_map())
 
-    experiment(maps, 500, 5, output_report = False)
+    experiment(maps, 500, 10, output_report = False)
