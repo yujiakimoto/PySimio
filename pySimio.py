@@ -22,6 +22,13 @@ class Map:
         self.event_queue = []
 
     def simulate(self, max_time, debug=False, animate=False, **settings):
+        """Run simulation of this map
+        Args:
+            max_time (float): number of minutes for which to run the simulation
+            debug (boolean): whether or not to run the simulation in debug mode
+            animate(boolean): whether or not to render an animation of the simulation
+            **settings: keyword-arguments specfying settings of the animation
+        """
 
         time = 0
         for bus in self.buses:
@@ -156,6 +163,7 @@ class Bus:
         self.next_stop = self.route.stops[1]
 
     def board(self, stop, time):
+        """Models the process of people boarding this bus at a certain stop"""
         # people waiting at bus stop will get on if bus goes to desired destination and there is space on the bus
         stop.update(time)
         boarding_time = time
@@ -255,26 +263,35 @@ class BusStop:
         self.people_waiting = []    # list of people waiting at this stop; initially empty
         self.times = {}             # dict of arrival times (key:destination, value:list of times)
 
-        self.prev_num_waiting = 0
-        self.animate = False
-        self.surface = None
-        self.surface_pos = ()
+        self.prev_num_waiting = 0   # used in animation to remove old images
+        self.animate = False        # whether or not to generate animation
+        self.surface = None         # pygame.Surface object on which to render animation
+        self.surface_pos = ()       # location on screen; (0,0) is the top left corner
 
     def add_data(self, times):
+        """Record all arrival times to this bus stop as a dict (key: destination, value: list of times)"""
         self.times = times
 
     def add_animation(self, surface, coords):
+        """Set animation attributes
+        Args:
+            surface (pygame.Surface): pygame Surface object on which to render the animation
+            coords (tuple): a tuple of ints/floats specifying the (x,y) location of the bus stop
+        """
         self.animate = True
         self.surface = surface
         self.surface_pos = coords
 
     def update_animation(self):
+        """Updates the animation screen to reflect current people waiting at this bus stop"""
+        # remove unused images
         clear = pygame.image.load('images/rectangle.png')
         for i in range(self.prev_num_waiting):
             clear_rect = clear.get_rect()
             clear_rect.center = (self.surface_pos[0] + 35 + 5*i, self.surface_pos[1])
             self.surface.blit(clear, clear_rect)
 
+        # colour-code images of people by destination
         person_img = {'Wegmans-Eastbound': pygame.image.load('images/person_green.png'),
                       'Wegmans-Westbound': pygame.image.load('images/person_green.png'),
                       'Commons-Eastbound': pygame.image.load('images/person_blue.png'),
@@ -302,8 +319,8 @@ class BusStop:
                     break
         if self.animate:
             self.update_animation()
-            sleep(0.01)
-            pygame.display.flip()
+            sleep(0.01)                # controls speed of animation
+            pygame.display.flip()      # update display
 
 
 class Person:
@@ -350,5 +367,5 @@ class Route:
 
         self.stops = stop_list
         self.distances = distance_list
-        self.num = number
+        self.num = number                   # Route number: one of [1,2,3]
 
