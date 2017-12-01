@@ -48,36 +48,37 @@ class Map:
 
         # main loop
         while time < max_time:
-            if debug: # wait for the user input to proceed
+            if debug:                                                       # wait for user input to proceed
                 input()
 
             if animate:
                 self.update_clock(settings['surface'], time)
+                for bus_stop in self.bus_stops.values():
+                    bus_stop.update(time)                                   # fine-grained animation (much slower)
 
-            sorted_queue = sorted(self.event_queue, key=lambda x: x.time) # sort the event queue
-            self.event_queue = sorted_queue[1:] # shift the queue by 1
-            next_event = sorted_queue[0] # get the next earliest event
-            time = next_event.time # current event time
-            delta_time = time - self.prev_time # time - time_lst to calculate the integral
+            sorted_queue = sorted(self.event_queue, key=lambda x: x.time)   # sort the event queue
+            self.event_queue = sorted_queue[1:]                             # shift the queue by 1
+            next_event = sorted_queue[0]                                    # get the next earliest event
+            time = next_event.time                                          # current event time
+            delta_time = time - self.prev_time                              # time - time_lst to calculate the integral
 
-
-            if debug: # print the event
+            if debug:                                                       # print the event
                 next_event.print_event()
 
             # update the utility
             for b in self.buses:
-                b.avg_occupancy += delta_time * b.occupancy # average occupancy of each bus
-                b.avg_standing += delta_time * max(b.occupancy - b.num_seats ,0) # average people standing for each bus
+                b.avg_occupancy += delta_time * b.occupancy                       # average occupancy of each bus
+                b.avg_standing += delta_time * max(b.occupancy - b.num_seats, 0)  # average people standing for each bus
 
             for bs in self.bus_stops.keys():
                 bs = self.bus_stops[bs]
-                bs.avg_num_waiting += delta_time * bs.num_waiting # average people waiting at each busstops
+                bs.avg_num_waiting += delta_time * bs.num_waiting                 # average people waiting at each stop
 
             # TODO: make this more elegant
             if time > max_time:
                 break
 
-            # process arriavl event
+            # process arrival event
             if next_event.type == "arrival":
                 new_route = None
                 if next_event.bus.route2 and next_event.bus.distance == 2.5:
@@ -127,14 +128,14 @@ class Map:
         stats = {}
         total_traveled = 0
         for bus in self.buses:
-            stats[bus.name + " distance"] = bus.distance # traveling distance for each bus
-            total_traveled += bus.distance # traveling distance for all buses
-            stats[bus.name + " avg occupancy"] = bus.avg_occupancy # average occupancy for each buses
-            stats[bus.name + " avg standing"] = bus.avg_standing # average number of people standing for each bus
+            stats[bus.name + " distance"] = bus.distance            # traveling distance for each bus
+            total_traveled += bus.distance                          # traveling distance for all buses
+            stats[bus.name + " avg occupancy"] = bus.avg_occupancy  # average occupancy for each buses
+            stats[bus.name + " avg standing"] = bus.avg_standing    # average number of people standing for each bus
 
         for bs in self.bus_stops.keys():
             bs = self.bus_stops[bs]
-            stats[bs.name + " avg people waiting"] = bs.avg_num_waiting # average number of people waiting at each bus stop
+            stats[bs.name + " avg people waiting"] = bs.avg_num_waiting  # avg. number of people waiting at each stop
             total_waiting = 0
             total_people = 0
             for dest in bs.waiting_time.keys():
@@ -146,7 +147,7 @@ class Map:
             if total_people != 0:
                 stats[bs.name+ " waiting time total"] = total_waiting/total_people
 
-        stats['total distance'] = total_traveled # total distance traveled
+        stats['total distance'] = total_traveled  # total distance traveled
         return stats
 
     def reset(self):
@@ -395,7 +396,7 @@ class BusStop:
                     break
         if self.animate:
             self.update_animation()
-            sleep(0.01)                # controls speed of animation
+            # sleep(0.01)              # controls speed of animation
             pygame.display.flip()      # update display
 
 
