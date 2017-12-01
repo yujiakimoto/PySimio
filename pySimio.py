@@ -41,7 +41,7 @@ class Map:
             # TODO: implement better staggered departures
             self.event_queue.append(Event(27*i/7, bus, self.bus_stops['TDOG Depot'], 'departure'))
 
-        # draw bus stop
+        # draw bus stop (if animate) and generate new data
         for bus_stop in self.bus_stops.values():
             bus_stop.generate_data(max_time)
             if animate:
@@ -141,12 +141,12 @@ class Map:
             total_people = 0
             for dest in bs.waiting_time.keys():
                 avg_waiting = bs.waiting_time[dest]/bs.num_getoff[dest]
-                stats[bs.name+ "-" + dest + " waiting time"] = avg_waiting
+                stats[bs.name + "-" + dest + " waiting time"] = avg_waiting
                 total_waiting += bs.waiting_time[dest]
                 total_people += bs.num_getoff[dest]
 
             if total_people != 0:
-                stats[bs.name+ " waiting time total"] = total_waiting/total_people
+                stats[bs.name + " waiting time total"] = total_waiting/total_people
 
         stats['total distance'] = total_traveled  # total distance traveled
         return stats
@@ -345,7 +345,7 @@ class BusStop:
         self.num_getoff = {}        # destination(str) -> number of people used this path
 
     def add_data(self, inter_arrivals):
-        """Record all arrival times to this bus stop as a dict (key: destination, value: list of times)"""
+        """Record inter-arrival rates to this bus stop as a dict (key: destination, value: inter-arrival time)"""
         self.inter_arrivals = inter_arrivals
 
     def generate_data(self, max_time):

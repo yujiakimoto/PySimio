@@ -1,5 +1,4 @@
 import sys
-import numpy as np
 import pygame
 import datetime
 from pySimio import *
@@ -98,6 +97,7 @@ def animate(map, time):
                     # TODO: disable start button after clicking?
                     print('Start')
                     map.simulate(time, debug=False, animate=True, surface=screen, coordinates=stop_coordinates)
+                    print(map.collect_stats()['Bus 1 avg occupancy'])
                 if restart[1].collidepoint(mouse):
                     print('Reset')
                     map.reset()
@@ -108,5 +108,5 @@ def animate(map, time):
         pygame.display.flip()
 
 if __name__ == "__main__":
-    ithaca = create_map(buses_per_route=(7, 0, 0), lmbda=5)
+    ithaca = create_map(buses_per_route=(7, 0, 0), lmbda=3)
     animate(ithaca, 120)
