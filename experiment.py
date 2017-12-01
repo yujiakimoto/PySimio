@@ -32,18 +32,18 @@ def experiment(models, max_time, iteration, output_report=True, output='reports.
         output (str) : file name for the simulation output
         debug (bool) : if true, run simulation with DEBUG mode
     """
-    assert(all(isinstance(model, Map) for model in models)), "models must be a list of Map objects"
+    # assert(all(isinstance(model, Map) for model in models)), "models must be a list of Map objects"
     # begin simulations
     print("{} simulations with {} models begins ...".format(iteration, len(models)))
 
     # shared variable to combine each simulation results
     results = []
 
-    for itr in range(iteration):
-        thread = Pool(len(models))  # initialize threads for each model
+    for itr, model in enumerate(models):
+        thread = Pool(len(model))  # initialize threads for each model
         # create keyword-arguments
         args = [{'model': m, 'debug': debug, 'max_time': max_time, 'results': results, 'i': i}
-                for i, m in enumerate(models)]
+                for i, m in enumerate(model)]
         stats = thread.map(thread_process, args)  # run multiprocessing
 
         for s in stats:
@@ -63,15 +63,14 @@ def experiment(models, max_time, iteration, output_report=True, output='reports.
 
 
 if __name__ == '__main__':
-    num_maps = 3
-    maps = []
 
-    model1 = create_map(buses_per_route = (7, 0, 0))
-    model2 = create_map(buses_per_route = (7, 0, 0))
-    model3 = create_map(buses_per_route = (7, 0, 0))
+    NUM_EXPERIMENT = 200
+    models = []
+    for i in range(NUM_EXPERIMENT):
+        model1 = create_map(buses_per_route = (7, 0, 0))
+        model2 = create_map(buses_per_route = (5, 1, 1))
+        model3 = create_map(buses_per_route = (3, 2, 2))
+        model = [model1, model2, model3]
+        models.append(model)
 
-
-    for i in range(num_maps):
-        maps.append(create_map())
-
-    experiment(maps, 500, 10, output_report=False)
+    experiment(models, 10000, 200, output_report=True, output = 'steady_state.csv')
