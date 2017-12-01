@@ -29,15 +29,15 @@ class Map:
             max_time (float): number of minutes for which to run the simulation
             debug (boolean): whether or not to run the simulation in debug mode
             animate(boolean): whether or not to render an animation of the simulation
-            **settings: keyword-arguments specfying settings of the animation
+            **settings: keyword-arguments specifying settings of the animation
         """
         time = 0
-        # initilize the event queue
-        for bus in self.buses:
+        # initialize the event queue
+        for i, bus in enumerate(self.buses):
             if bus.route == self.routes[1]:         # buses on Route 2 must start at depot, then change
                 bus.change_route(self.routes[0])
-            # TODO: implement staggered departures
-            self.event_queue.append(Event(0, bus, self.bus_stops['TDOG Depot'], 'departure'))
+            # TODO: implement better staggered departures
+            self.event_queue.append(Event(0.5*i, bus, self.bus_stops['TDOG Depot'], 'departure'))
 
         # draw bus stop
         if animate:
@@ -140,7 +140,7 @@ class Map:
             total_people = 0
             for dest in bs.waiting_time.keys():
                 avg_waiting = bs.waiting_time[dest]/bs.num_getoff[dest]
-                stats[bs.name+ "-" +dest+" waiting time"] = avg_waiting
+                stats[bs.name+ "-" + dest + " waiting time"] = avg_waiting
                 total_waiting += bs.waiting_time[dest]
                 total_people += bs.num_getoff[dest]
 
@@ -240,7 +240,7 @@ class Bus:
 
                 person.waiting_time = boarding_time - person.start_time  # record waiting time
                 person.origin.add_waiting_time(person.destination, person.waiting_time) # update the origin waiting time
-                boarding_time += np.random.triangular(0, 1/60, 5/60)     # boarding times have triangular distribution
+                # boarding_time += np.random.triangular(0, 1/60, 5/60)   # boarding times have triangular distribution
                 stop.update(boarding_time)  # people arrive while bus is boarding
 
                 person.state = 'standing'
@@ -283,7 +283,8 @@ class Bus:
         if distance_travelled < 2:
             driving_time = (distance_travelled/20) * 60    # average speed of 20km/hr, convert to minutes
         else:
-            driving_time = np.random.uniform(5, 7)         # average speed of 20km/hr, +/-1 min variability
+            # driving_time = np.random.uniform(5, 7)       # average speed of 20km/hr, +/-1 min variability
+            driving_time = 6
 
         done_boarding = self.board(stop, time)
         if done_boarding < earliest_depart:

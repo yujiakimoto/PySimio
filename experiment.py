@@ -18,7 +18,7 @@ def thread_process(models):
     stats = m.collect_stats()
     stats["model"] = i
 
-    m.reset()                           # reset the simulation
+    m.reset()  # reset the simulation
     return stats
 
 
