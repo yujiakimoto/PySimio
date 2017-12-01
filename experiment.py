@@ -70,7 +70,7 @@ def experiment(models, max_time, iteration, output_report=True, output='reports.
     # generate the file
     if output_report:
         out = 'reports/'
-        pd.DataFrame(results).to_csv(out + output, index=False)
+        pd.DataFrame(stats).to_csv(out + output, index=False)
 
 
 if __name__ == '__main__':
