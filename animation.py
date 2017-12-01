@@ -5,10 +5,10 @@ import datetime
 from pySimio import *
 
 
-def create_map(buses_per_route=(7, 0, 0), arrival_times=None):
+def create_map(buses_per_route=(7, 0, 0), arrival_times=None, *arrival_rate):
 
     if arrival_times is None:
-        rate = 5
+        rate = arrival_rate
         num_people = 200
 
         weg_e_com_e = list(np.cumsum(np.random.exponential(rate, num_people)))
