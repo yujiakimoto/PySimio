@@ -2,6 +2,7 @@ from pySimio import *
 from animation import create_map
 import pandas as pd
 from multiprocessing import Pool
+from itertools import chain
 
 
 def thread_process(models):
@@ -10,16 +11,23 @@ def thread_process(models):
     m = models['model']
     max_time = models['max_time']
     debug = models['debug']
-    i = models['i']
+    iteration = models['iteration']
 
-    m.simulate(max_time, debug=debug)   # run simulation
+    results = []
+    for i in range(iteration):
 
-    # collect statistics
-    stats = m.collect_stats()
-    stats["model"] = m.name
+        m.simulate(max_time, debug=debug)   # run simulation
 
-    # m.reset()  # reset the simulation
-    return stats
+        # collect statistics
+        stats = m.collect_stats()
+        stats["model"] = m.name
+        stats['iteration']=i
+
+        m.reset()  # reset the simulation
+
+        results.append(stats)
+
+    return results
 
 def model_name(route):
     return str(route[0]) + str(route[1]) + str(route[2])
@@ -42,28 +50,20 @@ def experiment(models, max_time, iteration, output_report=True, output='reports.
     # shared variable to combine each simulation results
     results = []
 
-    for itr in range(iteration):
-        thread = Pool(len(models))  # initialize threads for each model
-        # create keyword-arguments
-        args = [{'model': m, 'debug': debug, 'max_time': max_time, 'results': results, 'i': i}
-                for i, m in enumerate(models)]
-        stats = thread.map(thread_process, args)  # run multiprocessing
 
-        for s in stats:
-            s['iteration'] = itr
-        results += stats
+    thread = Pool(len(models))  # initialize threads for each model
+    # create keyword-arguments
+    args = [{'model': m, 'debug': debug, 'max_time': max_time, 'results': results, 'iteration': iteration}
+            for i, m in enumerate(models)]
+    stats = thread.map(thread_process, args)  # run multiprocessing
 
-        for m in models:
-            m.reset()
+    stats = list(chain(*stats))
 
-        thread.terminate()  # kill the thread
-
-        # for m in models:
-        #     m.reset()
+    thread.terminate()  # kill the thread
 
 
 
-    print(pd.DataFrame(results).sort_values(by='iteration').groupby('model').mean())
+    print(pd.DataFrame(stats).groupby('model').mean())
 
     print("experiment done")
 
@@ -75,7 +75,7 @@ def experiment(models, max_time, iteration, output_report=True, output='reports.
 
 if __name__ == '__main__':
 
-    ITERATION = 10000
+    ITERATION = 60*18
     RATE = 7
     m1 = (7, 0, 0)
     m2 = (5, 1, 1)
@@ -86,4 +86,4 @@ if __name__ == '__main__':
     model3 = create_map(buses_per_route = m3, lmbda = RATE, name = model_name(m3)+'-l'+str(RATE))
     model = [model1, model2, model3]
 
-    experiment(model, ITERATION, 200, output_report=True, output = 'steady_state_lambda'+str(RATE)+'.csv')
+    experiment(model, ITERATION, 20, output_report=True, output = 'para.csv')
