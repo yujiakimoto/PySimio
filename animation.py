@@ -114,10 +114,11 @@ def animate(map, time):
                     print('Reset')
                     map.reset()
                 if stop[1].collidepoint(mouse):
+                    print('Exit')
                     sys.exit()
 
         pygame.display.flip()
 
 if __name__ == "__main__":
     ithaca = create_map()
-    animate(ithaca, 60)
+    animate(ithaca, 6*60)
