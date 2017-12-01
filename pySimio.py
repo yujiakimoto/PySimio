@@ -52,6 +52,7 @@ class Map:
 
         # main loop
         self.max_time = max_time
+
         while time < max_time:
             if debug:                                                       # wait for user input to proceed
                 input()
@@ -114,6 +115,7 @@ class Map:
             bs.avg_num_waiting /= max_time
 
         print('Simulation complete')
+
 
     def update_clock(self, surface, elapsed):
         """Updated clock in bottom right corner of animation"""
