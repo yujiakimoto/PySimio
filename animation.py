@@ -5,18 +5,7 @@ import datetime
 from pySimio import *
 
 
-def create_map(buses_per_route=(7, 0, 0), arrival_times=None, arrival_rate=5, time=18*60):
-
-    if arrival_times is None:
-        weg_e_com_e = list(np.cumsum(np.random.exponential(arrival_rate, int(time/arrival_rate))))
-        weg_e_ctown = list(np.cumsum(np.random.exponential(arrival_rate, int(time/arrival_rate))))
-        com_e_ctown = list(np.cumsum(np.random.exponential(arrival_rate, int(time/arrival_rate))))
-        ctown_com_w = list(np.cumsum(np.random.exponential(arrival_rate, int(time/arrival_rate))))
-        ctown_weg_w = list(np.cumsum(np.random.exponential(arrival_rate, int(time/arrival_rate))))
-        com_w_weg_w = list(np.cumsum(np.random.exponential(arrival_rate, int(time/arrival_rate))))
-
-    else:
-        weg_e_com_e, weg_e_ctown, com_e_ctown, ctown_com_w, ctown_weg_w, com_w_weg_w = arrival_times
+def create_map(buses_per_route=(7, 0, 0), lmbda=5):
 
     # create BusStop objects
     depot = BusStop('TDOG Depot')
@@ -26,11 +15,11 @@ def create_map(buses_per_route=(7, 0, 0), arrival_times=None, arrival_rate=5, ti
     com_west = BusStop('Commons-Westbound')
     ctown = BusStop('Collegetown')
 
-    # feed arrival time data to each bus stop
-    weg_east.add_data({com_east: weg_e_com_e, ctown: weg_e_ctown})
-    com_east.add_data({ctown: com_e_ctown})
-    com_west.add_data({weg_west: com_w_weg_w})
-    ctown.add_data({com_west: ctown_com_w, weg_west: ctown_weg_w})
+    # feed inter-arrival time data to each bus stop
+    weg_east.add_data({com_east: lmbda, ctown: lmbda})
+    com_east.add_data({ctown: lmbda})
+    com_west.add_data({weg_west: lmbda})
+    ctown.add_data({com_west: lmbda, weg_west: lmbda})
 
     # create a Route object for each of the 3 routes
     route1 = Route([depot, weg_east, com_east, ctown, com_west, weg_west, depot], [0.5, 2, 2, 2, 2, 0.5], 1)
@@ -49,8 +38,7 @@ def create_map(buses_per_route=(7, 0, 0), arrival_times=None, arrival_rate=5, ti
 
     return Map([route1, route2, route3], bus_list,
                {'TDOG Depot': depot, 'Wegmans-Eastbound': weg_east, 'Wegmans-Westbound': weg_west,
-                'Commons-Eastbound': com_east, 'Commons-Westbound': com_west, 'Collegetown': ctown},
-               arrival_rate=arrival_rate)
+                'Commons-Eastbound': com_east, 'Commons-Westbound': com_west, 'Collegetown': ctown},)
 
 
 def make_button(picture, coords, surface):
@@ -120,5 +108,5 @@ def animate(map, time):
         pygame.display.flip()
 
 if __name__ == "__main__":
-    ithaca = create_map()
-    animate(ithaca, 6*60)
+    ithaca = create_map(buses_per_route=(7, 0, 0), lmbda=5)
+    animate(ithaca, 120)

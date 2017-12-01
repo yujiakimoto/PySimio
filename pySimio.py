@@ -17,15 +17,13 @@ class Event:
 
 
 class Map:
-    def __init__(self, routes, buses, bus_stops, name='Ithaca', arrival_rate=5):
+    def __init__(self, routes, buses, bus_stops, name='Ithaca'):
         self.name = name                    # name of this map
         self.routes = routes                # list of Route objects that the map provides
         self.buses = buses                  # list of Bus objects in this map
         self.bus_stops = bus_stops          # list of BusStop objects
         self.event_queue = []               # an event queue to manage discrete simulation
         self.prev_time = 0                  # keep track of previous event time
-        self.arrival_rate = arrival_rate    # arrival rate to bus stops (used to generate new data)
-        self.max_time = 0                   # length of time to simulate map (used to generate new data)
 
     def simulate(self, max_time, debug=False, animate=False, **settings):
         """Run simulation of this map
@@ -44,14 +42,12 @@ class Map:
             self.event_queue.append(Event(27*i/7, bus, self.bus_stops['TDOG Depot'], 'departure'))
 
         # draw bus stop
-        if animate:
-            for bus_stop in self.bus_stops.values():
+        for bus_stop in self.bus_stops.values():
+            bus_stop.generate_data(max_time)
+            if animate:
                 bus_stop.add_animation(settings['surface'], settings['coordinates'][bus_stop.name])
-            for bus in self.buses:
-                pass
 
         # main loop
-        self.max_time = max_time
         while time < max_time:
             if debug:                                                       # wait for user input to proceed
                 input()
@@ -164,7 +160,7 @@ class Map:
             bus.reset()
         # reset the stats for each bus stop
         for bus_stop in self.bus_stops.values():
-            bus_stop.reset(self.max_time, replicate=replicate, arrival_rate=self.arrival_rate)
+            bus_stop.reset()
             if bus_stop.animate:
                 bus_stop.update(0)
 
@@ -336,8 +332,8 @@ class BusStop:
         self.name = name            # name of bus stop
         self.num_waiting = 0        # bus stop starts with nobody waiting
         self.people_waiting = []    # list of people waiting at this stop; initially empty
+        self.inter_arrivals = {}    # dict of inter-arrival times (key:destination, value: avg. inter-arrival time)
         self.times = {}             # dict of arrival times (key:destination, value:list of times)
-        self.initial_times = {}     # dict of arrival times (used to reset)
 
         self.prev_num_waiting = 0   # used in animation to remove old images
         self.animate = False        # whether or not to generate animation
@@ -348,10 +344,15 @@ class BusStop:
         self.waiting_time = {}      # destination(str) -> waiting time
         self.num_getoff = {}        # destination(str) -> number of people used this path
 
-    def add_data(self, times):
+    def add_data(self, inter_arrivals):
         """Record all arrival times to this bus stop as a dict (key: destination, value: list of times)"""
-        self.times = times
-        self.initial_times = times.copy()
+        self.inter_arrivals = inter_arrivals
+
+    def generate_data(self, max_time):
+        # TODO: generate with non-constant arrival rate
+        for stop in self.inter_arrivals.keys():
+            lmbda = self.inter_arrivals[stop]
+            self.times[stop] = list(np.cumsum(np.random.exponential(lmbda, int(max_time/lmbda))))
 
     def add_animation(self, surface, coords):
         """Set animation attributes
@@ -412,15 +413,9 @@ class BusStop:
             # sleep(0.01)              # controls speed of animation
             pygame.display.flip()      # update display
 
-    def reset(self, max_time, replicate=False, arrival_rate=None):
+    def reset(self):
         """Reset map to initial (or newly generated) settings"""
-        assert(max_time > 0), "Cannot reset unless simulation has been run"
         self.people_waiting = []
-        if replicate:
-            self.times = self.initial_times.copy()
-        else:
-            for key in self.times.keys():
-                self.times[key] = list(np.cumsum(np.random.exponential(arrival_rate, int(max_time/arrival_rate))))
         self.avg_num_waiting = 0
         self.waiting_time = {}
         self.num_getoff = {}
