@@ -5,7 +5,7 @@ import datetime
 from pySimio import *
 
 
-def create_map(buses_per_route=(7, 0, 0), arrival_times=None, *arrival_rate):
+def create_map(buses_per_route=(7, 0, 0), arrival_times=None, arrival_rate=5):
 
     if arrival_times is None:
         rate = arrival_rate
