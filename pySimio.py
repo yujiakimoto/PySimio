@@ -3,6 +3,7 @@ import pygame
 import datetime
 from time import sleep
 
+
 class Event:
     def __init__(self, time, bus, bus_stop, event_type):
         self.time = time            # time at which the event occurs
@@ -16,12 +17,15 @@ class Event:
 
 
 class Map:
-    def __init__(self, routes, buses, bus_stops):
-        self.routes = routes           # list of Route objects that the map provides
-        self.buses = buses             # list of Bus objects in this map
-        self.bus_stops = bus_stops     # list of BusStop objects
-        self.event_queue = []          # an event queue to manage discrete simulation
-        self.prev_time = 0             # keep track of previous event time
+    def __init__(self, routes, buses, bus_stops, name='Ithaca', arrival_rate=5):
+        self.name = name                    # name of this map
+        self.routes = routes                # list of Route objects that the map provides
+        self.buses = buses                  # list of Bus objects in this map
+        self.bus_stops = bus_stops          # list of BusStop objects
+        self.event_queue = []               # an event queue to manage discrete simulation
+        self.prev_time = 0                  # keep track of previous event time
+        self.arrival_rate = arrival_rate    # arrival rate to bus stops (used to generate new data)
+        self.max_time = 0                   # length of time to simulate map (used to generate new data)
 
     def simulate(self, max_time, debug=False, animate=False, **settings):
         """Run simulation of this map
@@ -47,6 +51,7 @@ class Map:
                 pass
 
         # main loop
+        self.max_time = max_time
         while time < max_time:
             if debug:                                                       # wait for user input to proceed
                 input()
@@ -150,22 +155,16 @@ class Map:
         stats['total distance'] = total_traveled  # total distance traveled
         return stats
 
-    def reset(self):
+    def reset(self, replicate=False):
         """ reset simulation """
         # TODO : make this cleaner
         self.prev_time = 0
         # reset the stats for each bus
         for bus in self.buses:
-            bus.distance = 0
-            bus.avg_occupancy = 0
-            bus.avg_standing = 0
+            bus.reset()
         # reset the stats for each bus stop
-        for bus_stop in self.bus_stops.keys():
-            bus_stop = self.bus_stops[bus_stop]
-            bus_stop.num_waiting = 0
-            bus_stop.avg_num_waiting = 0
-            bus_stop.waiting_time = {}
-            bus_stop.num_getoff = {}
+        for bus_stop in self.bus_stops.values():
+            bus_stop.reset(replicate=replicate)
 
 
 class Bus:
@@ -309,6 +308,16 @@ class Bus:
         self.surface.blit(self.icon, self.icon_rect)
         pygame.display.flip()
 
+    def reset(self):
+        self.next_stop_num = 1
+        self.next_stop = self.route.stops[1]
+        self.passengers = []
+        self.occupancy = 0
+        self.distance = 0
+        self.avg_occupancy = 0
+        self.avg_standing = 0
+
+
 
 class BusStop:
     """ Models a bus stop somewhere in Ithaca.
@@ -327,6 +336,7 @@ class BusStop:
         self.num_waiting = 0        # bus stop starts with nobody waiting
         self.people_waiting = []    # list of people waiting at this stop; initially empty
         self.times = {}             # dict of arrival times (key:destination, value:list of times)
+        self.initial_times = {}     # dict of arrival times (used to reset)
 
         self.prev_num_waiting = 0   # used in animation to remove old images
         self.animate = False        # whether or not to generate animation
@@ -340,6 +350,7 @@ class BusStop:
     def add_data(self, times):
         """Record all arrival times to this bus stop as a dict (key: destination, value: list of times)"""
         self.times = times
+        self.initial_times = times.copy()
 
     def add_animation(self, surface, coords):
         """Set animation attributes
@@ -399,6 +410,19 @@ class BusStop:
             self.update_animation()
             # sleep(0.01)              # controls speed of animation
             pygame.display.flip()      # update display
+
+    def reset(self, replicate=False, *arrival_rate, *max_time):
+        """Reset map to initial (or newly generated) settings"""
+        assert(self.max_time > 0), "Cannot reset unless simulation has been run"
+        self.people_waiting = []
+        if replicate:
+            self.times = self.initial_times.copy()
+        else:
+            for key in self.times.keys():
+                self.times[key] = list(np.cumsum(np.random.exponential(arrival_rate, int(max_time/arrival_rate))))
+        self.avg_num_waiting = 0
+        self.waiting_time = {}
+        self.num_getoff = {}
 
 
 class Person:

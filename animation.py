@@ -5,18 +5,17 @@ import datetime
 from pySimio import *
 
 
-def create_map(buses_per_route=(7, 0, 0), arrival_times=None, arrival_rate=5):
+def create_map(buses_per_route=(7, 0, 0), arrival_times=None, arrival_rate=5, time=18*60):
 
     if arrival_times is None:
         rate = arrival_rate
-        num_people = 200
 
-        weg_e_com_e = list(np.cumsum(np.random.exponential(rate, num_people)))
-        weg_e_ctown = list(np.cumsum(np.random.exponential(rate, num_people)))
-        com_e_ctown = list(np.cumsum(np.random.exponential(rate, num_people)))
-        ctown_com_w = list(np.cumsum(np.random.exponential(rate, num_people)))
-        ctown_weg_w = list(np.cumsum(np.random.exponential(rate, num_people)))
-        com_w_weg_w = list(np.cumsum(np.random.exponential(rate, num_people)))
+        weg_e_com_e = list(np.cumsum(np.random.exponential(rate, int(time/arrival_rate))))
+        weg_e_ctown = list(np.cumsum(np.random.exponential(rate, int(time/arrival_rate))))
+        com_e_ctown = list(np.cumsum(np.random.exponential(rate, int(time/arrival_rate))))
+        ctown_com_w = list(np.cumsum(np.random.exponential(rate, int(time/arrival_rate))))
+        ctown_weg_w = list(np.cumsum(np.random.exponential(rate, int(time/arrival_rate))))
+        com_w_weg_w = list(np.cumsum(np.random.exponential(rate, int(time/arrival_rate))))
 
     else:
         weg_e_com_e, weg_e_ctown, com_e_ctown, ctown_com_w, ctown_weg_w, com_w_weg_w = arrival_times
