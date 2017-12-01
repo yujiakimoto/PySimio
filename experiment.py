@@ -65,6 +65,12 @@ def experiment(models, max_time, iteration, output_report=True, output='reports.
 if __name__ == '__main__':
     num_maps = 3
     maps = []
+
+    model1 = create_map(buses_per_route = (7, 0, 0))
+    model2 = create_map(buses_per_route = (7, 0, 0))
+    model3 = create_map(buses_per_route = (7, 0, 0))
+
+
     for i in range(num_maps):
         maps.append(create_map())
 
