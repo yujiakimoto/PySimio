@@ -37,7 +37,7 @@ class Map:
             if bus.route == self.routes[1]:         # buses on Route 2 must start at depot, then change
                 bus.change_route(self.routes[0])
             # TODO: implement better staggered departures
-            self.event_queue.append(Event(0.5*i, bus, self.bus_stops['TDOG Depot'], 'departure'))
+            self.event_queue.append(Event(27*i/7, bus, self.bus_stops['TDOG Depot'], 'departure'))
 
         # draw bus stop
         if animate:
