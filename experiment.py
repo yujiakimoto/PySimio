@@ -53,7 +53,13 @@ def experiment(models, max_time, iteration, output_report=True, output='reports.
             s['iteration'] = itr
         results += stats
 
+        for m in models:
+            m.reset()
+
         thread.terminate()  # kill the thread
+
+        # for m in models:
+        #     m.reset()
 
 
 
@@ -70,7 +76,7 @@ def experiment(models, max_time, iteration, output_report=True, output='reports.
 if __name__ == '__main__':
 
     ITERATION = 10000
-    RATE = 5
+    RATE = 7
     m1 = (7, 0, 0)
     m2 = (5, 1, 1)
     m3 = (3, 2, 2)

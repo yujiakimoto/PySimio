@@ -110,6 +110,7 @@ class Map:
             bs.avg_num_waiting /= max_time
 
         print('Simulation complete')
+        # self.reset()
 
     def update_clock(self, surface, elapsed):
         """Updated clock in bottom right corner of animation"""
@@ -352,6 +353,7 @@ class BusStop:
         # TODO: generate with non-constant arrival rate
         for stop in self.inter_arrivals.keys():
             lmbda = self.inter_arrivals[stop]
+            np.random.seed()
             self.times[stop] = list(np.cumsum(np.random.exponential(lmbda, int(max_time/lmbda))))
 
     def add_animation(self, surface, coords):
