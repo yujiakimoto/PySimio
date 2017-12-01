@@ -164,7 +164,9 @@ class Map:
             bus.reset()
         # reset the stats for each bus stop
         for bus_stop in self.bus_stops.values():
-            bus_stop.reset(replicate=replicate)
+            bus_stop.reset(self.max_time, replicate=replicate, arrival_rate=self.arrival_rate)
+            if bus_stop.animate:
+                bus_stop.update(0)
 
 
 class Bus:
@@ -318,7 +320,6 @@ class Bus:
         self.avg_standing = 0
 
 
-
 class BusStop:
     """ Models a bus stop somewhere in Ithaca.
 
@@ -411,9 +412,9 @@ class BusStop:
             # sleep(0.01)              # controls speed of animation
             pygame.display.flip()      # update display
 
-    def reset(self, replicate=False, *arrival_rate, *max_time):
+    def reset(self, max_time, replicate=False, arrival_rate=None):
         """Reset map to initial (or newly generated) settings"""
-        assert(self.max_time > 0), "Cannot reset unless simulation has been run"
+        assert(max_time > 0), "Cannot reset unless simulation has been run"
         self.people_waiting = []
         if replicate:
             self.times = self.initial_times.copy()

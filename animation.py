@@ -8,14 +8,12 @@ from pySimio import *
 def create_map(buses_per_route=(7, 0, 0), arrival_times=None, arrival_rate=5, time=18*60):
 
     if arrival_times is None:
-        rate = arrival_rate
-
-        weg_e_com_e = list(np.cumsum(np.random.exponential(rate, int(time/arrival_rate))))
-        weg_e_ctown = list(np.cumsum(np.random.exponential(rate, int(time/arrival_rate))))
-        com_e_ctown = list(np.cumsum(np.random.exponential(rate, int(time/arrival_rate))))
-        ctown_com_w = list(np.cumsum(np.random.exponential(rate, int(time/arrival_rate))))
-        ctown_weg_w = list(np.cumsum(np.random.exponential(rate, int(time/arrival_rate))))
-        com_w_weg_w = list(np.cumsum(np.random.exponential(rate, int(time/arrival_rate))))
+        weg_e_com_e = list(np.cumsum(np.random.exponential(arrival_rate, int(time/arrival_rate))))
+        weg_e_ctown = list(np.cumsum(np.random.exponential(arrival_rate, int(time/arrival_rate))))
+        com_e_ctown = list(np.cumsum(np.random.exponential(arrival_rate, int(time/arrival_rate))))
+        ctown_com_w = list(np.cumsum(np.random.exponential(arrival_rate, int(time/arrival_rate))))
+        ctown_weg_w = list(np.cumsum(np.random.exponential(arrival_rate, int(time/arrival_rate))))
+        com_w_weg_w = list(np.cumsum(np.random.exponential(arrival_rate, int(time/arrival_rate))))
 
     else:
         weg_e_com_e, weg_e_ctown, com_e_ctown, ctown_com_w, ctown_weg_w, com_w_weg_w = arrival_times
@@ -51,7 +49,8 @@ def create_map(buses_per_route=(7, 0, 0), arrival_times=None, arrival_rate=5, ti
 
     return Map([route1, route2, route3], bus_list,
                {'TDOG Depot': depot, 'Wegmans-Eastbound': weg_east, 'Wegmans-Westbound': weg_west,
-                'Commons-Eastbound': com_east, 'Commons-Westbound': com_west, 'Collegetown': ctown},)
+                'Commons-Eastbound': com_east, 'Commons-Westbound': com_west, 'Collegetown': ctown},
+               arrival_rate=arrival_rate)
 
 
 def make_button(picture, coords, surface):
@@ -62,7 +61,7 @@ def make_button(picture, coords, surface):
     return image, image_rect
 
 
-def animate(map):
+def animate(map, time):
 
     pygame.init()
     size = width, height = 1080, 720
@@ -74,7 +73,7 @@ def animate(map):
     button_size = 32
     margin = 10
     start = make_button('images/start.png', (width - 0.5*button_size - margin, 0.5*button_size + margin), screen)
-    pause = make_button('images/pause.png', (width - 0.5*button_size - margin, 1.5*button_size + 2*margin), screen)
+    restart = make_button('images/restart.png', (width - 0.5*button_size - margin, 1.5*button_size + 2*margin), screen)
     stop = make_button('images/stop.png', (width - 0.5*button_size - margin, 2.5*button_size + 3*margin), screen)
 
     stop_coordinates = {'TDOG Depot': (0.1*width, 0.5*height),
@@ -110,7 +109,10 @@ def animate(map):
                 if start[1].collidepoint(mouse):
                     # TODO: disable start button after clicking?
                     print('Start')
-                    map.simulate(18*60, debug=False, animate=True, surface=screen, coordinates=stop_coordinates)
+                    map.simulate(time, debug=False, animate=True, surface=screen, coordinates=stop_coordinates)
+                if restart[1].collidepoint(mouse):
+                    print('Reset')
+                    map.reset()
                 if stop[1].collidepoint(mouse):
                     sys.exit()
 
@@ -118,4 +120,4 @@ def animate(map):
 
 if __name__ == "__main__":
     ithaca = create_map()
-    animate(ithaca)
+    animate(ithaca, 60)
