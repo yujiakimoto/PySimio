@@ -151,7 +151,7 @@ class Map:
         stats['total distance'] = total_traveled  # total distance traveled
         return stats
 
-    def reset(self, replicate=False):
+    def reset(self):
         """ reset simulation """
         # TODO : make this cleaner
         self.prev_time = 0

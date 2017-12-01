@@ -18,7 +18,7 @@ def thread_process(models):
     stats = m.collect_stats()
     stats["model"] = i
 
-    m.reset()  # reset the simulation
+    # m.reset()  # reset the simulation
     return stats
 
 
@@ -52,6 +52,8 @@ def experiment(models, max_time, iteration, output_report=True, output='reports.
 
         thread.terminate()  # kill the thread
 
+
+
     print(pd.DataFrame(results).sort_values(by='iteration').groupby('model').mean())
 
     print("experiment done")
@@ -63,9 +65,12 @@ def experiment(models, max_time, iteration, output_report=True, output='reports.
 
 
 if __name__ == '__main__':
-    num_maps = 3
-    maps = []
-    for i in range(num_maps):
-        maps.append(create_map())
 
-    experiment(maps, 500, 10, output_report=False)
+    ITERATION = 10000
+
+    model1 = create_map(buses_per_route = (7, 0, 0), time = ITERATION)
+    model2 = create_map(buses_per_route = (5, 1, 1), time = ITERATION)
+    model3 = create_map(buses_per_route = (3, 2, 2), time = ITERATION)
+    model = [model1, model2, model3]
+
+    experiment(model, ITERATION, 20, output_report=True, output = 'steady_state.csv')
