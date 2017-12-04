@@ -255,6 +255,7 @@ class Bus:
                 stop.people_waiting.remove(person)
                 stop.num_waiting -= 1
                 stop.num_waiting_hr -= 1
+                stop.num_waiting_hr = max(0, stop.num_waiting_hr)
 
                 person.waiting_time = boarding_time - person.start_time  # record waiting time
                 person.origin.add_waiting_time(person.destination, person.waiting_time) # update the origin waiting time
