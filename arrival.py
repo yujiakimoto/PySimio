@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 
 
-def generate_arrival(rates, interval = 180):
+def generate_arrival(rates, interval=180):
     """generate the data based on arrival rate (# arrival / hour)
     Args:
         rates (list) : list of arrival rate
@@ -38,3 +38,6 @@ if __name__ == '__main__':
     ctown_weg = generate_arrival(rates['Ctown to Weg'].values)
     # ctown - com
     ctown_com = generate_arrival(rates['Ctown to Com'].values)
+
+    print(len(weg_com))
+    print(weg_com < 180)

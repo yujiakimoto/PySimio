@@ -442,6 +442,7 @@ class BusStop:
 
     def reset(self):
         """Reset map to initial (or newly generated) settings"""
+        self.num_waiting = 0
         self.people_waiting = []
         self.avg_num_waiting = 0
         self.waiting_time = {}
