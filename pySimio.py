@@ -84,7 +84,8 @@ class Map:
                 hour = int(time/60)
                 if hour not in bs.avg_num_waiting_t.keys():
                     bs.avg_num_waiting_t[hour] = 0
-                bs.avg_num_waiting_t[hour] += delta_time * bs.num_waiting
+                    bs.num_waiting_hr = 0
+                bs.avg_num_waiting_t[hour] += delta_time * bs.num_waiting_hr
 
 
             # TODO: make this more elegant
@@ -253,6 +254,7 @@ class Bus:
 
                 stop.people_waiting.remove(person)
                 stop.num_waiting -= 1
+                stop.num_waiting_hr -= 1
 
                 person.waiting_time = boarding_time - person.start_time  # record waiting time
                 person.origin.add_waiting_time(person.destination, person.waiting_time) # update the origin waiting time
@@ -350,6 +352,7 @@ class BusStop:
 
         self.name = name            # name of bus stop
         self.num_waiting = 0        # bus stop starts with nobody waiting
+        self.num_waiting_hr = 0     # hourly waiting number at bus stop
         self.people_waiting = []    # list of people waiting at this stop; initially empty
         self.arrival_rates = {}     # dict of arrival rates (key:destination, value: arrival rate)
         self.times = {}             # dict of arrival times (key:destination, value:list of times)
@@ -415,6 +418,7 @@ class BusStop:
     def arrival(self, person):
         """Models the arrival of a person to a bus stop"""
         self.num_waiting += 1
+        self.num_waiting_hr += 1
         self.people_waiting.append(person)
 
     def add_waiting_time(self, dest, time):
@@ -442,11 +446,9 @@ class BusStop:
 
     def reset(self):
         """Reset map to initial (or newly generated) settings"""
-        self.num_waiting = 0        # bus stop starts with nobody waiting
-        # self.people_waiting = []    # list of people waiting at this stop; initially empty
-        # self.arrival_rates = {}     # dict of arrival rates (key:destination, value: arrival rate)
-        # self.times = {}
-
+        self.num_waiting = 0
+        self.people_waiting = []
+        self.num_waiting_hr = 0
         self.avg_num_waiting = 0
         self.waiting_time = {}
         self.num_getoff = {}
