@@ -2,6 +2,7 @@ import numpy as np
 import pygame
 import datetime
 from time import sleep
+from arrival import generate_arrival
 import re
 
 
@@ -25,6 +26,7 @@ class Map:
         self.bus_stops = bus_stops          # list of BusStop objects
         self.event_queue = []               # an event queue to manage discrete simulation
         self.prev_time = 0                  # keep track of previous event time
+        self.surface = None
 
     def simulate(self, max_time, debug=False, animate=False, **settings):
         """Run simulation of this map
@@ -46,6 +48,7 @@ class Map:
         for bus_stop in self.bus_stops.values():
             bus_stop.generate_data(max_time)
             if animate:
+                self.surface = settings['surface']
                 bus_stop.add_animation(settings['surface'], settings['coordinates'][bus_stop.name])
 
         # main loop
@@ -178,6 +181,7 @@ class Map:
             bus_stop.reset()
             if bus_stop.animate:
                 bus_stop.update(0)
+                self.update_clock(self.surface, 0)
 
 
 class Bus:
@@ -347,7 +351,7 @@ class BusStop:
         self.name = name            # name of bus stop
         self.num_waiting = 0        # bus stop starts with nobody waiting
         self.people_waiting = []    # list of people waiting at this stop; initially empty
-        self.inter_arrivals = {}    # dict of inter-arrival times (key:destination, value: avg. inter-arrival time)
+        self.arrival_rates = {}     # dict of arrival rates (key:destination, value: arrival rate)
         self.times = {}             # dict of arrival times (key:destination, value:list of times)
 
         self.prev_num_waiting = 0   # used in animation to remove old images
@@ -361,16 +365,21 @@ class BusStop:
 
         self.avg_num_waiting_t = {} # time-series for the number of people waiting
 
-    def add_data(self, inter_arrivals):
-        """Record inter-arrival rates to this bus stop as a dict (key: destination, value: inter-arrival time)"""
-        self.inter_arrivals = inter_arrivals
+    def add_data(self, arrival_rates):
+        """Record arrival rates to this bus stop as a dict (key: destination, value: arrival rate(s))"""
+        self.arrival_rates = arrival_rates
 
     def generate_data(self, max_time):
         # TODO: generate with non-constant arrival rate
-        for stop in self.inter_arrivals.keys():
-            lmbda = self.inter_arrivals[stop]
+        for stop in self.arrival_rates.keys():
+            lmbda = self.arrival_rates[stop]
             np.random.seed()
-            self.times[stop] = list(np.cumsum(np.random.exponential(lmbda, int(max_time/lmbda))))
+            if isinstance(lmbda, (list, np.ndarray)):
+                self.times[stop] = list(generate_arrival(lmbda, interval=180))
+            elif isinstance(lmbda, (int, float)):
+                self.times[stop] = list(np.cumsum(np.random.exponential(1/lmbda, int(max_time*lmbda))))
+            else:
+                raise ValueError('Arrival rates must be specified as a number or list/array.')
 
     def add_animation(self, surface, coords):
         """Set animation attributes

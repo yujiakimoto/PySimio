@@ -1,11 +1,12 @@
 import sys
+import pandas as pd
 import numpy as np
 import pygame
 import datetime
 from pySimio import *
 
 
-def create_map(buses_per_route=(7, 0, 0), lmbda=5, name = None):
+def create_map(buses_per_route=(7, 0, 0), arrival_data='data/ArrivalRates.xlsx', name=None):
 
     # create BusStop objects
     depot = BusStop('TDOG Depot')
@@ -15,11 +16,12 @@ def create_map(buses_per_route=(7, 0, 0), lmbda=5, name = None):
     com_west = BusStop('Commons-Westbound')
     ctown = BusStop('Collegetown')
 
-    # feed inter-arrival time data to each bus stop
-    weg_east.add_data({com_east: lmbda, ctown: lmbda})
-    com_east.add_data({ctown: lmbda})
-    com_west.add_data({weg_west: lmbda})
-    ctown.add_data({com_west: lmbda, weg_west: lmbda})
+    # feed arrival rate data to each bus stop
+    rates = pd.read_excel(arrival_data)
+    weg_east.add_data({com_east: rates['Weg to Com'].values, ctown: rates['Weg to Ctown'].values})
+    com_east.add_data({ctown: rates['Com to Ctown'].values})
+    com_west.add_data({weg_west: rates['Com to Weg'].values})
+    ctown.add_data({com_west: rates['Ctown to Com'].values, weg_west: rates['Ctown to Weg'].values})
 
     # create a Route object for each of the 3 routes
     route1 = Route([depot, weg_east, com_east, ctown, com_west, weg_west, depot], [0.5, 2, 2, 2, 2, 0.5], 1)
@@ -62,7 +64,8 @@ def animate(map, time):
     margin = 10
     start = make_button('images/start.png', (width - 0.5*button_size - margin, 0.5*button_size + margin), screen)
     restart = make_button('images/restart.png', (width - 0.5*button_size - margin, 1.5*button_size + 2*margin), screen)
-    stop = make_button('images/stop.png', (width - 0.5*button_size - margin, 2.5*button_size + 3*margin), screen)
+    edit = make_button('images/settings.png', (width - 0.5*button_size - margin, 2.5*button_size + 3*margin), screen)
+    close = make_button('images/stop.png', (width - 0.5*button_size - margin, 3.5*button_size + 4*margin), screen)
 
     stop_coordinates = {'TDOG Depot': (0.1*width, 0.5*height),
                         'Wegmans-Eastbound': (0.3*width, 0.3*height),
@@ -101,12 +104,13 @@ def animate(map, time):
                 if restart[1].collidepoint(mouse):
                     print('Reset')
                     map.reset()
-                if stop[1].collidepoint(mouse):
+                if close[1].collidepoint(mouse):
                     print('Exit')
                     sys.exit()
 
         pygame.display.update()
 
 if __name__ == "__main__":
-    ithaca = create_map(buses_per_route=(7, 0, 0), lmbda=5)
+
+    ithaca = create_map(buses_per_route=(7, 0, 0))
     animate(ithaca, 120)
