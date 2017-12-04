@@ -2,6 +2,7 @@ import numpy as np
 import pygame
 import datetime
 from time import sleep
+import re
 
 
 class Event:
@@ -75,6 +76,14 @@ class Map:
                 bs = self.bus_stops[bs]
                 bs.avg_num_waiting += delta_time * bs.num_waiting                 # average people waiting at each stop
 
+            for bs in self.bus_stops.keys():                                      # average people waiting at each hour
+                bs = self.bus_stops[bs]
+                hour = int(time/60)
+                if hour not in bs.avg_num_waiting_t.keys():
+                    bs.avg_num_waiting_t[hour] = 0
+                bs.avg_num_waiting_t[hour] += delta_time * bs.num_waiting
+
+
             # TODO: make this more elegant
             if time > max_time:
                 break
@@ -108,6 +117,10 @@ class Map:
         for bs in self.bus_stops.keys():
             bs = self.bus_stops[bs]
             bs.avg_num_waiting /= max_time
+            waiting_t = bs.avg_num_waiting_t
+            waiting_t = np.array([value for (key, value) in sorted(bs.avg_num_waiting_t.items())])
+            bs.avg_num_waiting_t = waiting_t/60
+
 
         print('Simulation complete')
         # self.reset()
@@ -138,6 +151,7 @@ class Map:
         for bs in self.bus_stops.keys():
             bs = self.bus_stops[bs]
             stats[bs.name + " avg people waiting"] = bs.avg_num_waiting  # avg. number of people waiting at each stop
+            stats[bs.name + " hourly people waiting"] = re.split("\[ |\]", str(bs.avg_num_waiting_t))[1]
             total_waiting = 0
             total_people = 0
             for dest in bs.waiting_time.keys():
@@ -345,6 +359,8 @@ class BusStop:
         self.waiting_time = {}      # destination(str) -> waiting time
         self.num_getoff = {}        # destination(str) -> number of people used this path
 
+        self.avg_num_waiting_t = {} # time-series for the number of people waiting
+
     def add_data(self, inter_arrivals):
         """Record inter-arrival rates to this bus stop as a dict (key: destination, value: inter-arrival time)"""
         self.inter_arrivals = inter_arrivals
@@ -412,7 +428,7 @@ class BusStop:
                     break
         if self.animate:
             self.update_animation()
-            # sleep(0.01)              # controls speed of animation
+            sleep(0.1)              # controls speed of animation
             pygame.display.flip()      # update display
 
     def reset(self):
@@ -421,6 +437,7 @@ class BusStop:
         self.avg_num_waiting = 0
         self.waiting_time = {}
         self.num_getoff = {}
+        self.avg_num_waiting_t = {}
 
 
 class Person:
