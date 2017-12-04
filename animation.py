@@ -61,7 +61,8 @@ def animate(map, time):
     margin = 10
     start = make_button('images/start.png', (width - 0.5*button_size - margin, 0.5*button_size + margin), screen)
     restart = make_button('images/restart.png', (width - 0.5*button_size - margin, 1.5*button_size + 2*margin), screen)
-    stop = make_button('images/stop.png', (width - 0.5*button_size - margin, 2.5*button_size + 3*margin), screen)
+    edit = make_button('images/settings.png', (width - 0.5*button_size - margin, 2.5*button_size + 3*margin), screen)
+    close = make_button('images/stop.png', (width - 0.5*button_size - margin, 3.5*button_size + 4*margin), screen)
 
     stop_coordinates = {'TDOG Depot': (0.1*width, 0.5*height),
                         'Wegmans-Eastbound': (0.3*width, 0.3*height),
@@ -97,11 +98,10 @@ def animate(map, time):
                     # TODO: disable start button after clicking?
                     print('Start')
                     map.simulate(time, debug=False, animate=True, surface=screen, coordinates=stop_coordinates)
-                    print(map.collect_stats()['Bus 1 avg occupancy'])
                 if restart[1].collidepoint(mouse):
                     print('Reset')
                     map.reset()
-                if stop[1].collidepoint(mouse):
+                if close[1].collidepoint(mouse):
                     print('Exit')
                     sys.exit()
 

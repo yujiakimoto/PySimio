@@ -24,6 +24,7 @@ class Map:
         self.bus_stops = bus_stops          # list of BusStop objects
         self.event_queue = []               # an event queue to manage discrete simulation
         self.prev_time = 0                  # keep track of previous event time
+        self.surface = None
 
     def simulate(self, max_time, debug=False, animate=False, **settings):
         """Run simulation of this map
@@ -45,6 +46,7 @@ class Map:
         for bus_stop in self.bus_stops.values():
             bus_stop.generate_data(max_time)
             if animate:
+                self.surface = settings['surface']
                 bus_stop.add_animation(settings['surface'], settings['coordinates'][bus_stop.name])
 
         # main loop
@@ -164,6 +166,7 @@ class Map:
             bus_stop.reset()
             if bus_stop.animate:
                 bus_stop.update(0)
+                self.update_clock(self.surface, 0)
 
 
 class Bus:
