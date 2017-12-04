@@ -442,7 +442,11 @@ class BusStop:
 
     def reset(self):
         """Reset map to initial (or newly generated) settings"""
-        self.people_waiting = []
+        self.num_waiting = 0        # bus stop starts with nobody waiting
+        # self.people_waiting = []    # list of people waiting at this stop; initially empty
+        # self.arrival_rates = {}     # dict of arrival rates (key:destination, value: arrival rate)
+        # self.times = {}
+
         self.avg_num_waiting = 0
         self.waiting_time = {}
         self.num_getoff = {}
