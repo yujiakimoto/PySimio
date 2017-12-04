@@ -2,6 +2,7 @@ import numpy as np
 import pygame
 import datetime
 from time import sleep
+from arrival import generate_arrival
 
 
 class Event:
@@ -336,7 +337,7 @@ class BusStop:
         self.name = name            # name of bus stop
         self.num_waiting = 0        # bus stop starts with nobody waiting
         self.people_waiting = []    # list of people waiting at this stop; initially empty
-        self.inter_arrivals = {}    # dict of inter-arrival times (key:destination, value: avg. inter-arrival time)
+        self.arrival_rates = {}     # dict of arrival rates (key:destination, value: arrival rate)
         self.times = {}             # dict of arrival times (key:destination, value:list of times)
 
         self.prev_num_waiting = 0   # used in animation to remove old images
@@ -348,16 +349,21 @@ class BusStop:
         self.waiting_time = {}      # destination(str) -> waiting time
         self.num_getoff = {}        # destination(str) -> number of people used this path
 
-    def add_data(self, inter_arrivals):
-        """Record inter-arrival rates to this bus stop as a dict (key: destination, value: inter-arrival time)"""
-        self.inter_arrivals = inter_arrivals
+    def add_data(self, arrival_rates):
+        """Record arrival rates to this bus stop as a dict (key: destination, value: arrival rate(s))"""
+        self.arrival_rates = arrival_rates
 
     def generate_data(self, max_time):
         # TODO: generate with non-constant arrival rate
-        for stop in self.inter_arrivals.keys():
-            lmbda = self.inter_arrivals[stop]
+        for stop in self.arrival_rates.keys():
+            lmbda = self.arrival_rates[stop]
             np.random.seed()
-            self.times[stop] = list(np.cumsum(np.random.exponential(lmbda, int(max_time/lmbda))))
+            if isinstance(lmbda, (list, np.ndarray)):
+                self.times[stop] = list(generate_arrival(lmbda, interval=180))
+            elif isinstance(lmbda, (int, float)):
+                self.times[stop] = list(np.cumsum(np.random.exponential(1/lmbda, int(max_time*lmbda))))
+            else:
+                raise ValueError('Arrival rates must be specified as a number or list/array.')
 
     def add_animation(self, surface, coords):
         """Set animation attributes
