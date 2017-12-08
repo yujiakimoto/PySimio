@@ -81,7 +81,7 @@ class Map:
 
             for bs in self.bus_stops.keys():                                      # average people waiting at each hour
                 bs = self.bus_stops[bs]
-                hour = int(time/60)
+                hour = int(time)
                 if hour not in bs.avg_num_waiting_t.keys():
                     bs.avg_num_waiting_t[hour] = 0
                     bs.num_waiting_hr = 0
@@ -367,7 +367,7 @@ class BusStop:
         self.waiting_time = {}      # destination(str) -> waiting time
         self.num_getoff = {}        # destination(str) -> number of people used this path
 
-        self.avg_num_waiting_t = {} # time-series for the number of people waiting
+        self.avg_num_waiting_t = {} # destination(str) -> list of number per hour
 
     def add_data(self, arrival_rates):
         """Record arrival rates to this bus stop as a dict (key: destination, value: arrival rate(s))"""

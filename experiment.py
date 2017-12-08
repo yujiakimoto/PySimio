@@ -77,14 +77,17 @@ if __name__ == '__main__':
 
     ITERATION = 60*18
     RATE = 7
-    m1 = (7, 0, 0)
-    m2 = (5, 1, 1)
-    m3 = (3, 2, 2)
-    m3 = (0, 7, 0)
+    m1 = (5, 1, 1)
+    # m2 = (4, 1, 2)
+    # m3 = (4, 1, 1)
+    # m3 = (4, 2, 1)
+    # m4 = (0, 7, 0)
+    # m5 = (1, 1, 5)
 
     model1 = create_map(buses_per_route = m1, name = model_name(m1))
-    model2 = create_map(buses_per_route = m2, name = model_name(m2))
-    model3 = create_map(buses_per_route = m3, name = model_name(m3))
-    model = [model1, model2, model3]
+    # model2 = create_map(buses_per_route = m2, name = model_name(m2))
+    # model3 = create_map(buses_per_route = m3, name = model_name(m3))
 
-    experiment(model, ITERATION, 20, output_report=True, output = 'para.csv')
+    model = [model1]
+
+    experiment(model, ITERATION, 20, output_report=True, output = 'opt.csv')

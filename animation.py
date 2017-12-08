@@ -29,7 +29,7 @@ def create_map(buses_per_route=(7, 0, 0), arrival_data='data/ArrivalRates.xlsx',
     route3 = Route([depot, weg_east, com_east, com_west, weg_west, depot], [0.5, 2, 2, 2, 0.5], 3)
 
     # create Bus objects
-    assert(sum(buses_per_route) == 7), "There must be 7 buses total"
+    # assert(sum(buses_per_route) == 7), "There must be 7 buses total"
     bus_list = []
     bus_num = 1
     for i, num in enumerate(buses_per_route):
