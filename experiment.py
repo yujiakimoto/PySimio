@@ -80,10 +80,11 @@ if __name__ == '__main__':
     m1 = (7, 0, 0)
     m2 = (5, 1, 1)
     m3 = (3, 2, 2)
+    m3 = (0, 7, 0)
 
-    model1 = create_map(buses_per_route = m1, name = model_name(m1)+'-l'+str(RATE))
-    model2 = create_map(buses_per_route = m2, name = model_name(m2)+'-l'+str(RATE))
-    model3 = create_map(buses_per_route = m3, name = model_name(m3)+'-l'+str(RATE))
+    model1 = create_map(buses_per_route = m1, name = model_name(m1))
+    model2 = create_map(buses_per_route = m2, name = model_name(m2))
+    model3 = create_map(buses_per_route = m3, name = model_name(m3))
     model = [model1, model2, model3]
 
     experiment(model, ITERATION, 20, output_report=True, output = 'para.csv')
