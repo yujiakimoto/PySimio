@@ -6,7 +6,7 @@ import datetime
 from pySimio import *
 
 
-def create_map(buses_per_route=(7, 0, 0), arrival_data='data/ArrivalRates.xlsx', name=None):
+def create_map(buses_per_route=(7, 0, 0), arrival_data='data/Test.xlsx', name=None):
 
     # create BusStop objects
     depot = BusStop('TDOG Depot')
