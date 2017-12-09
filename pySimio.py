@@ -110,6 +110,7 @@ class Map:
                 bs = self.bus_stops[bs]
                 bs.avg_num_waiting += delta_time * bs.num_waiting                 # average people waiting at each stop
 
+
             for bs in self.bus_stops.keys():                                      # average people waiting at each hour
                 bs = self.bus_stops[bs]
                 if hour not in bs.avg_num_waiting_t.keys():
@@ -139,6 +140,7 @@ class Map:
                 # TODO: calculate the delay time for the bus
                 delay = 0
                 arv_event = next_event.bus.depart(next_event.bus_stop, next_event.time, time + delay)
+                self.event_queue.append(arv_event) # add arrival event to the queue
 
                 # if next_event.bus_stop.name == 'TDOG Depot':
                 #     for p in next_event.bus.passengers:
@@ -156,7 +158,7 @@ class Map:
                 self.path_occupancy[next_event.bus_stop.name][arv_event.bus_stop.name][hour] += next_event.bus.occupancy
                 self.path_travel[next_event.bus_stop.name][arv_event.bus_stop.name][hour] += 1
 
-                self.event_queue.append(arv_event)  # add arrival event to the queue
+
 
 
             self.prev_time = time # update the last event time
@@ -376,6 +378,7 @@ class Bus:
 
         before = len(self.passengers)
         # if current stop is destination, passenger will get off
+
         for person in self.passengers[:]:
             if person.destination == stop:
                 self.passengers.remove(person)
