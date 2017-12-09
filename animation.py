@@ -6,6 +6,7 @@ import datetime
 from pySimio import *
 from experiment import create_map
 
+
 def make_button(picture, coords, surface):
     image = pygame.image.load(picture)
     image_rect = image.get_rect()

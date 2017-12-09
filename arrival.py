@@ -13,15 +13,14 @@ def generate_arrival(rates, interval=180):
     current_idx = 0
     arrival_data = []
     # loop until the rates exhausts
-    while current_idx < len(rates):
+    for current_idx, rate in enumerate(rates):
         c = 0
         # refresh every interval
         while current_time < interval * (current_idx+1):
-            inter_arrival = np.random.exponential(1/(rates[current_idx]/60))
+            inter_arrival = np.random.exponential(1/(rate/60))
             current_time += inter_arrival
             arrival_data.append(current_time)
             c += 1
-        current_idx += 1
     return np.array(arrival_data)
 
 if __name__ == '__main__':
@@ -39,5 +38,4 @@ if __name__ == '__main__':
     # ctown - com
     ctown_com = generate_arrival(rates['Ctown to Com'].values)
 
-    print(len(weg_com))
-    print(weg_com < 180)
+    print(len(ctown_com))

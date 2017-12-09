@@ -30,6 +30,7 @@ def create_map(routes_per_bus, arrival_data='data/ArrivalRates.xlsx', name=None)
     # assert(sum(buses_per_route) == 7), "There must be 7 buses total"
     bus_list = []
     bus_num = 1
+
     for routes_per_hr in routes_per_bus:
         start_route = routes_per_hr[0]
         bus_list.append(Bus(name='Bus'+str(bus_num), route=eval('route'+str(start_route)), schedule=routes_per_hr))
@@ -63,6 +64,7 @@ def thread_process(models):
         results.append(stats)
 
     return results
+
 
 def model_name(route):
     return str(route[0]) + str(route[1]) + str(route[2])
@@ -121,5 +123,5 @@ if __name__ == '__main__':
     model1 = create_map(routes_per_bus=[b1, b2, b3, b4, b5, b6, b7], name='m1')
     model2 = create_map(routes_per_bus=[b1, b2, b3, b4, b5, b6, b7], name='m2')
 
-    model = [model1, model2]
-    experiment(model, ITERATION, 20, output_report=True, output = 'opt.csv')
+    model = [model1, model2, model3, model4, model5]
+    experiment(model, ITERATION, 10, output_report=True, output = 'opt.csv')

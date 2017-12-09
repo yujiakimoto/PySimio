@@ -4,6 +4,7 @@ import datetime
 from time import sleep
 from arrival import generate_arrival
 import re
+from time import time as tf
 
 
 class Event:
@@ -50,11 +51,15 @@ class Map:
         # draw bus stop (if animate) and generate new data
         for bus_stop in self.bus_stops.values():
             bus_stop.generate_data(max_time)
+            # for k in bus_stop.times.keys():
+            #     print (bus_stop.name, k.name,len(bus_stop.times[k]))
             if animate:
                 self.surface = settings['surface']
                 bus_stop.add_animation(settings['surface'], settings['coordinates'][bus_stop.name])
 
+
         # main loop
+        start = tf()
         while time < max_time:
             if debug:                                                       # wait for user input to proceed
                 input()
@@ -69,30 +74,49 @@ class Map:
             next_event = sorted_queue[0]                                    # get the next earliest event
             time = next_event.time                                          # current event time
             delta_time = time - self.prev_time                              # time - time_lst to calculate the integral
-
+            # print(delta_time)
             if debug:                                                       # print the event
                 next_event.print_event()
+
+            hour = int(time/60)
 
             # update the utility
             for b in self.buses:
                 b.avg_occupancy += delta_time * b.occupancy                       # average occupancy of each bus
                 b.avg_standing += delta_time * max(b.occupancy - b.num_seats, 0)  # average people standing for each bus
+                if hour not in b.avg_occupancy_t.keys():
+                    # b.avg_occupancy_t[hour-1] += delta_time * b.occupancy
+                    b.avg_occupancy_t[hour] = 0
+                else:
+                    b.avg_occupancy_t[hour] += delta_time * b.occupancy
 
             for bs in self.bus_stops.keys():
                 bs = self.bus_stops[bs]
                 bs.avg_num_waiting += delta_time * bs.num_waiting                 # average people waiting at each stop
 
+
+            # if hour not in self.bus_stops[list(self.bus_stops.keys())[0]].avg_num_waiting_t.keys():
+            #     print ('Hour', hour)
+
             for bs in self.bus_stops.keys():                                      # average people waiting at each hour
                 bs = self.bus_stops[bs]
-                hour = int(time)
                 if hour not in bs.avg_num_waiting_t.keys():
+                    # bs_t = 0
+                    # for k in bs.times.keys():
+                    #     bs_t += len(bs.times[k])
+                    #
+                    # print (bs.name, bs_t, len(bs.people_waiting), bs_t+len(bs.people_waiting), bs.call)
+                    bs.call = 0
                     bs.avg_num_waiting_t[hour] = 0
-                    bs.num_waiting_hr = 0
-                bs.avg_num_waiting_t[hour] += delta_time * bs.num_waiting_hr
+                    bs.avg_num_waiting_snapshot[hour] = bs.num_waiting
+                    # bs.num_waiting_hr = 0
+                else:
+                    bs.avg_num_waiting_t[hour] += delta_time * bs.num_waiting_hr
 
             # TODO: make this more elegant
             if time > max_time:
                 break
+
 
             # process arrival event
             if next_event.type == "arrival":
@@ -106,12 +130,16 @@ class Map:
                 dpt_event = next_event.bus.arrive(next_event.bus_stop, next_event.time, new_route, debug=debug)
                 self.event_queue.append(dpt_event)
 
+
             # process departure event
             else:
+
                 # TODO: calculate the delay time for the bus
                 delay = 0
                 arv_event = next_event.bus.depart(next_event.bus_stop, next_event.time, time + delay)
                 self.event_queue.append(arv_event) # add arrival event to the queue
+
+
 
             self.prev_time = time # update the last event time
 
@@ -119,15 +147,21 @@ class Map:
         for b in self.buses:
             b.avg_occupancy /= max_time
             b.avg_standing /= max_time
+            waiting_t = np.array([value for (key, value) in sorted(b.avg_occupancy_t.items())])
+            b.avg_occupancy_t = waiting_t/60
+
 
         for bs in self.bus_stops.keys():
             bs = self.bus_stops[bs]
             bs.avg_num_waiting /= max_time
             waiting_t = bs.avg_num_waiting_t
             waiting_t = np.array([value for (key, value) in sorted(bs.avg_num_waiting_t.items())])
+            bs.avg_num_waiting_snapshot = np.array([value for (key, value) in sorted(bs.avg_num_waiting_snapshot.items())])
             bs.avg_num_waiting_t = waiting_t/60
+            # print(bs.name, bs.call)
 
         print('Simulation complete')
+        print("Simulation Time : ", tf() - start)
         # self.reset()
 
     def update_clock(self, surface, elapsed):
@@ -152,11 +186,13 @@ class Map:
             total_traveled += bus.distance                          # traveling distance for all buses
             stats[bus.name + " avg occupancy"] = bus.avg_occupancy  # average occupancy for each buses
             stats[bus.name + " avg standing"] = bus.avg_standing    # average number of people standing for each bus
+            stats[bus.name + " hourly occupancy"] = re.split("\[ |\]", str(bus.avg_occupancy_t[:-1]))[1]
 
         for bs in self.bus_stops.keys():
             bs = self.bus_stops[bs]
             stats[bs.name + " avg people waiting"] = bs.avg_num_waiting  # avg. number of people waiting at each stop
-            stats[bs.name + " hourly people waiting"] = re.split("\[ |\]", str(bs.avg_num_waiting_t))[1]
+            stats[bs.name + " hourly people waiting"] = re.split("\[ |\]", str(bs.avg_num_waiting_t[:-1]))[1]
+            # stats[bs.name + " hourly people snapshot"] = re.split("\[ |\]", str(bs.avg_num_waiting_snapshot[:-1]))[1]
             total_waiting = 0
             total_people = 0
             for dest in bs.waiting_time.keys():
@@ -226,6 +262,8 @@ class Bus:
         self.avg_occupancy = 0
         self.avg_standing = 0
 
+        self.avg_occupancy_t = {}                          # hour -> average occupancy dict
+
         self.animate = False
         self.surface = None
         self.icon = None
@@ -249,24 +287,27 @@ class Bus:
         # people waiting at bus stop will get on if bus goes to desired destination and there is space on the bus
         stop.update(time)
         boarding_time = time
+        count = 0
         for person in stop.people_waiting:
+            count += 1
             if self.occupancy == self.max_cap:
                 break
             if self.goes_to(person.destination):
                 self.passengers.append(person)
                 self.occupancy += 1
-
                 stop.people_waiting.remove(person)
                 stop.num_waiting -= 1
                 stop.num_waiting_hr -= 1
                 stop.num_waiting_hr = max(0, stop.num_waiting_hr)
-
                 person.waiting_time = boarding_time - person.start_time  # record waiting time
                 person.origin.add_waiting_time(person.destination, person.waiting_time) # update the origin waiting time
                 # boarding_time += np.random.triangular(0, 1/60, 5/60)   # boarding times have triangular distribution
                 stop.update(boarding_time)  # people arrive while bus is boarding
-
                 person.state = 'standing'
+        if count > 1000:
+            pass
+            # print(stop.name, int(time/60), count)
+
         return boarding_time
 
     def arrive(self, stop, time, new_route=None, debug=False):
@@ -340,6 +381,7 @@ class Bus:
         self.distance = 0
         self.avg_occupancy = 0
         self.avg_standing = 0
+        self.avg_occupancy_t = {}
 
 
 class BusStop:
@@ -372,6 +414,10 @@ class BusStop:
         self.num_getoff = {}        # destination(str) -> number of people used this path
 
         self.avg_num_waiting_t = {} # destination(str) -> list of number per hour
+        self.avg_num_waiting_snapshot = {}
+
+
+        self.call = 0
 
     def add_data(self, arrival_rates):
         """Record arrival rates to this bus stop as a dict (key: destination, value: arrival rate(s))"""
@@ -424,6 +470,7 @@ class BusStop:
         """Models the arrival of a person to a bus stop"""
         self.num_waiting += 1
         self.num_waiting_hr += 1
+        self.call += 1
         self.people_waiting.append(person)
 
     def add_waiting_time(self, dest, time):
@@ -444,6 +491,8 @@ class BusStop:
                     arrival_times.remove(arrival_time)
                 else:
                     break
+
+
         if self.animate:
             self.update_animation()
             # sleep(0.1)               # controls speed of animation
@@ -458,6 +507,8 @@ class BusStop:
         self.waiting_time = {}
         self.num_getoff = {}
         self.avg_num_waiting_t = {}
+        self.avg_num_waiting_snapshot = {}
+        self.call = 0
 
 
 class Person:
@@ -483,7 +534,7 @@ class Person:
         self.state = 'waiting'             # status of person, either 'waiting', 'standing' or 'sitting'
         self.start_time = time             # time at which person started waiting
         self.waiting_time = None           # time spent waiting at bus stop
-        origin.arrival(self)
+        # origin.arrival(self)
 
 
 class Route:
