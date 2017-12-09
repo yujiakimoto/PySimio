@@ -41,7 +41,8 @@ class Map:
         # initialize the event queue
         for i, bus in enumerate(self.buses):
             if bus.route == self.routes[1]:         # buses on Route 2 must start at depot, then change
-                bus.change_route(self.routes[0])
+                bus.route = self.routes[0]
+                bus.request_route_change(self.routes[1])
             # TODO: implement better staggered departures
             if bus.route == self.routes[0]:
                 self.event_queue.append(Event(1, bus, self.bus_stops['TDOG Depot'], 'departure'))
@@ -68,6 +69,14 @@ class Map:
                 for bus_stop in self.bus_stops.values():
                     bus_stop.update(time)                                   # fine-grained animation (much slower)
 
+            hour = int(time / 60)
+            hour_3 = int(time / 180)
+
+            # change routes every 3 hours
+            if int(self.prev_time / 180) < hour_3:
+                for bus in self.buses:
+                    bus.request_route_change(self.routes[hour_3])
+
             sorted_queue = sorted(self.event_queue, key=lambda x: x.time)   # sort the event queue
             self.event_queue = sorted_queue[1:]                             # shift the queue by 1
             next_event = sorted_queue[0]                                    # get the next earliest event
@@ -76,8 +85,6 @@ class Map:
             # print(delta_time)
             if debug:                                                       # print the event
                 next_event.print_event()
-
-            hour = int(time/60)
 
             # update the utility
             for b in self.buses:
@@ -117,19 +124,11 @@ class Map:
 
             # process arrival event
             if next_event.type == "arrival":
-                new_route = None
-                if next_event.bus.route2 and next_event.bus.distance == 2.5:
-                    new_route = self.routes[1]
-                if next_event.bus_stop.name == "TDOG Depot":
-                    # TODO: define the optimal policy to re-route buses
-                    new_route = next_event.bus.route
-
-                dpt_event = next_event.bus.arrive(next_event.bus_stop, next_event.time, new_route, debug=debug)
+                dpt_event = next_event.bus.arrive(next_event.bus_stop, next_event.time, debug=debug)
                 self.event_queue.append(dpt_event)
 
             # process departure event
             else:
-
                 # TODO: calculate the delay time for the bus
                 delay = 0
                 arv_event = next_event.bus.depart(next_event.bus_stop, next_event.time, time + delay)
@@ -238,7 +237,7 @@ class Bus:
 
         self.name = name
         self.route = route
-        self.to_change = 0                             # if current route is temporary, specify route to switch to
+        self.to_change = None                          # if current route is temporary, specify route to switch to
         self.change_tracker = [0, 0]                   # [distance travelled since checkpoint, distance to switch-point]
         self.schedule = schedule                       # list (e.g [1,1,1,1,2,2]) specifying route every 3 hrs
 
@@ -267,14 +266,27 @@ class Bus:
         """Returns True if this bus goes to the specified stop and False otherwise"""
 
         assert(isinstance(stop, BusStop)), "stop must be a BusStop"
-        return stop in self.route.stops
 
-    def change_route(self, route):
-        """Change the route that this bus travels on"""
-        # TODO: implement better logic to find appropriate next stop
-        self.route = route
-        self.next_stop_num = 1
-        self.next_stop = self.route.stops[1]
+        if isinstance(self.to_change, Route):
+            return stop in self.to_change.stops
+        else:
+            return stop in self.route.stops
+
+    def request_route_change(self, route):
+        """Make a request to change the route: may or may not be executed instantaneously"""
+        if self.route == route:
+            return
+        self.to_change = route
+        self.change_tracker[1:] = self.route.switch_points[route.num][self.next_stop]
+
+    def execute_route_change(self):
+        """Execute route change"""
+        if self.change_tracker[0] == self.change_tracker[1]:
+            self.route = self.to_change
+            self.next_stop_num = self.change_tracker[2]
+            self.next_stop = self.route.stops[self.next_stop_num]
+            self.to_change = None
+            self.change_tracker = [0, 0, 0]
 
     def board(self, stop, time):
         """Models the process of people boarding this bus at a certain stop"""
@@ -304,7 +316,7 @@ class Bus:
 
         return boarding_time
 
-    def arrive(self, stop, time, new_route=None, debug=False):
+    def arrive(self, stop, time, debug=False):
         """Models a bus arriving a BusStop stop at a given time"""
 
         if self.animate:
@@ -313,12 +325,12 @@ class Bus:
 
         assert(isinstance(stop, BusStop)), "must arrive at a BusStop"
         # print('{} arrived at {} at t = {}'.format(self.name, self.next_stop.name, time))
-        self.next_stop_num = self.next_stop_num % (len(self.route.stops) - 1) + 1    # update next stop number
-        self.next_stop = self.route.stops[self.next_stop_num]
 
-        # change route if necessary
-        if new_route is not None:
-            self.change_route(new_route)
+        if isinstance(self.to_change, Route):
+            self.execute_route_change()
+        else:
+            self.next_stop_num = self.next_stop_num % (len(self.route.stops) - 1) + 1    # update next stop number
+            self.next_stop = self.route.stops[self.next_stop_num]
 
         # if current stop is destination, passenger will get off
         for person in self.passengers[:]:
@@ -337,6 +349,8 @@ class Bus:
 
         distance_travelled = self.route.distances[self.next_stop_num - 1]
         self.distance += distance_travelled                # add distance travelled by bus
+        if isinstance(self.to_change, Route):
+            self.change_tracker[0] += distance_travelled
 
         if distance_travelled < 2:
             driving_time = (distance_travelled/20) * 60    # average speed of 20km/hr, convert to minutes
@@ -541,11 +555,12 @@ class Route:
         num (int): Route number as defined in writeup.
 
     """
-    def __init__(self, stop_list, distance_list, number):
+    def __init__(self, stop_list, distance_list, switch_points, number):
 
         assert(all(isinstance(stop, BusStop) for stop in stop_list)), "stopList must be a list of BusStop objects"
         assert (len(distance_list) == len(stop_list) - 1), "Input arguments have wrong length!"
 
         self.stops = stop_list              # list of BusStop objects
         self.distances = distance_list      # list of number, which represents the distance between stations
+        self.switch_points = switch_points  # dict of lists specifying switch point information
         self.num = number                   # Route number: one of [1,2,3]
