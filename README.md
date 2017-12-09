@@ -18,6 +18,7 @@ PySimio is built with following libraries:
 - pandas 
 - seaborn, matplotlib 
 - pygame  
+  
 All of the above packages can be installed through the package management system pip as below:
 ```
 pip install numpy pandas seaborn matplotlib pygame
