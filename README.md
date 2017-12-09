@@ -1,5 +1,5 @@
-# PySimio
-**PySimio** is a Python library for discrete-event simulation. You can simulate multiple agents (vehicles, entities) in a non-deterministic system. We support muilti-core processing to speed up experiments. 
+# PySimio: A Library for Discrete-Event Simulation
+**PySimio** is a Python library for object-oriented discrete-event simulation. You can simulate multiple agents (vehicles, entities) in a non-deterministic system. We support muilti-core processing to speed up experiments. 
 
 ![Route map](images/animation.gif)
 
