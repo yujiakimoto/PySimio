@@ -2,7 +2,7 @@ from pySimio import *
 import pandas as pd
 from multiprocessing import Pool
 from itertools import chain
-
+from time import time
 def create_map(buses_per_route=(7, 0, 0), arrival_data='data/ArrivalRates.xlsx', name=None):
 
     # create BusStop objects
@@ -34,6 +34,7 @@ def create_map(buses_per_route=(7, 0, 0), arrival_data='data/ArrivalRates.xlsx',
         for j in range(num):
             bus_list.append(Bus('Bus ' + str(bus_num), eval('route' + str(route_num))))
             bus_num += 1
+    bus_list = list(reversed(bus_list))
 
     return Map([route1, route2, route3], bus_list,
                {'TDOG Depot': depot, 'Wegmans-Eastbound': weg_east, 'Wegmans-Westbound': weg_west,
@@ -114,7 +115,8 @@ if __name__ == '__main__':
     ITERATION = 60*18
     RATE = 7
     m1 = (1, 5, 1)
-    m2 = (1, 1, 5)
+    m2 = (1, 4, 2)
+    m3 = (1, 3, 3)
     # m2 = (4, 1, 2)
     # m3 = (4, 1, 1)
     # m3 = (4, 2, 1)
@@ -123,7 +125,7 @@ if __name__ == '__main__':
 
     model1 = create_map(buses_per_route = m1, name = model_name(m1))
     model2 = create_map(buses_per_route = m2, name = model_name(m2))
-    # model3 = create_map(buses_per_route = m3, name = model_name(m3))
+    model3 = create_map(buses_per_route = m3, name = model_name(m3))
 
-    model = [model1, model2]
-    experiment(model, ITERATION, 20, output_report=True, output = 'opt.csv')
+    model = [model1, model2, model3]
+    experiment(model, ITERATION, 10, output_report=True, output = 'opt.csv')

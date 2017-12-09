@@ -4,6 +4,7 @@ import datetime
 from time import sleep
 from arrival import generate_arrival
 import re
+from time import time as tf
 
 
 class Event:
@@ -42,7 +43,7 @@ class Map:
             if bus.route == self.routes[1]:         # buses on Route 2 must start at depot, then change
                 bus.change_route(self.routes[0])
             # TODO: implement better staggered departures
-            self.event_queue.append(Event(27*i/7, bus, self.bus_stops['TDOG Depot'], 'departure'))
+            self.event_queue.append(Event(0, bus, self.bus_stops['TDOG Depot'], 'departure'))
 
         # draw bus stop (if animate) and generate new data
         for bus_stop in self.bus_stops.values():
@@ -51,7 +52,9 @@ class Map:
                 self.surface = settings['surface']
                 bus_stop.add_animation(settings['surface'], settings['coordinates'][bus_stop.name])
 
+
         # main loop
+        start = tf()
         while time < max_time:
             if debug:                                                       # wait for user input to proceed
                 input()
@@ -92,6 +95,7 @@ class Map:
             if time > max_time:
                 break
 
+
             # process arrival event
             if next_event.type == "arrival":
                 new_route = None
@@ -104,12 +108,16 @@ class Map:
                 dpt_event = next_event.bus.arrive(next_event.bus_stop, next_event.time, new_route, debug=debug)
                 self.event_queue.append(dpt_event)
 
+
             # process departure event
             else:
+
                 # TODO: calculate the delay time for the bus
                 delay = 0
                 arv_event = next_event.bus.depart(next_event.bus_stop, next_event.time, time + delay)
                 self.event_queue.append(arv_event) # add arrival event to the queue
+
+
 
             self.prev_time = time # update the last event time
 
@@ -124,9 +132,11 @@ class Map:
             waiting_t = bs.avg_num_waiting_t
             waiting_t = np.array([value for (key, value) in sorted(bs.avg_num_waiting_t.items())])
             bs.avg_num_waiting_t = waiting_t/60
+            # print(bs.name, bs.call)
 
 
         print('Simulation complete')
+        print("Simulation Time : ", tf() - start)
         # self.reset()
 
     def update_clock(self, surface, elapsed):
@@ -247,24 +257,26 @@ class Bus:
         # people waiting at bus stop will get on if bus goes to desired destination and there is space on the bus
         stop.update(time)
         boarding_time = time
+        count = 0
         for person in stop.people_waiting:
+            count += 1
             if self.occupancy == self.max_cap:
                 break
             if self.goes_to(person.destination):
                 self.passengers.append(person)
                 self.occupancy += 1
-
                 stop.people_waiting.remove(person)
                 stop.num_waiting -= 1
                 stop.num_waiting_hr -= 1
                 stop.num_waiting_hr = max(0, stop.num_waiting_hr)
-
                 person.waiting_time = boarding_time - person.start_time  # record waiting time
                 person.origin.add_waiting_time(person.destination, person.waiting_time) # update the origin waiting time
                 # boarding_time += np.random.triangular(0, 1/60, 5/60)   # boarding times have triangular distribution
                 stop.update(boarding_time)  # people arrive while bus is boarding
-
                 person.state = 'standing'
+        if count > 1000:
+            pass
+            # print(stop.name, int(time/60), count)
 
         return boarding_time
 
@@ -372,6 +384,8 @@ class BusStop:
 
         self.avg_num_waiting_t = {} # destination(str) -> list of number per hour
 
+        self.call = 0
+
     def add_data(self, arrival_rates):
         """Record arrival rates to this bus stop as a dict (key: destination, value: arrival rate(s))"""
         self.arrival_rates = arrival_rates
@@ -439,6 +453,7 @@ class BusStop:
         for destination, arrival_times in self.times.items():
             for arrival_time in arrival_times:
                 if arrival_time < time:
+                    self.call += 1
                     self.arrival(Person(self, destination, arrival_time))
                     arrival_times.remove(arrival_time)
                 else:
@@ -457,6 +472,7 @@ class BusStop:
         self.waiting_time = {}
         self.num_getoff = {}
         self.avg_num_waiting_t = {}
+        self.call = 0
 
 
 class Person:
