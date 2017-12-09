@@ -3,7 +3,8 @@ import pandas as pd
 from multiprocessing import Pool
 from itertools import chain
 
-def create_map(buses_per_route=(7, 0, 0), arrival_data='data/ArrivalRates.xlsx', name=None):
+
+def create_map(routes_per_bus, arrival_data='data/ArrivalRates.xlsx', name=None):
 
     # create BusStop objects
     depot = BusStop('TDOG Depot')
@@ -29,16 +30,14 @@ def create_map(buses_per_route=(7, 0, 0), arrival_data='data/ArrivalRates.xlsx',
     # assert(sum(buses_per_route) == 7), "There must be 7 buses total"
     bus_list = []
     bus_num = 1
-    for i, num in enumerate(buses_per_route):
-        route_num = i + 1
-        for j in range(num):
-            bus_list.append(Bus('Bus ' + str(bus_num), eval('route' + str(route_num))))
-            bus_num += 1
+    for routes_per_hr in routes_per_bus:
+        start_route = routes_per_hr[0]
+        bus_list.append(Bus(name='Bus'+str(bus_num), route=eval('route'+str(start_route)), schedule=routes_per_hr))
+        bus_num += 1
 
     return Map([route1, route2, route3], bus_list,
                {'TDOG Depot': depot, 'Wegmans-Eastbound': weg_east, 'Wegmans-Westbound': weg_west,
                 'Commons-Eastbound': com_east, 'Commons-Westbound': com_west, 'Collegetown': ctown}, name = name)
-
 
 
 def thread_process(models):
@@ -86,7 +85,6 @@ def experiment(models, max_time, iteration, output_report=True, output='reports.
     # shared variable to combine each simulation results
     results = []
 
-
     thread = Pool(len(models))  # initialize threads for each model
     # create keyword-arguments
     args = [{'model': m, 'debug': debug, 'max_time': max_time, 'results': results, 'iteration': iteration}
@@ -96,8 +94,6 @@ def experiment(models, max_time, iteration, output_report=True, output='reports.
     stats = list(chain(*stats))
 
     thread.terminate()  # kill the thread
-
-
 
     print(pd.DataFrame(stats).groupby('model').mean())
 
@@ -113,17 +109,17 @@ if __name__ == '__main__':
 
     ITERATION = 60*18
     RATE = 7
-    m1 = (1, 5, 1)
-    m2 = (1, 1, 5)
-    # m2 = (4, 1, 2)
-    # m3 = (4, 1, 1)
-    # m3 = (4, 2, 1)
-    # m4 = (0, 7, 0)
-    # m5 = (1, 1, 5)
 
-    model1 = create_map(buses_per_route = m1, name = model_name(m1))
-    model2 = create_map(buses_per_route = m2, name = model_name(m2))
-    # model3 = create_map(buses_per_route = m3, name = model_name(m3))
+    b1 = [1, 1, 1, 1, 1, 1]
+    b2 = [1, 1, 1, 1, 1, 1]
+    b3 = [1, 1, 1, 1, 1, 1]
+    b4 = [1, 1, 1, 1, 1, 1]
+    b5 = [1, 1, 1, 1, 1, 1]
+    b6 = [1, 1, 1, 1, 1, 1]
+    b7 = [1, 1, 1, 1, 1, 1]
+
+    model1 = create_map(routes_per_bus=[b1, b2, b3, b4, b5, b6, b7], name='m1')
+    model2 = create_map(routes_per_bus=[b1, b2, b3, b4, b5, b6, b7], name='m2')
 
     model = [model1, model2]
     experiment(model, ITERATION, 20, output_report=True, output = 'opt.csv')

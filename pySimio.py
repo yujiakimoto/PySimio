@@ -90,7 +90,6 @@ class Map:
                     bs.num_waiting_hr = 0
                 bs.avg_num_waiting_t[hour] += delta_time * bs.num_waiting_hr
 
-
             # TODO: make this more elegant
             if time > max_time:
                 break
@@ -128,7 +127,6 @@ class Map:
             waiting_t = np.array([value for (key, value) in sorted(bs.avg_num_waiting_t.items())])
             bs.avg_num_waiting_t = waiting_t/60
 
-
         print('Simulation complete')
         # self.reset()
 
@@ -136,7 +134,7 @@ class Map:
         """Updated clock in bottom right corner of animation"""
         clear = pygame.image.load('images/blank.png')
         clear_rect = clear.get_rect()
-        clear_rect.bottomright = (1080, 720)
+        clear_rect.bottomright = (1800, 1000)
         surface.blit(clear, clear_rect)
 
         font_med = pygame.font.SysFont("Helvetica", 15)
