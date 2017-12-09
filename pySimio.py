@@ -59,7 +59,6 @@ class Map:
                 self.surface = settings['surface']
                 bus_stop.add_animation(settings['surface'], settings['coordinates'][bus_stop.name])
 
-
         # main loop
         start = tf()
         while time < max_time:
@@ -96,6 +95,11 @@ class Map:
                 bs = self.bus_stops[bs]
                 bs.avg_num_waiting += delta_time * bs.num_waiting                 # average people waiting at each stop
 
+<<<<<<< HEAD
+=======
+            # if hour not in self.bus_stops[list(self.bus_stops.keys())[0]].avg_num_waiting_t.keys():
+            #     print ('Hour', hour)
+>>>>>>> 7006a79895c6168bd2c69483fd2d7854b77b07fc
 
             for bs in self.bus_stops.keys():                                      # average people waiting at each hour
                 bs = self.bus_stops[bs]
@@ -112,11 +116,9 @@ class Map:
                 else:
                     bs.avg_num_waiting_t[hour] += delta_time * bs.num_waiting_hr
 
-
             # TODO: make this more elegant
             if time > max_time:
                 break
-
 
             # process arrival event
             if next_event.type == "arrival":
@@ -130,13 +132,13 @@ class Map:
                 dpt_event = next_event.bus.arrive(next_event.bus_stop, next_event.time, new_route, debug=debug)
                 self.event_queue.append(dpt_event)
 
-
             # process departure event
             else:
 
                 # TODO: calculate the delay time for the bus
                 delay = 0
                 arv_event = next_event.bus.depart(next_event.bus_stop, next_event.time, time + delay)
+<<<<<<< HEAD
                 self.event_queue.append(arv_event) # add arrival event to the queue
 
                 # if next_event.bus_stop.name == 'TDOG Depot':
@@ -157,6 +159,9 @@ class Map:
 
 
 
+=======
+                self.event_queue.append(arv_event)  # add arrival event to the queue
+>>>>>>> 7006a79895c6168bd2c69483fd2d7854b77b07fc
 
             self.prev_time = time # update the last event time
 
@@ -167,7 +172,6 @@ class Map:
             waiting_t = np.array([value for (key, value) in sorted(b.avg_occupancy_t.items())])
             b.avg_occupancy_t = waiting_t/60
 
-
         for bs in self.bus_stops.keys():
             bs = self.bus_stops[bs]
             bs.avg_num_waiting /= max_time
@@ -176,7 +180,6 @@ class Map:
             # bs.avg_num_waiting_snapshot = np.array([value for (key, value) in sorted(bs.avg_num_waiting_snapshot.items())])
             bs.avg_num_waiting_t = waiting_t/60
             # print(bs.name, bs.call)
-
 
         print('Simulation complete')
         print("Simulation Time : ", tf() - start)
@@ -187,7 +190,7 @@ class Map:
         """Updated clock in bottom right corner of animation"""
         clear = pygame.image.load('images/blank.png')
         clear_rect = clear.get_rect()
-        clear_rect.bottomright = (1080, 720)
+        clear_rect.bottomright = (1800, 1000)
         surface.blit(clear, clear_rect)
 
         font_med = pygame.font.SysFont("Helvetica", 15)
@@ -272,14 +275,15 @@ class Bus:
         distance (float): Total distance travelled by this bus
 
     """
-    def __init__(self, name, route):
+    def __init__(self, name, route, schedule):
 
         assert(isinstance(route, Route)), "route must be a Route object"
 
         self.name = name
         self.route = route
-        self.route2 = route.num == 2                       # indicates whether bus is supposed to be on route 2
-        # self.schedule = schedule                           # list (e.g [1,1,1,1,2,2]) specifying route every 3 hrs
+        self.to_change = 0                             # if current route is temporary, specify route to switch to
+        self.change_tracker = [0, 0]                   # [distance travelled since checkpoint, distance to switch-point]
+        self.schedule = schedule                       # list (e.g [1,1,1,1,2,2]) specifying route every 3 hrs
 
         self.next_stop_num = 1                             # bus starts at first stop, i.e. index 0
         self.next_stop = self.route.stops[1]
@@ -321,7 +325,7 @@ class Bus:
         stop.update(time)
         boarding_time = time
         count = 0
-        for person in stop.people_waiting:
+        for person in stop.people_waiting[:]:
             count += 1
             if self.occupancy == self.max_cap:
                 break
@@ -361,7 +365,10 @@ class Bus:
 
         before = len(self.passengers)
         # if current stop is destination, passenger will get off
+<<<<<<< HEAD
 
+=======
+>>>>>>> 7006a79895c6168bd2c69483fd2d7854b77b07fc
         for person in self.passengers[:]:
             if person.destination == stop:
                 self.passengers.remove(person)
@@ -528,7 +535,6 @@ class BusStop:
                     arrival_times.remove(arrival_time)
                 else:
                     break
-
 
         if self.animate:
             self.update_animation()
