@@ -72,7 +72,7 @@ class Map:
             next_event = sorted_queue[0]                                    # get the next earliest event
             time = next_event.time                                          # current event time
             delta_time = time - self.prev_time                              # time - time_lst to calculate the integral
-
+            # print(delta_time)
             if debug:                                                       # print the event
                 next_event.print_event()
 
@@ -83,9 +83,10 @@ class Map:
                 b.avg_occupancy += delta_time * b.occupancy                       # average occupancy of each bus
                 b.avg_standing += delta_time * max(b.occupancy - b.num_seats, 0)  # average people standing for each bus
                 if hour not in b.avg_occupancy_t.keys():
+                    # b.avg_occupancy_t[hour-1] += delta_time * b.occupancy
                     b.avg_occupancy_t[hour] = 0
-                b.avg_occupancy_t[hour] += delta_time * b.occupancy
-
+                else:
+                    b.avg_occupancy_t[hour] += delta_time * b.occupancy
 
             for bs in self.bus_stops.keys():
                 bs = self.bus_stops[bs]
@@ -96,8 +97,9 @@ class Map:
 
                 if hour not in bs.avg_num_waiting_t.keys():
                     bs.avg_num_waiting_t[hour] = 0
-                    bs.num_waiting_hr = 0
-                bs.avg_num_waiting_t[hour] += delta_time * bs.num_waiting_hr
+                    # bs.num_waiting_hr = 0
+                else:
+                    bs.avg_num_waiting_t[hour] += delta_time * bs.num_waiting_hr
 
 
             # TODO: make this more elegant
@@ -137,6 +139,7 @@ class Map:
             waiting_t = np.array([value for (key, value) in sorted(b.avg_occupancy_t.items())])
             b.avg_occupancy_t = waiting_t/60
 
+
         for bs in self.bus_stops.keys():
             bs = self.bus_stops[bs]
             bs.avg_num_waiting /= max_time
@@ -172,12 +175,12 @@ class Map:
             total_traveled += bus.distance                          # traveling distance for all buses
             stats[bus.name + " avg occupancy"] = bus.avg_occupancy  # average occupancy for each buses
             stats[bus.name + " avg standing"] = bus.avg_standing    # average number of people standing for each bus
-            stats[bus.name + " hourly occupancy"] = re.split("\[ |\]", str(bus.avg_occupancy_t))[1]
+            stats[bus.name + " hourly occupancy"] = re.split("\[ |\]", str(bus.avg_occupancy_t[:-1]))[1]
 
         for bs in self.bus_stops.keys():
             bs = self.bus_stops[bs]
             stats[bs.name + " avg people waiting"] = bs.avg_num_waiting  # avg. number of people waiting at each stop
-            stats[bs.name + " hourly people waiting"] = re.split("\[ |\]", str(bs.avg_num_waiting_t))[1]
+            stats[bs.name + " hourly people waiting"] = re.split("\[ |\]", str(bs.avg_num_waiting_t[:-1]))[1]
             total_waiting = 0
             total_people = 0
             for dest in bs.waiting_time.keys():
@@ -224,14 +227,14 @@ class Bus:
         distance (float): Total distance travelled by this bus
 
     """
-    def __init__(self, name, route, schedule):
+    def __init__(self, name, route):
 
         assert(isinstance(route, Route)), "route must be a Route object"
 
         self.name = name
         self.route = route
         self.route2 = route.num == 2                       # indicates whether bus is supposed to be on route 2
-        self.schedule = schedule                           # list (e.g [1,1,1,1,2,2]) specifying route every 3 hrs
+        # self.schedule = schedule                           # list (e.g [1,1,1,1,2,2]) specifying route every 3 hrs
 
         self.next_stop_num = 1                             # bus starts at first stop, i.e. index 0
         self.next_stop = self.route.stops[1]
