@@ -51,6 +51,8 @@ class Map:
         # draw bus stop (if animate) and generate new data
         for bus_stop in self.bus_stops.values():
             bus_stop.generate_data(max_time)
+            # for k in bus_stop.times.keys():
+            #     print (bus_stop.name, k.name,len(bus_stop.times[k]))
             if animate:
                 self.surface = settings['surface']
                 bus_stop.add_animation(settings['surface'], settings['coordinates'][bus_stop.name])
@@ -92,10 +94,19 @@ class Map:
                 bs = self.bus_stops[bs]
                 bs.avg_num_waiting += delta_time * bs.num_waiting                 # average people waiting at each stop
 
+
+            # if hour not in self.bus_stops[list(self.bus_stops.keys())[0]].avg_num_waiting_t.keys():
+            #     print ('Hour', hour)
+
             for bs in self.bus_stops.keys():                                      # average people waiting at each hour
                 bs = self.bus_stops[bs]
-
                 if hour not in bs.avg_num_waiting_t.keys():
+                    # bs_t = 0
+                    # for k in bs.times.keys():
+                    #     bs_t += len(bs.times[k])
+                    #
+                    # print (bs.name, bs_t, len(bs.people_waiting), bs_t+len(bs.people_waiting), bs.call)
+                    bs.call = 0
                     bs.avg_num_waiting_t[hour] = 0
                     bs.avg_num_waiting_snapshot[hour] = bs.num_waiting
                     # bs.num_waiting_hr = 0
@@ -183,7 +194,7 @@ class Map:
             bs = self.bus_stops[bs]
             stats[bs.name + " avg people waiting"] = bs.avg_num_waiting  # avg. number of people waiting at each stop
             stats[bs.name + " hourly people waiting"] = re.split("\[ |\]", str(bs.avg_num_waiting_t[:-1]))[1]
-            stats[bs.name + " hourly people snapshot"] = re.split("\[ |\]", str(bs.avg_num_waiting_snapshot[:-1]))[1]
+            # stats[bs.name + " hourly people snapshot"] = re.split("\[ |\]", str(bs.avg_num_waiting_snapshot[:-1]))[1]
             total_waiting = 0
             total_people = 0
             for dest in bs.waiting_time.keys():
@@ -461,6 +472,7 @@ class BusStop:
         """Models the arrival of a person to a bus stop"""
         self.num_waiting += 1
         self.num_waiting_hr += 1
+        self.call += 1
         self.people_waiting.append(person)
 
     def add_waiting_time(self, dest, time):
@@ -477,7 +489,6 @@ class BusStop:
         for destination, arrival_times in self.times.items():
             for arrival_time in arrival_times:
                 if arrival_time < time:
-                    self.call += 1
                     self.arrival(Person(self, destination, arrival_time))
                     arrival_times.remove(arrival_time)
                 else:
@@ -525,7 +536,7 @@ class Person:
         self.state = 'waiting'             # status of person, either 'waiting', 'standing' or 'sitting'
         self.start_time = time             # time at which person started waiting
         self.waiting_time = None           # time spent waiting at bus stop
-        origin.arrival(self)
+        # origin.arrival(self)
 
 
 class Route:

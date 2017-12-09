@@ -131,5 +131,5 @@ if __name__ == '__main__':
     model4 = create_map(buses_per_route = m4, name = model_name(m4))
     model5 = create_map(buses_per_route = m5, name = model_name(m5))
 
-    model = [model1, model2, model3,model4,model5]
+    model = [model1, model2, model3, model4, model5]
     experiment(model, ITERATION, 10, output_report=True, output = 'opt.csv')
