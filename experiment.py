@@ -126,17 +126,15 @@ if __name__ == '__main__':
     RATE = 7
 
     b1 = [1, 1, 1, 1, 1, 1]
-    b2 = [1, 1, 1, 1, 1, 1]
-    b3 = [1, 1, 1, 1, 1, 1]
-    b4 = [1, 1, 1, 1, 1, 1]
-    b5 = [1, 1, 1, 1, 1, 1]
-    b6 = [1, 1, 1, 1, 1, 1]
-    b7 = [1, 1, 1, 1, 1, 1]
-    b8 = [1, 1, 1, 1, 1, 1]
-    b9 = [1, 1, 1, 1, 1, 1]
+    b2 = [1, 2, 2, 2, 1, 1]
+    b3 = [1, 2, 2, 2, 2, 2]
+    b4 = [2, 2, 2, 2, 2, 2]
+    b5 = [2, 2, 2, 3, 3, 1]
+    b6 = [3, 2, 2, 3, 3, 3]
+    b7 = [3, 3, 3, 3, 3, 3]
 
     model1 = create_map(routes_per_bus=[b1, b2, b3, b4, b5, b6, b7], name='m1')
-    model2 = create_map(routes_per_bus=[b1, b2, b3, b4, b5, b6, b7], name='m2')
+    # model2 = create_map(routes_per_bus=[b1, b2, b3, b4, b5, b6, b7], name='m2')
 
-    model = [model1, model2]
-    experiment(model, ITERATION, 10, output_report=True, output = 'opt.csv')
+    model = [model1]
+    experiment(model, ITERATION, 10, output_report=True, output='opt.csv')
