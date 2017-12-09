@@ -43,7 +43,10 @@ class Map:
             if bus.route == self.routes[1]:         # buses on Route 2 must start at depot, then change
                 bus.change_route(self.routes[0])
             # TODO: implement better staggered departures
-            self.event_queue.append(Event(0, bus, self.bus_stops['TDOG Depot'], 'departure'))
+            if bus.route == self.routes[0]:
+                self.event_queue.append(Event(1, bus, self.bus_stops['TDOG Depot'], 'departure'))
+            else:
+                self.event_queue.append(Event(0, bus, self.bus_stops['TDOG Depot'], 'departure'))
 
         # draw bus stop (if animate) and generate new data
         for bus_stop in self.bus_stops.values():
@@ -150,7 +153,7 @@ class Map:
         start = datetime.datetime(2017, 12, 1, 6, 0)
         current = (start + datetime.timedelta(minutes=elapsed)).time()
         clock = font_med.render('Time: ' + str(current)[:5], 1, (255, 255, 255))
-        surface.blit(clock, (990, 690))
+        surface.blit(clock, (1710, 970))
 
     def collect_stats(self):
         """ Called after the simulation to collect the stats"""
@@ -212,13 +215,14 @@ class Bus:
         distance (float): Total distance travelled by this bus
 
     """
-    def __init__(self, name, route):
+    def __init__(self, name, route, schedule):
 
         assert(isinstance(route, Route)), "route must be a Route object"
 
         self.name = name
         self.route = route
         self.route2 = route.num == 2                       # indicates whether bus is supposed to be on route 2
+        self.schedule = schedule                           # list (e.g [1,1,1,1,2,2]) specifying route every 3 hrs
 
         self.next_stop_num = 1                             # bus starts at first stop, i.e. index 0
         self.next_stop = self.route.stops[1]
