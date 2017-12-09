@@ -89,7 +89,7 @@ class Map:
 
             # change routes every 3 hours
             if int(self.prev_time / 180) < hour_3:
-                for bus in self.buses:
+                for bus in self.buses:  
                     if hour_3 <= len(bus.schedule):
                         bus.request_route_change(self.routes[bus.schedule[hour_3] - 1])
 
