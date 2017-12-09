@@ -89,8 +89,8 @@ class Map:
 
             # change routes every 3 hours
             if int(self.prev_time / 180) < hour_3:
-                for bus in self.buses:  
-                    if hour_3 <= len(bus.schedule):
+                for bus in self.buses:
+                    if hour_3 < len(bus.schedule):
                         bus.request_route_change(self.routes[bus.schedule[hour_3] - 1])
 
             if debug:                                                       # print the event
@@ -315,7 +315,7 @@ class Bus:
 
     def request_route_change(self, route):
         """Make a request to change the route: may or may not be executed instantaneously"""
-        print('Change to route', route.num, 'requested')
+        # print('Change to route', route.num, 'requested')
         if self.route == route:
             return
         self.to_change = route
@@ -323,7 +323,7 @@ class Bus:
 
     def execute_route_change(self):
         """Execute route change"""
-        print('Change to route', self.to_change.num, 'executed')
+        # print('Change to route', self.to_change.num, 'executed')
         if self.change_tracker[0] == self.change_tracker[1]:
             self.route = self.to_change
             self.next_stop_num = self.change_tracker[2]
