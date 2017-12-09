@@ -81,7 +81,7 @@ class Map:
 
             for bs in self.bus_stops.keys():                                      # average people waiting at each hour
                 bs = self.bus_stops[bs]
-                hour = int(time)
+                hour = int(time/60)
                 if hour not in bs.avg_num_waiting_t.keys():
                     bs.avg_num_waiting_t[hour] = 0
                     bs.num_waiting_hr = 0
@@ -263,6 +263,7 @@ class Bus:
                 stop.update(boarding_time)  # people arrive while bus is boarding
 
                 person.state = 'standing'
+
         return boarding_time
 
     def arrive(self, stop, time, new_route=None, debug=False):
