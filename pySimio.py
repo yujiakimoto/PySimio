@@ -76,10 +76,16 @@ class Map:
             if debug:                                                       # print the event
                 next_event.print_event()
 
+            hour = int(time/60)
+
             # update the utility
             for b in self.buses:
                 b.avg_occupancy += delta_time * b.occupancy                       # average occupancy of each bus
                 b.avg_standing += delta_time * max(b.occupancy - b.num_seats, 0)  # average people standing for each bus
+                if hour not in b.avg_occupancy_t.keys():
+                    b.avg_occupancy_t[hour] = 0
+                b.avg_occupancy_t[hour] += delta_time * b.occupancy
+
 
             for bs in self.bus_stops.keys():
                 bs = self.bus_stops[bs]
@@ -87,7 +93,7 @@ class Map:
 
             for bs in self.bus_stops.keys():                                      # average people waiting at each hour
                 bs = self.bus_stops[bs]
-                hour = int(time/60)
+
                 if hour not in bs.avg_num_waiting_t.keys():
                     bs.avg_num_waiting_t[hour] = 0
                     bs.num_waiting_hr = 0
@@ -128,6 +134,8 @@ class Map:
         for b in self.buses:
             b.avg_occupancy /= max_time
             b.avg_standing /= max_time
+            waiting_t = np.array([value for (key, value) in sorted(b.avg_occupancy_t.items())])
+            b.avg_occupancy_t = waiting_t/60
 
         for bs in self.bus_stops.keys():
             bs = self.bus_stops[bs]
@@ -164,6 +172,7 @@ class Map:
             total_traveled += bus.distance                          # traveling distance for all buses
             stats[bus.name + " avg occupancy"] = bus.avg_occupancy  # average occupancy for each buses
             stats[bus.name + " avg standing"] = bus.avg_standing    # average number of people standing for each bus
+            stats[bus.name + " hourly occupancy"] = re.split("\[ |\]", str(bus.avg_occupancy_t))[1]
 
         for bs in self.bus_stops.keys():
             bs = self.bus_stops[bs]
@@ -237,6 +246,8 @@ class Bus:
         # TODO: other relevant performance metrics?
         self.avg_occupancy = 0
         self.avg_standing = 0
+
+        self.avg_occupancy_t = {}                          # hour -> average occupancy dict
 
         self.animate = False
         self.surface = None
@@ -355,6 +366,7 @@ class Bus:
         self.distance = 0
         self.avg_occupancy = 0
         self.avg_standing = 0
+        self.avg_occupancy_t = {}
 
 
 class BusStop:
