@@ -134,10 +134,10 @@ if __name__ == '__main__':
     b7 = [3, 3, 3, 3, 3, 3]
 
     route1 = [1, 1, 1, 1, 1, 1]
-    route2 = [2, 2, 2, 2, 2, 2]
+    route2 = [2, 1, 2, 2, 2, 2]
     route3 = [3, 3, 3, 3, 3, 3]
 
-    model1 = create_map(routes_per_bus=[b1], name='115')
+    model1 = create_map(routes_per_bus=[route2], name='115')
     model1.simulate(18*60, debug=True)
 
     model2 = create_map(routes_per_bus=[route1, route2, route2, route3, route3, route3, route3], name='124')

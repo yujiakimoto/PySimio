@@ -18,7 +18,7 @@ def make_button(picture, coords, surface):
 def animate(map, time):
 
     pygame.init()
-    size = width, height = 1800, 1000
+    size = width, height = 1080, 720
     screen = pygame.display.set_mode(size)
 
     font_small = pygame.font.SysFont("Helvetica", 12)
@@ -51,7 +51,7 @@ def animate(map, time):
         screen.blit(label, (stop_coordinates[bus_stop.name][0] - 20, stop_coordinates[bus_stop.name][1] + 30))
 
     clock = font_med.render('Time: ' + str(datetime.time(6, 0))[:5], 1, (255, 255, 255))
-    screen.blit(clock, (1710, 970))
+    screen.blit(clock, (width - 90, height - 30))
 
     while True:
         for event in pygame.event.get():
@@ -76,13 +76,13 @@ def animate(map, time):
 
 if __name__ == "__main__":
 
-    b1 = [1, 1, 1, 1, 1, 1]
-    b2 = [1, 1, 1, 1, 1, 1]
-    b3 = [1, 1, 1, 1, 1, 1]
-    b4 = [1, 1, 1, 1, 1, 1]
-    b5 = [1, 1, 1, 1, 1, 1]
-    b6 = [1, 1, 1, 1, 1, 1]
-    b7 = [1, 1, 1, 1, 1, 1]
+    b1 = [1, 2, 3, 2, 1, 3]
+    b2 = [1, 2, 2, 2, 1, 1]
+    b3 = [1, 2, 2, 2, 2, 2]
+    b4 = [2, 2, 2, 2, 2, 2]
+    b5 = [2, 2, 2, 3, 3, 1]
+    b6 = [3, 2, 2, 3, 3, 3]
+    b7 = [3, 3, 3, 3, 3, 3]
 
-    ithaca = create_map([b1, b2, b3, b4, b5, b6, b7])
+    ithaca = create_map([b1, b2, b3, b4, b5, b6, b7], arrival_data='data/ArrivalRates.xlsx')
     animate(ithaca, 18*60)
