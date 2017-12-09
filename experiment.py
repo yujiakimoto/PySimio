@@ -133,8 +133,16 @@ if __name__ == '__main__':
     b6 = [3, 2, 2, 3, 3, 3]
     b7 = [3, 3, 3, 3, 3, 3]
 
-    model1 = create_map(routes_per_bus=[b1, b2, b3, b4, b5, b6, b7], name='m1')
-    # model2 = create_map(routes_per_bus=[b1, b2, b3, b4, b5, b6, b7], name='m2')
+    route1 = [1,1,1,1,1,1]
+    route2 = [2,2,2,2,2,2]
+    route3 = [3,3,3,3,3,3]
 
-    model = [model1]
+    model1 = create_map(routes_per_bus=[route1, route2, route3, route3, route3, route3, route3], name='115')
+    model2 = create_map(routes_per_bus=[route1, route2, route2, route3, route3, route3, route3], name='124')
+    model3 = create_map(routes_per_bus=[route1, route2, route2, route2, route3, route3, route3], name='133')
+    model4 = create_map(routes_per_bus=[route1, route2, route2, route2, route2, route3, route3], name='142')
+    model5 = create_map(routes_per_bus=[route1, route2, route2, route2, route2, route2, route3], name='151')
+    model6 = create_map(routes_per_bus=[b1, b2, b3, b4, b5, b6, b7], name='m2')
+
+    model = [model1, model2, model3, model4, model5, model6]
     experiment(model, ITERATION, 10, output_report=True, output='opt.csv')

@@ -114,7 +114,7 @@ class Map:
                     bs.call = 0
                     bs.avg_num_waiting_t[hour] = 0
                     # bs.avg_num_waiting_snapshot[hour] = bs.num_waiting
-                    # bs.num_waiting_hr = 0
+                    # bs.num_waiting_hr = bs.num_waiting_hr
                 else:
                     bs.avg_num_waiting_t[hour] += delta_time * bs.num_waiting_hr
 
@@ -137,18 +137,18 @@ class Map:
                 # if next_event.bus_stop.name == 'TDOG Depot':
                 #     for p in next_event.bus.passengers:
                 #         print (p.origin.name, p.destination.name)
-
-                if next_event.bus_stop.name not in self.path_occupancy.keys():
-                    self.path_occupancy[next_event.bus_stop.name] = {}
-                    self.path_travel[next_event.bus_stop.name] = {}
-                if arv_event.bus_stop.name not in self.path_occupancy[next_event.bus_stop.name].keys():
-                    self.path_occupancy[next_event.bus_stop.name][arv_event.bus_stop.name] = []
-                    self.path_travel[next_event.bus_stop.name][arv_event.bus_stop.name] = []
-                if len(self.path_occupancy[next_event.bus_stop.name][arv_event.bus_stop.name]) < hour +1:
-                    self.path_occupancy[next_event.bus_stop.name][arv_event.bus_stop.name].append(0)
-                    self.path_travel[next_event.bus_stop.name][arv_event.bus_stop.name].append(0)
-                self.path_occupancy[next_event.bus_stop.name][arv_event.bus_stop.name][hour] += next_event.bus.occupancy
-                self.path_travel[next_event.bus_stop.name][arv_event.bus_stop.name][hour] += 1
+                if next_event.bus_stop.name != arv_event.bus_stop.name:
+                    if next_event.bus_stop.name not in self.path_occupancy.keys():
+                        self.path_occupancy[next_event.bus_stop.name] = {}
+                        self.path_travel[next_event.bus_stop.name] = {}
+                    if arv_event.bus_stop.name not in self.path_occupancy[next_event.bus_stop.name].keys():
+                        self.path_occupancy[next_event.bus_stop.name][arv_event.bus_stop.name] = []
+                        self.path_travel[next_event.bus_stop.name][arv_event.bus_stop.name] = []
+                    if len(self.path_occupancy[next_event.bus_stop.name][arv_event.bus_stop.name]) < hour +1:
+                        self.path_occupancy[next_event.bus_stop.name][arv_event.bus_stop.name].append(0)
+                        self.path_travel[next_event.bus_stop.name][arv_event.bus_stop.name].append(0)
+                    self.path_occupancy[next_event.bus_stop.name][arv_event.bus_stop.name][hour] += next_event.bus.occupancy
+                    self.path_travel[next_event.bus_stop.name][arv_event.bus_stop.name][hour] += 1
 
 
 
@@ -338,7 +338,7 @@ class Bus:
                 stop.people_waiting.remove(person)
                 stop.num_waiting -= 1
                 stop.num_waiting_hr -= 1
-                stop.num_waiting_hr = max(0, stop.num_waiting_hr)
+                # stop.num_waiting_hr = max(0, stop.num_waiting_hr)
                 person.waiting_time = boarding_time - person.start_time  # record waiting time
                 person.origin.add_waiting_time(person.destination, person.waiting_time) # update the origin waiting time
                 # boarding_time += np.random.triangular(0, 1/60, 5/60)   # boarding times have triangular distribution
