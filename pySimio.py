@@ -151,14 +151,11 @@ class Map:
                     if arv_event.bus_stop.name not in self.path_occupancy[next_event.bus_stop.name].keys():
                         self.path_occupancy[next_event.bus_stop.name][arv_event.bus_stop.name] = []
                         self.path_travel[next_event.bus_stop.name][arv_event.bus_stop.name] = []
-                    if len(self.path_occupancy[next_event.bus_stop.name][arv_event.bus_stop.name]) < hour +1:
+                    if len(self.path_occupancy[next_event.bus_stop.name][arv_event.bus_stop.name]) < hour + 1:
                         self.path_occupancy[next_event.bus_stop.name][arv_event.bus_stop.name].append(0)
                         self.path_travel[next_event.bus_stop.name][arv_event.bus_stop.name].append(0)
                     self.path_occupancy[next_event.bus_stop.name][arv_event.bus_stop.name][hour] += next_event.bus.occupancy
                     self.path_travel[next_event.bus_stop.name][arv_event.bus_stop.name][hour] += 1
-
-
-
 
             self.prev_time = time # update the last event time
 
@@ -174,7 +171,6 @@ class Map:
             bs.avg_num_waiting /= max_time
             waiting_t = bs.avg_num_waiting_t
             waiting_t = np.array([value for (key, value) in sorted(bs.avg_num_waiting_t.items())])
-            # bs.avg_num_waiting_snapshot = np.array([value for (key, value) in sorted(bs.avg_num_waiting_snapshot.items())])
             bs.avg_num_waiting_t = waiting_t/60
             # print(bs.name, bs.call)
 
@@ -324,12 +320,15 @@ class Bus:
     def execute_route_change(self):
         """Execute route change"""
         # print('Change to route', self.to_change.num, 'executed')
-        if self.change_tracker[0] == self.change_tracker[1]:
+        if isinstance(self.to_change, Route) and self.change_tracker[0] == self.change_tracker[1]:
             self.route = self.to_change
             self.next_stop_num = self.change_tracker[2]
             self.next_stop = self.route.stops[self.next_stop_num]
             self.to_change = None
             self.change_tracker = [0, 0, 0]
+            return True
+        else:
+            return False
 
     def board(self, stop, time):
         """Models the process of people boarding this bus at a certain stop"""
@@ -369,9 +368,8 @@ class Bus:
         assert(isinstance(stop, BusStop)), "must arrive at a BusStop"
         # print('{} arrived at {} at t = {}'.format(self.name, self.next_stop.name, time))
 
-        if isinstance(self.to_change, Route):
-            self.execute_route_change()
-        else:
+        changed = self.execute_route_change()
+        if not changed:
             self.next_stop_num = self.next_stop_num % (len(self.route.stops) - 1) + 1    # update next stop number
             self.next_stop = self.route.stops[self.next_stop_num]
 
@@ -384,7 +382,6 @@ class Bus:
                 self.occupancy -= 1
                 # TODO: add time taken for people to get off?
                 person.state = 'arrived'
-
 
         if debug:
             print('After arrival, occupancy =', self.occupancy)
