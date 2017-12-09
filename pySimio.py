@@ -149,13 +149,15 @@ class Map:
                         self.path_occupancy[next_event.bus_stop.name] = {}
                         self.path_travel[next_event.bus_stop.name] = {}
                     if arv_event.bus_stop.name not in self.path_occupancy[next_event.bus_stop.name].keys():
-                        self.path_occupancy[next_event.bus_stop.name][arv_event.bus_stop.name] = []
-                        self.path_travel[next_event.bus_stop.name][arv_event.bus_stop.name] = []
-                    if len(self.path_occupancy[next_event.bus_stop.name][arv_event.bus_stop.name]) < hour + 1:
-                        self.path_occupancy[next_event.bus_stop.name][arv_event.bus_stop.name].append(0)
-                        self.path_travel[next_event.bus_stop.name][arv_event.bus_stop.name].append(0)
+                        self.path_occupancy[next_event.bus_stop.name][arv_event.bus_stop.name] = [0] * int(max_time / 60)
+                        self.path_travel[next_event.bus_stop.name][arv_event.bus_stop.name] = [0] * int(max_time / 60)
+
                     self.path_occupancy[next_event.bus_stop.name][arv_event.bus_stop.name][hour] += next_event.bus.occupancy
                     self.path_travel[next_event.bus_stop.name][arv_event.bus_stop.name][hour] += 1
+
+                    if next_event.bus_stop.name == "TDOG Depot" and arv_event.bus_stop.name == "Collegetown":
+                        if next_event.bus == arv_event.bus:
+                            print (bus.route.num, self.name, time)
 
             self.prev_time = time # update the last event time
 
