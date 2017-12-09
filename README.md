@@ -1,5 +1,5 @@
 # PySimio
-**PySimio** is a Python library for discrete-event simulation. You can simulate multiple agents (vehicles, entities) in a non-diterministic system. We support muilti-core processing to speed up the experiments. 
+**PySimio** is a Python library for discrete-event simulation. You can simulate multiple agents (vehicles, entities) in a non-deterministic system. We support muilti-core processing to speed up experiments. 
 
 GIF for animation
 
@@ -9,7 +9,7 @@ GIF for command debug
 - Object-Oriented Simulation
 - Animation
 - Commandline Debugging
-- Experiments and Data Visualization 
+- Statistic Collection and Data Visualization 
 - Multicore Processing
 
 ## Setup
@@ -17,7 +17,11 @@ PySimio is built with following libraries:
 - numpy 
 - pandas 
 - seaborn, matplotlib 
-- pygame 
+- pygame
+
+We highly recommend using **Python 3.6.1** or greater.
+We also discovered the issue that pygame fails to render properly with Mac retina display [link](https://stackoverflow.com/questions/29834292/pygame-simple-loop-runs-very-slowly-on-mac)
+
 
 ## Usage
 ![Route map](data/map.png)
