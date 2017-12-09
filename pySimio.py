@@ -44,7 +44,10 @@ class Map:
         for i, bus in enumerate(self.buses):
             if bus.route == self.routes[1]:         # buses on Route 2 must start at depot, then change
                 bus.route = self.routes[0]
-                bus.request_route_change(self.routes[1])
+                bus.next_stop = bus.route.stops[bus.next_stop_num]
+                bus.to_change = self.routes[1]
+                bus.change_tracker = [0, 2.5, 1]
+
             # TODO: implement better staggered departures
             if bus.route == self.routes[0]:
                 self.event_queue.append(Event(1, bus, self.bus_stops['TDOG Depot'], 'departure'))
@@ -144,6 +147,7 @@ class Map:
                 # if next_event.bus_stop.name == 'TDOG Depot':
                 #     for p in next_event.bus.passengers:
                 #         print (p.origin.name, p.destination.name)
+
                 if next_event.bus_stop.name != arv_event.bus_stop.name:
                     if next_event.bus_stop.name not in self.path_occupancy.keys():
                         self.path_occupancy[next_event.bus_stop.name] = {}
@@ -181,16 +185,17 @@ class Map:
 
     def update_clock(self, surface, elapsed):
         """Updated clock in bottom right corner of animation"""
+        width, height = 1080, 720
         clear = pygame.image.load('images/blank.png')
         clear_rect = clear.get_rect()
-        clear_rect.bottomright = (1800, 1000)
+        clear_rect.bottomright = (width, height)
         surface.blit(clear, clear_rect)
 
         font_med = pygame.font.SysFont("Helvetica", 15)
         start = datetime.datetime(2017, 12, 1, 6, 0)
         current = (start + datetime.timedelta(minutes=elapsed)).time()
         clock = font_med.render('Time: ' + str(current)[:5], 1, (255, 255, 255))
-        surface.blit(clock, (1710, 970))
+        surface.blit(clock, (width - 90, height - 30))
 
     def collect_stats(self):
         """ Called after the simulation to collect the stats"""
@@ -209,7 +214,7 @@ class Map:
                 stats[origin + "-" + dest + " hourly occupancy"] = re.split("\[ |\]", str(np.array(time)[:-1]))[1]
                 if sum(self.path_travel[origin][dest]) != 0:
                     stats[origin + "-" + dest + " avg occupancy"] = sum(self.path_occupancy[origin][dest])/sum(self.path_travel[origin][dest])
-
+        
         for bus in self.buses:
             stats[bus.name + " distance"] = bus.distance            # traveling distance for each bus
             total_traveled += bus.distance                          # traveling distance for all buses
