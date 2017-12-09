@@ -2,8 +2,9 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
+import os
 
-def draw_time_series(df, save = False):
+def draw_time_series(df, directory = None, save = False):
     df_time = df[df.keys()[df.keys().str.contains('hourly') & ~df.keys().str.contains('Depot') & ~df.keys().str.contains('Wegmans-West')]]
 
     for k in df_time.keys():
@@ -27,10 +28,14 @@ def draw_time_series(df, save = False):
         tmp = tf[tf['stats'] == k]
         plt.title(k)
         ax = sns.tsplot(time="hour", value="observation", unit = 'simulation', condition="model",data=tmp, err_style="ci_bars")
+        if save:
+            if not os.path.exists(directory):
+                os.makedirs(directory)
+            plt.savefig(directory + '/' + k + '.png')
         plt.show()
 
 
-def draw_smore(df, save = False):
+def draw_smore(df, directory = None, save = False):
     df_smore = df[df.keys()[~df.keys().str.contains('distance') & \
                             ~df.keys().str.contains('hourly') & \
                             ~df.keys().str.contains('Depot') & \
@@ -41,4 +46,8 @@ def draw_smore(df, save = False):
         if k != 'model':
             plt.title(k)
             ax = sns.boxplot(x="model", y=k, data=df_smore)
+            if save:
+                if not os.path.exists(directory):
+                    os.makedirs(directory)
+                plt.savefig(directory + '/' + k + '.png')
             plt.show()
