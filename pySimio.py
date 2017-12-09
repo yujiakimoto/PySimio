@@ -65,19 +65,17 @@ class Map:
         while time < max_time:
             if debug:                                                       # wait for user input to proceed
                 input()
+                for bus in self.buses:
+                    print('next stop:', bus.next_stop.name)
+                    print('route:', bus.route.num)
+                    if isinstance(bus.to_change, Route):
+                        print('next route:', bus.to_change.num)
+                        print('tracker:', bus.change_tracker)
 
             if animate:
                 self.update_clock(settings['surface'], time)
                 for bus_stop in self.bus_stops.values():
                     bus_stop.update(time)                                   # fine-grained animation (much slower)
-
-            hour = int(time / 60)
-            hour_3 = int(time / 180)
-
-            # change routes every 3 hours
-            if int(self.prev_time / 180) < hour_3:
-                for bus in self.buses:
-                    bus.request_route_change(self.routes[hour_3])
 
             sorted_queue = sorted(self.event_queue, key=lambda x: x.time)   # sort the event queue
             self.event_queue = sorted_queue[1:]                             # shift the queue by 1
@@ -85,6 +83,16 @@ class Map:
             time = next_event.time                                          # current event time
             delta_time = time - self.prev_time                              # time - time_lst to calculate the integral
             # print(delta_time)
+
+            hour = int(time / 60)
+            hour_3 = int(time / 180)
+
+            # change routes every 3 hours
+            if int(self.prev_time / 180) < hour_3:
+                print('3 HOURS PASSED')
+                for bus in self.buses:
+                    bus.request_route_change(self.routes[bus.schedule[hour_3] - 1])
+
             if debug:                                                       # print the event
                 next_event.print_event()
 
@@ -308,6 +316,7 @@ class Bus:
 
     def request_route_change(self, route):
         """Make a request to change the route: may or may not be executed instantaneously"""
+        print('Change to route', route.num, 'requested')
         if self.route == route:
             return
         self.to_change = route
@@ -315,6 +324,7 @@ class Bus:
 
     def execute_route_change(self):
         """Execute route change"""
+        print('Change to route', self.to_change.num, 'executed')
         if self.change_tracker[0] == self.change_tracker[1]:
             self.route = self.to_change
             self.next_stop_num = self.change_tracker[2]
