@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 
-
 def generate_arrival(rates, interval=180):
     """generate the data based on arrival rate (# arrival / hour)
     Args:
