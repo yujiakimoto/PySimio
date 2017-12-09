@@ -89,9 +89,9 @@ class Map:
 
             # change routes every 3 hours
             if int(self.prev_time / 180) < hour_3:
-                print('3 HOURS PASSED')
                 for bus in self.buses:
-                    bus.request_route_change(self.routes[bus.schedule[hour_3] - 1])
+                    if hour_3 <= len(bus.schedule):
+                        bus.request_route_change(self.routes[bus.schedule[hour_3] - 1])
 
             if debug:                                                       # print the event
                 next_event.print_event()
@@ -109,7 +109,6 @@ class Map:
             for bs in self.bus_stops.keys():
                 bs = self.bus_stops[bs]
                 bs.avg_num_waiting += delta_time * bs.num_waiting                 # average people waiting at each stop
-
 
             for bs in self.bus_stops.keys():                                      # average people waiting at each hour
                 bs = self.bus_stops[bs]
