@@ -248,7 +248,9 @@ class Bus:
         stop.update(time)
         boarding_time = time
         for person in stop.people_waiting:
-            if self.goes_to(person.destination) and self.occupancy < self.max_cap:
+            if self.occupancy == self.max_cap:
+                break
+            if self.goes_to(person.destination):
                 self.passengers.append(person)
                 self.occupancy += 1
 
@@ -442,7 +444,7 @@ class BusStop:
                     break
         if self.animate:
             self.update_animation()
-            sleep(0.1)              # controls speed of animation
+            # sleep(0.1)               # controls speed of animation
             pygame.display.flip()      # update display
 
     def reset(self):
