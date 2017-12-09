@@ -29,7 +29,8 @@ We also discovered the issue that pygame fails to render properly with Mac retin
 
 
 ## Sample Usage
-We model several bus routes around Ithaca, NY to help the Tompkins Department of Going-Places (TDOG) save Cornell students from the perilous weather of upstate New York.
+We model several bus routes around Ithaca, NY to help the Tompkins Department of Going-Places (TDOG) save Cornell students from the perilous weather of upstate New York.  
+  
 ![Route map](data/map.png)
 ```
 # create BusStop objects  
