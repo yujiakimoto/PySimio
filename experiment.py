@@ -21,10 +21,23 @@ def create_map(routes_per_bus, arrival_data='data/ArrivalRates.xlsx', name=None)
     com_west.add_data({weg_west: rates['Com to Weg'].values})
     ctown.add_data({com_west: rates['Ctown to Com'].values, weg_west: rates['Ctown to Weg'].values})
 
+    # route distance data
+    r1d = [0.5, 2, 2, 2, 2, 0.5]
+    r2d = [2, 2, 0.3]
+    r3d = [0.5, 2, 2, 2, 0.5]
+
+    # route switch point data
+    r1s = {2: {depot: [2.5, 1], weg_east: [2, 1], com_east: [0, 1], ctown: [0, 2], com_west: [5, 1], weg_west: [3, 1]},
+           3: {depot: [0, 1], weg_east: [0, 2], com_east: [4, 4], ctown: [2, 4], com_west: [0, 4], weg_west: [0, 0]}}
+    r2s = {1: {com_east: [0, 3], ctown: [0, 4], com_west: [0, 5]},
+           3: {com_east: [0, 3], ctown: [2, 4], com_west: [0, 4]}}
+    r3s = {1: {depot: [0, 1], weg_east: [0, 2], com_east: [0, 3], com_west: [0, 5], weg_west: [0, 0]},
+           2: {depot: [2.5, 1], weg_east: [2, 1], com_east: [0, 1], com_west: [5, 1], weg_west: [3, 1]}}
+
     # create a Route object for each of the 3 routes
-    route1 = Route([depot, weg_east, com_east, ctown, com_west, weg_west, depot], [0.5, 2, 2, 2, 2, 0.5], 1)
-    route2 = Route([com_east, ctown, com_west, com_east], [2, 2, 0.3], 2)
-    route3 = Route([depot, weg_east, com_east, com_west, weg_west, depot], [0.5, 2, 2, 2, 0.5], 3)
+    route1 = Route([depot, weg_east, com_east, ctown, com_west, weg_west, depot], r1d, r1s, number=1)
+    route2 = Route([com_east, ctown, com_west, com_east], r2d, r2s, number=2)
+    route3 = Route([depot, weg_east, com_east, com_west, weg_west, depot], r3d, r3s, number=3)
 
     # create Bus objects
     # assert(sum(buses_per_route) == 7), "There must be 7 buses total"
@@ -113,16 +126,15 @@ if __name__ == '__main__':
     RATE = 7
 
     b1 = [1, 1, 1, 1, 1, 1]
-    b2 = [1, 1, 1, 1, 1, 1]
-    b3 = [1, 1, 1, 1, 1, 1]
-    b4 = [1, 1, 1, 1, 1, 1]
-    b5 = [1, 1, 1, 1, 1, 1]
-    b6 = [1, 1, 1, 1, 1, 1]
-    b7 = [1, 1, 1, 1, 1, 1]
+    b2 = [1, 2, 2, 2, 1, 1]
+    b3 = [1, 2, 2, 2, 2, 2]
+    b4 = [2, 2, 2, 2, 2, 2]
+    b5 = [2, 2, 2, 3, 3, 1]
+    b6 = [3, 2, 2, 3, 3, 3]
+    b7 = [3, 3, 3, 3, 3, 3]
 
     model1 = create_map(routes_per_bus=[b1, b2, b3, b4, b5, b6, b7], name='m1')
-    model2 = create_map(routes_per_bus=[b1, b2, b3, b4, b5, b6, b7], name='m2')
+    # model2 = create_map(routes_per_bus=[b1, b2, b3, b4, b5, b6, b7], name='m2')
 
-    model = [model1, model2, model3, model4, model5]
-    # model = [model1]
-    experiment(model, ITERATION, 10, output_report=True, output = 'opt.csv')
+    model = [model1]
+    experiment(model, ITERATION, 10, output_report=True, output='opt.csv')

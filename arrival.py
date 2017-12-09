@@ -10,7 +10,6 @@ def generate_arrival(rates, interval=180):
         update the lambda. Default is 180 (up date every 3 hour)
     """
     current_time = 0
-    current_idx = 0
     arrival_data = []
     # loop until the rates exhausts
     for current_idx, rate in enumerate(rates):

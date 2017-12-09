@@ -85,4 +85,4 @@ if __name__ == "__main__":
     b7 = [1, 1, 1, 1, 1, 1]
 
     ithaca = create_map([b1, b2, b3, b4, b5, b6, b7])
-    animate(ithaca, 120)
+    animate(ithaca, 18*60)
