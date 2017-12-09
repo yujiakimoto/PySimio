@@ -28,6 +28,8 @@ class Map:
         self.event_queue = []               # an event queue to manage discrete simulation
         self.prev_time = 0                  # keep track of previous event time
         self.surface = None
+        self.path_occupancy = {}            # origin -> destination -> list of occupancy
+        self.path_travel = {}               # origin -> destination -> list of travels
 
     def simulate(self, max_time, debug=False, animate=False, **settings):
         """Run simulation of this map
@@ -100,9 +102,6 @@ class Map:
                 bs = self.bus_stops[bs]
                 bs.avg_num_waiting += delta_time * bs.num_waiting                 # average people waiting at each stop
 
-            # if hour not in self.bus_stops[list(self.bus_stops.keys())[0]].avg_num_waiting_t.keys():
-            #     print ('Hour', hour)
-
             for bs in self.bus_stops.keys():                                      # average people waiting at each hour
                 bs = self.bus_stops[bs]
                 if hour not in bs.avg_num_waiting_t.keys():
@@ -113,7 +112,7 @@ class Map:
                     # print (bs.name, bs_t, len(bs.people_waiting), bs_t+len(bs.people_waiting), bs.call)
                     bs.call = 0
                     bs.avg_num_waiting_t[hour] = 0
-                    bs.avg_num_waiting_snapshot[hour] = bs.num_waiting
+                    # bs.avg_num_waiting_snapshot[hour] = bs.num_waiting
                     # bs.num_waiting_hr = 0
                 else:
                     bs.avg_num_waiting_t[hour] += delta_time * bs.num_waiting_hr
@@ -132,7 +131,25 @@ class Map:
                 # TODO: calculate the delay time for the bus
                 delay = 0
                 arv_event = next_event.bus.depart(next_event.bus_stop, next_event.time, time + delay)
+
+                # if next_event.bus_stop.name == 'TDOG Depot':
+                #     for p in next_event.bus.passengers:
+                #         print (p.origin.name, p.destination.name)
+
+                if next_event.bus_stop.name not in self.path_occupancy.keys():
+                    self.path_occupancy[next_event.bus_stop.name] = {}
+                    self.path_travel[next_event.bus_stop.name] = {}
+                if arv_event.bus_stop.name not in self.path_occupancy[next_event.bus_stop.name].keys():
+                    self.path_occupancy[next_event.bus_stop.name][arv_event.bus_stop.name] = []
+                    self.path_travel[next_event.bus_stop.name][arv_event.bus_stop.name] = []
+                if len(self.path_occupancy[next_event.bus_stop.name][arv_event.bus_stop.name]) < hour +1:
+                    self.path_occupancy[next_event.bus_stop.name][arv_event.bus_stop.name].append(0)
+                    self.path_travel[next_event.bus_stop.name][arv_event.bus_stop.name].append(0)
+                self.path_occupancy[next_event.bus_stop.name][arv_event.bus_stop.name][hour] += next_event.bus.occupancy
+                self.path_travel[next_event.bus_stop.name][arv_event.bus_stop.name][hour] += 1
+
                 self.event_queue.append(arv_event)  # add arrival event to the queue
+
 
             self.prev_time = time # update the last event time
 
@@ -148,12 +165,13 @@ class Map:
             bs.avg_num_waiting /= max_time
             waiting_t = bs.avg_num_waiting_t
             waiting_t = np.array([value for (key, value) in sorted(bs.avg_num_waiting_t.items())])
-            bs.avg_num_waiting_snapshot = np.array([value for (key, value) in sorted(bs.avg_num_waiting_snapshot.items())])
+            # bs.avg_num_waiting_snapshot = np.array([value for (key, value) in sorted(bs.avg_num_waiting_snapshot.items())])
             bs.avg_num_waiting_t = waiting_t/60
             # print(bs.name, bs.call)
 
         print('Simulation complete')
         print("Simulation Time : ", tf() - start)
+        # print (self.path_occupancy)
         # self.reset()
 
     def update_clock(self, surface, elapsed):
@@ -173,6 +191,20 @@ class Map:
         """ Called after the simulation to collect the stats"""
         stats = {}
         total_traveled = 0
+
+        for origin in self.path_occupancy.keys():
+            for dest in self.path_occupancy[origin].keys():
+                time = []
+                for i,j in zip(self.path_occupancy[origin][dest], self.path_travel[origin][dest]):
+                    if j == 0:
+                        time.append(0)
+                    else:
+                        time.append(i/j)
+
+                stats[origin + "-" + dest + " hourly occupancy"] = re.split("\[ |\]", str(np.array(time)[:-1]))[1]
+                if sum(self.path_travel[origin][dest]) != 0:
+                    stats[origin + "-" + dest + " avg occupancy"] = sum(self.path_occupancy[origin][dest])/sum(self.path_travel[origin][dest])
+
         for bus in self.buses:
             stats[bus.name + " distance"] = bus.distance            # traveling distance for each bus
             total_traveled += bus.distance                          # traveling distance for all buses
@@ -332,6 +364,7 @@ class Bus:
             self.next_stop_num = self.next_stop_num % (len(self.route.stops) - 1) + 1    # update next stop number
             self.next_stop = self.route.stops[self.next_stop_num]
 
+        before = len(self.passengers)
         # if current stop is destination, passenger will get off
         for person in self.passengers[:]:
             if person.destination == stop:
@@ -339,6 +372,8 @@ class Bus:
                 self.occupancy -= 1
                 # TODO: add time taken for people to get off?
                 person.state = 'arrived'
+
+
         if debug:
             print('After arrival, occupancy =', self.occupancy)
 
@@ -422,7 +457,7 @@ class BusStop:
         self.num_getoff = {}        # destination(str) -> number of people used this path
 
         self.avg_num_waiting_t = {} # destination(str) -> list of number per hour
-        self.avg_num_waiting_snapshot = {}
+        # self.avg_num_waiting_snapshot = {}
 
 
         self.call = 0
@@ -514,7 +549,7 @@ class BusStop:
         self.waiting_time = {}
         self.num_getoff = {}
         self.avg_num_waiting_t = {}
-        self.avg_num_waiting_snapshot = {}
+        # self.avg_num_waiting_snapshot = {}
         self.call = 0
 
 
