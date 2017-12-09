@@ -4,44 +4,7 @@ import numpy as np
 import pygame
 import datetime
 from pySimio import *
-
-
-def create_map(buses_per_route=(7, 0, 0), arrival_data='data/Test.xlsx', name=None):
-
-    # create BusStop objects
-    depot = BusStop('TDOG Depot')
-    weg_east = BusStop('Wegmans-Eastbound')
-    weg_west = BusStop('Wegmans-Westbound')
-    com_east = BusStop('Commons-Eastbound')
-    com_west = BusStop('Commons-Westbound')
-    ctown = BusStop('Collegetown')
-
-    # feed arrival rate data to each bus stop
-    rates = pd.read_excel(arrival_data)
-    weg_east.add_data({com_east: rates['Weg to Com'].values, ctown: rates['Weg to Ctown'].values})
-    com_east.add_data({ctown: rates['Com to Ctown'].values})
-    com_west.add_data({weg_west: rates['Com to Weg'].values})
-    ctown.add_data({com_west: rates['Ctown to Com'].values, weg_west: rates['Ctown to Weg'].values})
-
-    # create a Route object for each of the 3 routes
-    route1 = Route([depot, weg_east, com_east, ctown, com_west, weg_west, depot], [0.5, 2, 2, 2, 2, 0.5], 1)
-    route2 = Route([com_east, ctown, com_west, com_east], [2, 2, 0.3], 2)
-    route3 = Route([depot, weg_east, com_east, com_west, weg_west, depot], [0.5, 2, 2, 2, 0.5], 3)
-
-    # create Bus objects
-    # assert(sum(buses_per_route) == 7), "There must be 7 buses total"
-    bus_list = []
-    bus_num = 1
-    for i, num in enumerate(buses_per_route):
-        route_num = i + 1
-        for j in range(num):
-            bus_list.append(Bus('Bus ' + str(bus_num), eval('route' + str(route_num))))
-            bus_num += 1
-
-    return Map([route1, route2, route3], bus_list,
-               {'TDOG Depot': depot, 'Wegmans-Eastbound': weg_east, 'Wegmans-Westbound': weg_west,
-                'Commons-Eastbound': com_east, 'Commons-Westbound': com_west, 'Collegetown': ctown}, name = name)
-
+from experiment import create_map
 
 def make_button(picture, coords, surface):
     image = pygame.image.load(picture)

@@ -1,8 +1,44 @@
 from pySimio import *
-from animation import create_map
 import pandas as pd
 from multiprocessing import Pool
 from itertools import chain
+
+def create_map(buses_per_route=(7, 0, 0), arrival_data='data/ArrivalRates.xlsx', name=None):
+
+    # create BusStop objects
+    depot = BusStop('TDOG Depot')
+    weg_east = BusStop('Wegmans-Eastbound')
+    weg_west = BusStop('Wegmans-Westbound')
+    com_east = BusStop('Commons-Eastbound')
+    com_west = BusStop('Commons-Westbound')
+    ctown = BusStop('Collegetown')
+
+    # feed arrival rate data to each bus stop
+    rates = pd.read_excel(arrival_data)
+    weg_east.add_data({com_east: rates['Weg to Com'].values, ctown: rates['Weg to Ctown'].values})
+    com_east.add_data({ctown: rates['Com to Ctown'].values})
+    com_west.add_data({weg_west: rates['Com to Weg'].values})
+    ctown.add_data({com_west: rates['Ctown to Com'].values, weg_west: rates['Ctown to Weg'].values})
+
+    # create a Route object for each of the 3 routes
+    route1 = Route([depot, weg_east, com_east, ctown, com_west, weg_west, depot], [0.5, 2, 2, 2, 2, 0.5], 1)
+    route2 = Route([com_east, ctown, com_west, com_east], [2, 2, 0.3], 2)
+    route3 = Route([depot, weg_east, com_east, com_west, weg_west, depot], [0.5, 2, 2, 2, 0.5], 3)
+
+    # create Bus objects
+    # assert(sum(buses_per_route) == 7), "There must be 7 buses total"
+    bus_list = []
+    bus_num = 1
+    for i, num in enumerate(buses_per_route):
+        route_num = i + 1
+        for j in range(num):
+            bus_list.append(Bus('Bus ' + str(bus_num), eval('route' + str(route_num))))
+            bus_num += 1
+
+    return Map([route1, route2, route3], bus_list,
+               {'TDOG Depot': depot, 'Wegmans-Eastbound': weg_east, 'Wegmans-Westbound': weg_west,
+                'Commons-Eastbound': com_east, 'Commons-Westbound': com_west, 'Collegetown': ctown}, name = name)
+
 
 
 def thread_process(models):
@@ -77,7 +113,8 @@ if __name__ == '__main__':
 
     ITERATION = 60*18
     RATE = 7
-    m1 = (5, 1, 1)
+    m1 = (1, 5, 1)
+    m2 = (1, 1, 5)
     # m2 = (4, 1, 2)
     # m3 = (4, 1, 1)
     # m3 = (4, 2, 1)
@@ -85,9 +122,8 @@ if __name__ == '__main__':
     # m5 = (1, 1, 5)
 
     model1 = create_map(buses_per_route = m1, name = model_name(m1))
-    # model2 = create_map(buses_per_route = m2, name = model_name(m2))
+    model2 = create_map(buses_per_route = m2, name = model_name(m2))
     # model3 = create_map(buses_per_route = m3, name = model_name(m3))
 
-    model = [model1]
-
+    model = [model1, model2]
     experiment(model, ITERATION, 20, output_report=True, output = 'opt.csv')
