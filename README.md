@@ -1,7 +1,7 @@
 # PySimio
 **PySimio** is a Python library for discrete-event simulation. You can simulate multiple agents (vehicles, entities) in a non-deterministic system. We support muilti-core processing to speed up experiments. 
 
-![Route map](images/animation.gif)
+![Route map](images/animation.gif){:height="50%" width="50%"}
 
 GIF for command debug
 
