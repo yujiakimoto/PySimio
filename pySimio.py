@@ -97,6 +97,7 @@ class Map:
 
                 if hour not in bs.avg_num_waiting_t.keys():
                     bs.avg_num_waiting_t[hour] = 0
+                    bs.avg_num_waiting_snapshot[hour] = bs.num_waiting
                     # bs.num_waiting_hr = 0
                 else:
                     bs.avg_num_waiting_t[hour] += delta_time * bs.num_waiting_hr
@@ -145,6 +146,7 @@ class Map:
             bs.avg_num_waiting /= max_time
             waiting_t = bs.avg_num_waiting_t
             waiting_t = np.array([value for (key, value) in sorted(bs.avg_num_waiting_t.items())])
+            bs.avg_num_waiting_snapshot = np.array([value for (key, value) in sorted(bs.avg_num_waiting_snapshot.items())])
             bs.avg_num_waiting_t = waiting_t/60
             # print(bs.name, bs.call)
 
@@ -181,6 +183,7 @@ class Map:
             bs = self.bus_stops[bs]
             stats[bs.name + " avg people waiting"] = bs.avg_num_waiting  # avg. number of people waiting at each stop
             stats[bs.name + " hourly people waiting"] = re.split("\[ |\]", str(bs.avg_num_waiting_t[:-1]))[1]
+            stats[bs.name + " hourly people snapshot"] = re.split("\[ |\]", str(bs.avg_num_waiting_snapshot[:-1]))[1]
             total_waiting = 0
             total_people = 0
             for dest in bs.waiting_time.keys():
@@ -402,6 +405,8 @@ class BusStop:
         self.num_getoff = {}        # destination(str) -> number of people used this path
 
         self.avg_num_waiting_t = {} # destination(str) -> list of number per hour
+        self.avg_num_waiting_snapshot = {}
+
 
         self.call = 0
 
@@ -477,6 +482,8 @@ class BusStop:
                     arrival_times.remove(arrival_time)
                 else:
                     break
+
+
         if self.animate:
             self.update_animation()
             # sleep(0.1)               # controls speed of animation
@@ -491,6 +498,7 @@ class BusStop:
         self.waiting_time = {}
         self.num_getoff = {}
         self.avg_num_waiting_t = {}
+        self.avg_num_waiting_snapshot = {}
         self.call = 0
 
 

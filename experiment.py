@@ -117,6 +117,8 @@ if __name__ == '__main__':
     m1 = (1, 5, 1)
     m2 = (1, 4, 2)
     m3 = (1, 3, 3)
+    m4 = (1, 2, 4)
+    m5 = (1, 1, 5)
     # m2 = (4, 1, 2)
     # m3 = (4, 1, 1)
     # m3 = (4, 2, 1)
@@ -126,6 +128,8 @@ if __name__ == '__main__':
     model1 = create_map(buses_per_route = m1, name = model_name(m1))
     model2 = create_map(buses_per_route = m2, name = model_name(m2))
     model3 = create_map(buses_per_route = m3, name = model_name(m3))
+    model4 = create_map(buses_per_route = m4, name = model_name(m4))
+    model5 = create_map(buses_per_route = m5, name = model_name(m5))
 
-    model = [model1, model2, model3]
+    model = [model1, model2, model3,model4,model5]
     experiment(model, ITERATION, 10, output_report=True, output = 'opt.csv')
