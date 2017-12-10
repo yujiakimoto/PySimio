@@ -24,7 +24,7 @@ def create_map(routes_per_bus, arrival_data='data/ArrivalRates.xlsx', name=None)
     # route distance data
     r1d = [0.5, 2, 2, 2, 2, 0.5]
     r2d = [2, 2, 0.3]
-    r3d = [0.5, 2, 2, 2, 0.5]
+    r3d = [0.5, 2, 0.3, 2, 0.5]
 
     # route switch point data
     r1s = {2: {depot: [2.5, 1], weg_east: [2, 1], com_east: [0, 1], ctown: [0, 2], com_west: [5, 1], weg_west: [3, 1]},
