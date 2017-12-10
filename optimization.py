@@ -81,6 +81,8 @@ if __name__ == "__main__":
         x54=('categorical', [1, 2, 3], 1), x55=('categorical', [1, 2, 3], 1), x56=('categorical', [1, 2, 3], 1),
         x61=('categorical', [1, 2, 3], 1), x62=('categorical', [1, 2, 3], 1), x63=('categorical', [1, 2, 3], 1),
         x64=('categorical', [1, 2, 3], 1), x65=('categorical', [1, 2, 3], 1), x66=('categorical', [1, 2, 3], 1),
+        x71=('categorical', [1, 2, 3], 1), x72=('categorical', [1, 2, 3], 1), x73=('categorical', [1, 2, 3], 1),
+        x74=('categorical', [1, 2, 3], 1), x75=('categorical', [1, 2, 3], 1), x76=('categorical', [1, 2, 3], 1),
     )
 
     opt = pysmac.SMAC_optimizer()
