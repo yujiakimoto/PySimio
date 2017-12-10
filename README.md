@@ -48,6 +48,14 @@ ctown = BusStop('Collegetown')
 r1d = [0.5, 2, 2, 2, 2, 0.5]  
 r2d = [2, 2, 0.3]  
 r3d = [0.5, 2, 0.3, 2, 0.5]    
+
+# route switch point data - see Documentation for details
+r1s = {2: {depot: [2.5, 1], weg_east: [2, 1], com_east: [0, 1], ctown: [0, 2], com_west: [5, 1], weg_west: [3, 1]},
+       3: {depot: [0, 1], weg_east: [0, 2], com_east: [4, 4], ctown: [2, 4], com_west: [0, 4], weg_west: [0, 0]}}
+r2s = {1: {com_east: [0, 3], ctown: [0, 4], com_west: [0, 5]},
+       3: {com_east: [0, 3], ctown: [2, 4], com_west: [0, 4]}}
+r3s = {1: {depot: [0, 1], weg_east: [0, 2], com_east: [0, 3], com_west: [0, 5], weg_west: [0, 0]},
+       2: {depot: [2.5, 1], weg_east: [2, 1], com_east: [0, 1], com_west: [5, 1], weg_west: [3, 1]}}
    
 # create a Route object for each of the 3 routes   
 route1 = Route([depot, weg_east, com_east, ctown, com_west, weg_west, depot], r1d, r1s, number=1)   
