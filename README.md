@@ -13,7 +13,7 @@ GIF for command debug
 - Multicore Processing
 
 ## Setup
-PySimio is built with following libraries:
+PySimio is built with the following libraries:
 - `numpy` (back-end numerical calculations)  
 - `pandas` (reading/writing data logs)  
 - `seaborn, matplotlib` (data visualization)  
