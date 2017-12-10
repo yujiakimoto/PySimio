@@ -26,7 +26,6 @@ pip install numpy pandas seaborn matplotlib pygame
 - `pysmac`  (Bayesian optimization) 
 ```
 pip install git+https://github.com/sfalkner/pysmac.git --user
-python setup.py install
 ```
 
 We highly recommend using **Python 3.6.1** or greater.
