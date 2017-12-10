@@ -137,15 +137,13 @@ if __name__ == '__main__':
     route2 = [2, 1, 2, 2, 2, 2]
     route3 = [3, 3, 3, 3, 3, 3]
 
-    model1 = create_map(routes_per_bus=[route2], name='115')
-    model1.simulate(18*60, debug=True)
+    # model1 = create_map(routes_per_bus=[b1, b2], name='115')
+    model2 = create_map(routes_per_bus=[route1, route1, route1, route1, route1, route1, route1], name='700')
+    model3 = create_map(routes_per_bus=[route1, route1, route1, route1, route1, route2, route3], name='511')
+    model4 = create_map(routes_per_bus=[route1, route1, route1, route2, route2, route3, route3], name='322')
+    # model5 = create_map(routes_per_bus=[route1, route2, route2, route2, route2, route2, route3], name='151')
+    # model6 = create_map(routes_per_bus=[b1, b2, b3, b4, b5, b6, b7], name='m2')
 
-    model2 = create_map(routes_per_bus=[route1, route2, route2, route3, route3, route3, route3], name='124')
-    model3 = create_map(routes_per_bus=[route1, route2, route2, route2, route3, route3, route3], name='133')
-    model4 = create_map(routes_per_bus=[route1, route2, route2, route2, route2, route3, route3], name='142')
-    model5 = create_map(routes_per_bus=[route1, route2, route2, route2, route2, route2, route3], name='151')
-    model6 = create_map(routes_per_bus=[b1, b2, b3, b4, b5, b6, b7], name='m2')
-
-    model = [model2, model3, model4, model5, model6]
-    # experiment([model2], ITERATION, 10, output_report=True, output='opt.csv')
-    model2.simulate(60*18)
+    model = [model2, model3, model4]
+    experiment(model, ITERATION, 20, output_report=True, output='base.csv')
+    # model2.simulate(60*1)

@@ -13,14 +13,21 @@ def draw_time_series(df, directory = None, save = False):
     """
     # select relevant columns
     df_time = df[df.keys()[df.keys().str.contains('hourly') & \
-                ~df.keys().str.contains('Depot') & \
+                ~df.keys().str.contains('Depot')& \
+                ~df.keys().str.contains('Bus')& \
                 ~df.keys().str.contains('Commons-Eastbound-Wegmans-West')& \
                 ~df.keys().str.contains('Commons-Eastbound-Commons-Westbound ')]]
     # read the string of array and convert the format
+    df_time.fillna(0)
+    lengh = 0
     for k in df_time.keys():
         data = []
         for i in df_time[k].values:
-            data.append(np.fromstring(i, dtype=np.float, sep=' '))
+            try:
+                length = len(np.fromstring(i, dtype=np.float, sep=' '))
+                data.append(np.fromstring(i, dtype=np.float, sep=' '))
+            except:
+                data.append([0]*length)
         df_time[k] = data
     # add model for grouping
     df_time['model'] = df['model']
