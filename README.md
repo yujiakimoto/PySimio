@@ -89,7 +89,7 @@ experiment([model1, model2, model3], SIMULATION_LENGTH, ITERATIONS)
 
 ## Documentation
 
-### Dyanmic Route Switching
+### Dynamic Route Switching
 In order to allow for dynamic route switching (i.e. at any time and at any point), you provide a nested dictionary. The first key specifies which route to switch to, the second key specifies which stop you are currently at, and the value is a list: the first element specifies the distance until the stop where the route switch will be executed; the second element specifies the index of the next stop on the new route, once the route switch has been executed.  
   
 For example, 
