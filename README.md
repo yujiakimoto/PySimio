@@ -13,16 +13,19 @@ GIF for command debug
 - Multicore Processing
 
 ## Setup
-PySimio is built with following libraries:
-- numpy (back-end numerical calculations)  
-- pandas (reading/writing data logs)  
-- seaborn, matplotlib (data visualization)  
-- pygame (animation rendering)  
-- pysmac  (Bayesian optimization)  
+PySimio is built with the following libraries:
+- `numpy` (back-end numerical calculations)  
+- `pandas` (reading/writing data logs)  
+- `seaborn, matplotlib` (data visualization)  
+- `pygame` (animation rendering)   
   
 All of the above packages can be installed through the package management system pip as below:
 ```
-pip install numpy pandas seaborn matplotlib pygame pysmac
+pip install numpy pandas seaborn matplotlib pygame
+```
+- `pysmac`  (Bayesian optimization) 
+```
+pip install git+https://github.com/sfalkner/pysmac.git --user
 ```
 
 We highly recommend using **Python 3.6.1** or greater.
@@ -45,7 +48,7 @@ ctown = BusStop('Collegetown')
 # route distance data  
 r1d = [0.5, 2, 2, 2, 2, 0.5]  
 r2d = [2, 2, 0.3]  
-r3d = [0.5, 2, 2, 2, 0.5]    
+r3d = [0.5, 2, 0.3, 2, 0.5]    
    
 # create a Route object for each of the 3 routes   
 route1 = Route([depot, weg_east, com_east, ctown, com_west, weg_west, depot], r1d, r1s, number=1)   
