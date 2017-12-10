@@ -134,7 +134,7 @@ if __name__ == '__main__':
     b7 = [3, 3, 3, 3, 3, 3]
 
     route1 = [1, 1, 1, 1, 1, 1]
-    route2 = [2, 2, 2, 2, 2, 2]
+    route2 = [2, 1, 2, 2, 2, 2]
     route3 = [3, 3, 3, 3, 3, 3]
 
     # model1 = create_map(routes_per_bus=[b1, b2], name='115')
