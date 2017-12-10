@@ -1,7 +1,7 @@
 # PySimio: A Library for Discrete-Event Simulation
 **PySimio** is a Python library for object-oriented discrete-event simulation. You can simulate multiple agents (vehicles, entities) in a non-deterministic system. We support muilti-core processing to speed up experiments. 
 
-![Route map](images/animation.gif)
+![Animation](images/animation.gif)
 
 ## Features
 - Object-Oriented Simulation
@@ -55,15 +55,15 @@ route2 = Route([com_east, ctown, com_west, com_east], r2d, r2s, number=2)
 route3 = Route([depot, weg_east, com_east, com_west, weg_west, depot], r3d, r3s, number=3)   
 ```
 ### Debugging
-PySimio supports command-line debugging by printing each discrete event. 
+PySimio supports command-line debugging by printing each discrete event, processing one event at a time when prompted by the user. 
 
-GIF
+![Debugging](images/debug.gif)
 
 ### Experiments
-Diffenrent model comparison can be easily done with PySimio. *experiment* function returns DataFrame of each 
+Comparison of different models can be easily done with PySimio. The `experiment` function returns a DataFrame of the results of each model configuration. 
 ```Python
 SIMULATION_LENGTH = 60*18
-ITERATION = 20
+ITERATIONS = 20
 
 route1 = [1, 1, 1, 1, 1, 1]
 route2 = [2, 2, 2, 2, 2, 2]
@@ -73,7 +73,7 @@ model1 = create_map(routes_per_bus=[route1, route1, route1, route1, route1, rout
 model2 = create_map(routes_per_bus=[route1, route1, route1, route1, route1, route2, route3], name='511')
 model3 = create_map(routes_per_bus=[route1, route1, route1, route2, route2, route3, route3], name='322')
 
-experiment([model1, model2, model3], SIMULATION_LENGTH, ITERATION)
+experiment([model1, model2, model3], SIMULATION_LENGTH, ITERATIONS)
 ```
 
 ### Visualization
