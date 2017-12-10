@@ -17,7 +17,7 @@ def generate_simulation_result(x21, x22, x23, x24, x25, x26,
     b7 = [x71, x72, x73, x74, x75, x76]
 
     model = create_map(routes_per_bus=[b1, b2, b3, b4, b5, b6, b7], name='model')
-    return experiment([model], 60*18, 20, output_report=False, printing=False)
+    return experiment([model], 60*18, 10, output_report=False, printing=False)
 
 
 def avg_waiting_time(x21, x22, x23, x24, x25, x26,
@@ -71,22 +71,22 @@ def avg_occupancy(x21, x22, x23, x24, x25, x26,
 if __name__ == "__main__":
 
     parameters = dict(
-        x21=('categorical', [1, 2, 3], 1), x22=('categorical', [1, 2, 3], 1), x23=('categorical', [1, 2, 3], 1),
+        x21=('categorical', [1, 2, 3], 2), x22=('categorical', [1, 2, 3], 2), x23=('categorical', [1, 2, 3], 1),
         x24=('categorical', [1, 2, 3], 1), x25=('categorical', [1, 2, 3], 1), x26=('categorical', [1, 2, 3], 1),
-        x31=('categorical', [1, 2, 3], 1), x32=('categorical', [1, 2, 3], 1), x33=('categorical', [1, 2, 3], 1),
-        x34=('categorical', [1, 2, 3], 1), x35=('categorical', [1, 2, 3], 1), x36=('categorical', [1, 2, 3], 1),
-        x41=('categorical', [1, 2, 3], 1), x42=('categorical', [1, 2, 3], 1), x43=('categorical', [1, 2, 3], 1),
-        x44=('categorical', [1, 2, 3], 1), x45=('categorical', [1, 2, 3], 1), x46=('categorical', [1, 2, 3], 1),
-        x51=('categorical', [1, 2, 3], 1), x52=('categorical', [1, 2, 3], 1), x53=('categorical', [1, 2, 3], 1),
+        x31=('categorical', [1, 2, 3], 1), x32=('categorical', [1, 2, 3], 2), x33=('categorical', [1, 2, 3], 2),
+        x34=('categorical', [1, 2, 3], 1), x35=('categorical', [1, 2, 3], 1), x36=('categorical', [1, 2, 3], 2),
+        x41=('categorical', [1, 2, 3], 2), x42=('categorical', [1, 2, 3], 1), x43=('categorical', [1, 2, 3], 2),
+        x44=('categorical', [1, 2, 3], 3), x45=('categorical', [1, 2, 3], 2), x46=('categorical', [1, 2, 3], 1),
+        x51=('categorical', [1, 2, 3], 3), x52=('categorical', [1, 2, 3], 1), x53=('categorical', [1, 2, 3], 1),
         x54=('categorical', [1, 2, 3], 1), x55=('categorical', [1, 2, 3], 1), x56=('categorical', [1, 2, 3], 1),
-        x61=('categorical', [1, 2, 3], 1), x62=('categorical', [1, 2, 3], 1), x63=('categorical', [1, 2, 3], 1),
-        x64=('categorical', [1, 2, 3], 1), x65=('categorical', [1, 2, 3], 1), x66=('categorical', [1, 2, 3], 1),
-        x71=('categorical', [1, 2, 3], 1), x72=('categorical', [1, 2, 3], 1), x73=('categorical', [1, 2, 3], 1),
-        x74=('categorical', [1, 2, 3], 1), x75=('categorical', [1, 2, 3], 1), x76=('categorical', [1, 2, 3], 1),
+        x61=('categorical', [1, 2, 3], 1), x62=('categorical', [1, 2, 3], 1), x63=('categorical', [1, 2, 3], 3),
+        x64=('categorical', [1, 2, 3], 2), x65=('categorical', [1, 2, 3], 3), x66=('categorical', [1, 2, 3], 1),
+        x71=('categorical', [1, 2, 3], 1), x72=('categorical', [1, 2, 3], 2), x73=('categorical', [1, 2, 3], 2),
+        x74=('categorical', [1, 2, 3], 2), x75=('categorical', [1, 2, 3], 3), x76=('categorical', [1, 2, 3], 3),
     )
 
     opt = pysmac.SMAC_optimizer()
-    value, parameters = opt.minimize(avg_queue_length, 100, parameters)
+    value, parameters = opt.minimize(avg_waiting_time, 500, parameters)
 
     print(('Lowest function value found: %f' % value))
     print(('Parameter setting %s' % parameters))

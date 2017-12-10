@@ -142,6 +142,8 @@ class Map:
             else:
                 # TODO: calculate the delay time for the bus
                 delay = 0
+                if next_event.bus_stop.num_waiting < 10:
+                    delay = 2
                 arv_event = next_event.bus.depart(next_event.bus_stop, next_event.time, time + delay)
                 self.event_queue.append(arv_event) # add arrival event to the queue
 
