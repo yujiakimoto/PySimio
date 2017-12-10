@@ -86,7 +86,7 @@ if __name__ == "__main__":
     )
 
     opt = pysmac.SMAC_optimizer()
-    value, parameters = opt.minimize(avg_waiting_time, 100, parameters)
+    value, parameters = opt.minimize(avg_queue_length, 100, parameters)
 
     print(('Lowest function value found: %f' % value))
     print(('Parameter setting %s' % parameters))
