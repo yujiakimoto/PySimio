@@ -83,7 +83,7 @@ def model_name(route):
     return str(route[0]) + str(route[1]) + str(route[2])
 
 
-def experiment(models, max_time, iteration, output_report=True, output='reports.csv', debug=False):
+def experiment(models, max_time, iteration, output_report=True, output='reports.csv', debug=False, printing=True):
     """ Run the experiment with input models
     Args:
         models (list) : list of map objects
@@ -95,7 +95,8 @@ def experiment(models, max_time, iteration, output_report=True, output='reports.
     """
     assert(all(isinstance(model, Map) for model in models)), "models must be a list of Map objects"
     # begin simulations
-    print("{} simulations with {} models begins ...".format(iteration, len(models)))
+    if printing:
+        print("{} simulations with {} models begins ...".format(iteration, len(models)))
 
     # shared variable to combine each simulation results
     results = []
@@ -110,14 +111,17 @@ def experiment(models, max_time, iteration, output_report=True, output='reports.
 
     thread.terminate()  # kill the thread
 
-    print(pd.DataFrame(stats).groupby('model').mean())
+    if printing:
+        print(pd.DataFrame(stats).groupby('model').mean())
 
-    print("experiment done")
+        print("experiment done")
 
     # generate the file
     if output_report:
         out = 'reports/'
         pd.DataFrame(stats).to_csv(out + output, index=False)
+
+    return pd.DataFrame(stats)
 
 
 if __name__ == '__main__':
