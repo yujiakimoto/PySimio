@@ -97,3 +97,5 @@ For example,
 r1s = {2: {depot: [2.5, 1]}}
 ```
 indicates when switching from route 1 to route 2 for a bus currently at the depot, the bus must wait until it has travelled 2.5km (i.e. it reaches Commons-Eastbound) before executing the route change, and once the route change has been executed the next stop is indexed by #1 in the new route (i.e. Collegetown).
+
+### Optimization
