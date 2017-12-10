@@ -14,15 +14,19 @@ GIF for command debug
 
 ## Setup
 PySimio is built with following libraries:
-- numpy (back-end numerical calculations)  
-- pandas (reading/writing data logs)  
-- seaborn, matplotlib (data visualization)  
-- pygame (animation rendering)  
-- pysmac  (Bayesian optimization)  
+- `numpy` (back-end numerical calculations)  
+- `pandas` (reading/writing data logs)  
+- `seaborn, matplotlib` (data visualization)  
+- `pygame` (animation rendering)   
   
 All of the above packages can be installed through the package management system pip as below:
 ```
-pip install numpy pandas seaborn matplotlib pygame pysmac
+pip install numpy pandas seaborn matplotlib pygame
+```
+- `pysmac`  (Bayesian optimization) 
+```
+pip install git+https://github.com/sfalkner/pysmac.git --user
+python setup.py install
 ```
 
 We highly recommend using **Python 3.6.1** or greater.
