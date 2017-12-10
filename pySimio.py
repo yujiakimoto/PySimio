@@ -87,7 +87,7 @@ class Map:
             delta_time = time - self.prev_time                              # time - time_lst to calculate the integral
             # print(delta_time)
 
-            hour = int(time / 60)
+            hour = int(time / 30)
             hour_3 = int(time / 180)
 
             # change routes every 3 hours
@@ -153,8 +153,8 @@ class Map:
                         self.path_occupancy[next_event.bus_stop.name] = {}
                         self.path_travel[next_event.bus_stop.name] = {}
                     if arv_event.bus_stop.name not in self.path_occupancy[next_event.bus_stop.name].keys():
-                        self.path_occupancy[next_event.bus_stop.name][arv_event.bus_stop.name] = [0] * int(max_time / 60)
-                        self.path_travel[next_event.bus_stop.name][arv_event.bus_stop.name] = [0] * int(max_time / 60)
+                        self.path_occupancy[next_event.bus_stop.name][arv_event.bus_stop.name] = [0] * int(max_time / 30)
+                        self.path_travel[next_event.bus_stop.name][arv_event.bus_stop.name] = [0] * int(max_time / 30)
 
                     self.path_occupancy[next_event.bus_stop.name][arv_event.bus_stop.name][hour] += next_event.bus.occupancy
                     self.path_travel[next_event.bus_stop.name][arv_event.bus_stop.name][hour] += 1
@@ -170,14 +170,14 @@ class Map:
             b.avg_occupancy /= max_time
             b.avg_standing /= max_time
             waiting_t = np.array([value for (key, value) in sorted(b.avg_occupancy_t.items())])
-            b.avg_occupancy_t = waiting_t/60
+            b.avg_occupancy_t = waiting_t/30
 
         for bs in self.bus_stops.keys():
             bs = self.bus_stops[bs]
             bs.avg_num_waiting /= max_time
             waiting_t = bs.avg_num_waiting_t
             waiting_t = np.array([value for (key, value) in sorted(bs.avg_num_waiting_t.items())])
-            bs.avg_num_waiting_t = waiting_t/60
+            bs.avg_num_waiting_t = waiting_t/30
             # print(bs.name, bs.call)
 
         print('Simulation complete')
@@ -216,7 +216,7 @@ class Map:
                 stats[origin + "-" + dest + " hourly occupancy"] = re.split("\[ |\]", str(np.array(time)[:-1]))[1]
                 if sum(self.path_travel[origin][dest]) != 0:
                     stats[origin + "-" + dest + " avg occupancy"] = sum(self.path_occupancy[origin][dest])/sum(self.path_travel[origin][dest])
-        
+
         for bus in self.buses:
             stats[bus.name + " distance"] = bus.distance            # traveling distance for each bus
             total_traveled += bus.distance                          # traveling distance for all buses
@@ -340,9 +340,11 @@ class Bus:
     def board(self, stop, time):
         """Models the process of people boarding this bus at a certain stop"""
         # people waiting at bus stop will get on if bus goes to desired destination and there is space on the bus
-        stop.update(time)
+        n = stop.update(time)
         boarding_time = time
         count = 0
+        people_just_arrived = stop.people_waiting[-n:]
+        hour = int(time / 30)
         for person in stop.people_waiting[:]:
             count += 1
             if self.occupancy == self.max_cap:
@@ -356,9 +358,14 @@ class Bus:
                 # stop.num_waiting_hr = max(0, stop.num_waiting_hr)
                 person.waiting_time = boarding_time - person.start_time  # record waiting time
                 person.origin.add_waiting_time(person.destination, person.waiting_time) # update the origin waiting time
-                # boarding_time += np.random.triangular(0, 1/60, 5/60)   # boarding times have triangular distribution
+                boarding_time += np.random.triangular(0, 1/60, 5/60)   # boarding times have triangular distribution
                 stop.update(boarding_time)  # people arrive while bus is boarding
                 person.state = 'standing'
+                if person in people_just_arrived:
+                    stop.avg_num_waiting += person.waiting_time
+                    stop.avg_num_waiting_t[hour] += person.waiting_time
+
+
         if count > 1000:
             pass
             # print(stop.name, int(time/60), count)
@@ -406,8 +413,8 @@ class Bus:
         if distance_travelled < 2:
             driving_time = (distance_travelled/20) * 60    # average speed of 20km/hr, convert to minutes
         else:
-            # driving_time = np.random.uniform(5, 7)       # average speed of 20km/hr, +/-1 min variability
-            driving_time = 6
+            driving_time = np.random.uniform(5, 7)       # average speed of 20km/hr, +/-1 min variability
+            # driving_time = 6
 
         done_boarding = self.board(stop, time)
         if done_boarding < earliest_depart:
@@ -543,9 +550,11 @@ class BusStop:
 
     def update(self, time):
         """Updates arrivals to this bus stop until a given time"""
+        arrived = 0
         for destination, arrival_times in self.times.items():
             for arrival_time in arrival_times[:]:
                 if arrival_time < time:
+                    arrived += 1
                     self.arrival(Person(self, destination, arrival_time))
                     arrival_times.remove(arrival_time)
                 else:
@@ -555,6 +564,8 @@ class BusStop:
             self.update_animation()
             # sleep(0.1)               # controls speed of animation
             pygame.display.flip()      # update display
+
+        return arrived
 
     def reset(self):
         """Reset map to initial (or newly generated) settings"""
