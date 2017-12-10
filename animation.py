@@ -76,13 +76,13 @@ def animate(map, time):
 
 if __name__ == "__main__":
 
-    b1 = [1, 2, 3, 2, 1, 3]
-    b2 = [1, 2, 2, 2, 1, 1]
-    b3 = [1, 2, 2, 2, 2, 2]
-    b4 = [2, 2, 2, 2, 2, 2]
-    b5 = [2, 2, 2, 3, 3, 1]
-    b6 = [3, 2, 2, 3, 3, 3]
-    b7 = [3, 3, 3, 3, 3, 3]
+    b1 = [1, 1, 1, 1, 1, 1]
+    b2 = [1, 1, 1, 1, 1, 1]
+    b3 = [1, 1, 1, 1, 1, 1]
+    b4 = [1, 1, 1, 1, 1, 1]
+    b5 = [1, 1, 1, 1, 1, 1]
+    b6 = [1, 1, 1, 1, 1, 1]
+    b7 = [1, 1, 1, 1, 1, 1]
 
-    ithaca = create_map([b1, b2, b3, b4, b5, b6, b7], arrival_data='data/ArrivalRates.xlsx')
-    animate(ithaca, 18*60)
+    ithaca = create_map([b1, b2, b3, b4, b5, b6, b7], arrival_data='data/Sample.xlsx')
+    animate(ithaca, 6*60)
