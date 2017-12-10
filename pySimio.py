@@ -69,8 +69,6 @@ class Map:
             if debug:                                                       # wait for user input to proceed
                 input()
                 for bus in self.buses:
-                    print('next stop:', bus.next_stop.name)
-                    print('route:', bus.route.num)
                     if isinstance(bus.to_change, Route):
                         print('next route:', bus.to_change.num)
                         print('tracker:', bus.change_tracker)
@@ -79,7 +77,6 @@ class Map:
                 self.update_clock(settings['surface'], time)
                 for bus_stop in self.bus_stops.values():
                     bus_stop.update(time)                                   # fine-grained animation (much slower)
-
 
             sorted_queue = sorted(self.event_queue, key=lambda x: x.time)   # sort the event queue
             self.event_queue = sorted_queue[1:]                             # shift the queue by 1

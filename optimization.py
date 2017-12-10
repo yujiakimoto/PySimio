@@ -1,5 +1,16 @@
 import pysmac
+import pickle
 from experiment import create_map, experiment
+
+
+def save_obj(obj, name):
+    with open('results/' + name + '.pkl', 'wb') as f:
+        pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
+
+
+def load_obj(name):
+    with open('results/' + name + '.pkl', 'rb') as f:
+        return pickle.load(f)
 
 
 def generate_simulation_result(x21, x22, x23, x24, x25, x26,
@@ -71,18 +82,19 @@ def avg_occupancy(x21, x22, x23, x24, x25, x26,
 if __name__ == "__main__":
 
     parameters = dict(
-        x21=('categorical', [1, 2, 3], 2), x22=('categorical', [1, 2, 3], 2), x23=('categorical', [1, 2, 3], 1),
-        x24=('categorical', [1, 2, 3], 1), x25=('categorical', [1, 2, 3], 1), x26=('categorical', [1, 2, 3], 1),
-        x31=('categorical', [1, 2, 3], 1), x32=('categorical', [1, 2, 3], 2), x33=('categorical', [1, 2, 3], 2),
-        x34=('categorical', [1, 2, 3], 1), x35=('categorical', [1, 2, 3], 1), x36=('categorical', [1, 2, 3], 2),
-        x41=('categorical', [1, 2, 3], 2), x42=('categorical', [1, 2, 3], 1), x43=('categorical', [1, 2, 3], 2),
-        x44=('categorical', [1, 2, 3], 3), x45=('categorical', [1, 2, 3], 2), x46=('categorical', [1, 2, 3], 1),
-        x51=('categorical', [1, 2, 3], 3), x52=('categorical', [1, 2, 3], 1), x53=('categorical', [1, 2, 3], 1),
-        x54=('categorical', [1, 2, 3], 1), x55=('categorical', [1, 2, 3], 1), x56=('categorical', [1, 2, 3], 1),
-        x61=('categorical', [1, 2, 3], 1), x62=('categorical', [1, 2, 3], 1), x63=('categorical', [1, 2, 3], 3),
+
+        x21=('categorical', [1, 2, 3], 2), x22=('categorical', [1, 2, 3], 2), x23=('categorical', [1, 2, 3], 2),
+        x24=('categorical', [1, 2, 3], 3), x25=('categorical', [1, 2, 3], 1), x26=('categorical', [1, 2, 3], 1),
+        x31=('categorical', [1, 2, 3], 3), x32=('categorical', [1, 2, 3], 2), x33=('categorical', [1, 2, 3], 3),
+        x34=('categorical', [1, 2, 3], 2), x35=('categorical', [1, 2, 3], 3), x36=('categorical', [1, 2, 3], 1),
+        x41=('categorical', [1, 2, 3], 1), x42=('categorical', [1, 2, 3], 3), x43=('categorical', [1, 2, 3], 2),
+        x44=('categorical', [1, 2, 3], 3), x45=('categorical', [1, 2, 3], 2), x46=('categorical', [1, 2, 3], 2),
+        x51=('categorical', [1, 2, 3], 2), x52=('categorical', [1, 2, 3], 2), x53=('categorical', [1, 2, 3], 1),
+        x54=('categorical', [1, 2, 3], 2), x55=('categorical', [1, 2, 3], 2), x56=('categorical', [1, 2, 3], 1),
+        x61=('categorical', [1, 2, 3], 1), x62=('categorical', [1, 2, 3], 2), x63=('categorical', [1, 2, 3], 2),
         x64=('categorical', [1, 2, 3], 2), x65=('categorical', [1, 2, 3], 3), x66=('categorical', [1, 2, 3], 1),
-        x71=('categorical', [1, 2, 3], 1), x72=('categorical', [1, 2, 3], 2), x73=('categorical', [1, 2, 3], 2),
-        x74=('categorical', [1, 2, 3], 2), x75=('categorical', [1, 2, 3], 3), x76=('categorical', [1, 2, 3], 3),
+        x71=('categorical', [1, 2, 3], 3), x72=('categorical', [1, 2, 3], 2), x73=('categorical', [1, 2, 3], 3),
+        x74=('categorical', [1, 2, 3], 1), x75=('categorical', [1, 2, 3], 3), x76=('categorical', [1, 2, 3], 3),
     )
 
     opt = pysmac.SMAC_optimizer()
@@ -90,3 +102,5 @@ if __name__ == "__main__":
 
     print(('Lowest function value found: %f' % value))
     print(('Parameter setting %s' % parameters))
+
+    save_obj(parameters, 'lowest_waiting_time')

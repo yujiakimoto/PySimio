@@ -1,9 +1,7 @@
 # PySimio: A Library for Discrete-Event Simulation
 **PySimio** is a Python library for object-oriented discrete-event simulation. You can simulate multiple agents (vehicles, entities) in a non-deterministic system. We support muilti-core processing to speed up experiments. 
 
-![Route map](images/animation.gif)
-
-GIF for command debug
+![Animation](images/animation.gif)
 
 ## Features
 - Object-Oriented Simulation
@@ -34,9 +32,10 @@ We also discovered the issue that pygame fails to render properly with Mac retin
 
 ## Sample Usage
 We model several bus routes around Ithaca, NY to help the Tompkins Department of Going-Places (TDOG) save Cornell students from the perilous weather of upstate New York.  
-  
 ![Route map](data/map.png)
-```
+
+### Model
+```Python
 # create BusStop objects  
 depot = BusStop('TDOG Depot')  
 weg_east = BusStop('Wegmans-Eastbound')  
@@ -55,6 +54,30 @@ route1 = Route([depot, weg_east, com_east, ctown, com_west, weg_west, depot], r1
 route2 = Route([com_east, ctown, com_west, com_east], r2d, r2s, number=2)   
 route3 = Route([depot, weg_east, com_east, com_west, weg_west, depot], r3d, r3s, number=3)   
 ```
+### Debugging
+PySimio supports command-line debugging by printing each discrete event, processing one event at a time when prompted by the user. 
+
+![Debugging](images/debug.gif)
+
+### Experiments
+Comparison of different models can be easily done with PySimio. The `experiment` function returns a DataFrame of the results of each model configuration. 
+```Python
+SIMULATION_LENGTH = 60*18
+ITERATIONS = 20
+
+route1 = [1, 1, 1, 1, 1, 1]
+route2 = [2, 2, 2, 2, 2, 2]
+route3 = [3, 3, 3, 3, 3, 3]
+
+model1 = create_map(routes_per_bus=[route1, route1, route1, route1, route1, route1, route1], name='700')
+model2 = create_map(routes_per_bus=[route1, route1, route1, route1, route1, route2, route3], name='511')
+model3 = create_map(routes_per_bus=[route1, route1, route1, route2, route2, route3, route3], name='322')
+
+experiment([model1, model2, model3], SIMULATION_LENGTH, ITERATIONS)
+```
+
+### Visualization
+
 
 ## Documentation
 
