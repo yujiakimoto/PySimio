@@ -1,5 +1,5 @@
 # PySimio: A Library for Discrete-Event Simulation
-**PySimio** is a Python library for object-oriented discrete-event simulation. You can simulate multiple agents (vehicles, entities) in a non-deterministic system. We support muilti-core processing to speed up experiments. 
+**PySimio** is a Python library for object-oriented discrete-event simulation. You can simulate multiple agents (vehicles, entities) in a non-deterministic system. We support muilti-core processing to speed up experiments.
 
 ![Animation](images/animation.gif)
 
@@ -7,7 +7,7 @@
 - Object-Oriented Simulation
 - Animation
 - Commandline Debugging
-- Statistic Collection and Data Visualization 
+- Statistic Collection and Data Visualization
 - Multicore Processing
 
 ## Setup
@@ -16,12 +16,12 @@ PySimio is built with the following libraries:
 - `pandas` (reading/writing data logs)  
 - `seaborn, matplotlib` (data visualization)  
 - `pygame` (animation rendering)   
-  
+
 All of the above packages can be installed through the package management system pip as below:
 ```
 pip install numpy pandas seaborn matplotlib pygame
 ```
-- `pysmac`  (Bayesian optimization) 
+- `pysmac`  (Bayesian optimization)
 ```
 pip install git+https://github.com/sfalkner/pysmac.git --user
 ```
@@ -43,7 +43,7 @@ weg_west = BusStop('Wegmans-Westbound')
 com_east = BusStop('Commons-Eastbound')  
 com_west = BusStop('Commons-Westbound')  
 ctown = BusStop('Collegetown')  
-  
+
 # route distance data  
 r1d = [0.5, 2, 2, 2, 2, 0.5]  
 r2d = [2, 2, 0.3]  
@@ -56,11 +56,11 @@ r2s = {1: {com_east:[0,3], ctown:[0,4], com_west:[0,5]},
        3: {com_east:[0,3], ctown:[2,4], com_west:[0,4]}}
 r3s = {1: {depot:[0,1], weg_east:[0,2], com_east:[0,3], com_west:[0,5], weg_west:[0,0]},
        2: {depot:[2.5,1], weg_east:[2,1], com_east:[0,1], com_west:[5,1], weg_west:[3,1]}}
-   
+
 # create a Route object for each of the 3 routes   
 route1 = Route([depot, weg_east, com_east, ctown, com_west, weg_west, depot], r1d, r1s, number=1)   
 route2 = Route([com_east, ctown, com_west, com_east], r2d, r2s, number=2)   
-route3 = Route([depot, weg_east, com_east, com_west, weg_west, depot], r3d, r3s, number=3) 
+route3 = Route([depot, weg_east, com_east, com_west, weg_west, depot], r3d, r3s, number=3)
 
 # specify schedule for each bus
 b1 = [1, 1, 1, 1, 1, 1]
@@ -76,12 +76,12 @@ ithaca = create_map([b1, b2, b3, b4, b5, b6, b7], arrival_data='data/ArrivalRate
 ithaca.simulate(60*18, animate=True, debug=False)
 ```
 ### Debugging
-PySimio supports command-line debugging by printing each discrete event, processing one event at a time when prompted by the user. 
+PySimio supports command-line debugging by printing each discrete event, processing one event at a time when prompted by the user.
 
 ![Debugging](images/debug.gif)
 
 ### Experiments
-Comparison of different models can be easily done with PySimio. The `experiment` function returns a DataFrame of the results of each model configuration. 
+Comparison of different models can be easily done with PySimio. The `experiment` function returns a DataFrame of the results of each model configuration.
 ```Python
 SIMULATION_LENGTH = 60*18
 ITERATIONS = 20
@@ -99,29 +99,29 @@ experiment([model1, model2, model3], SIMULATION_LENGTH, ITERATIONS)
 Our experiments make the best use of multiprocessing library for more efficient computation
 
 ### Visualization
-PySimio records the simulation results in csv format, which makes the data analysis very easy. This library contains three functions to automatically output time-series and boxplot of utilities. 
+PySimio records the simulation results in csv format, which makes the data analysis very easy. This library contains three functions to automatically output time-series and boxplot of utilities.
 ```Python
-# store experiment results in csv format 
+# store experiment results in csv format
 import pandas as pd
 from analysis import draw_time_series, draw_smore, draw_time_series_bus
 # output csv file
 experiment([model1, model2, model3], SIMULATION_LENGTH, ITERATIONS, output_report=True, output='results.csv')
 df = pd.read_csv('results.csv')  # load file
 
-draw_time_series(df)             # time-series for utility of servers 
-draw_time_series_bus(df)         # time-series for utility of vehicles 
+draw_time_series(df)             # time-series for utility of servers
+draw_time_series_bus(df)         # time-series for utility of vehicles
 draw_smore(df)                   # box-plot for utility
 ```
 The function uses the seaborn package and outputs the following visualizations:  
 
-<img src="data/ts.png"  float = "left" width="45%"> <img src="data/box.png" float = "left" width="45%"> 
+<img src="images/ts.png"  float = "left" width="45%"> <img src="images/box.png" float = "left" width="45%"> 
 
 ## Documentation
 
 ### Dynamic Route Switching
 In order to allow for dynamic route switching (i.e. at any time and at any point), you provide a nested dictionary. The first key specifies which route to switch to, the second key specifies which stop you are currently at, and the value is a list: the first element specifies the distance until the stop where the route switch will be executed; the second element specifies the index of the next stop on the new route, once the route switch has been executed.  
-  
-For example, 
+
+For example,
 ```Python
 r1s = {2: {depot: [2.5, 1]}}
 ```
