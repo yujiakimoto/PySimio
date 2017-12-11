@@ -85,6 +85,22 @@ experiment([model1, model2, model3], SIMULATION_LENGTH, ITERATIONS)
 ```
 
 ### Visualization
+PySimio records the simulation results in csv format, which makes the data analysis very easy. This library contains three functions to automatically output time-series and boxplot of utilities. 
+```Python
+#store experiment results in csv format 
+import pandas as pd
+from analysis import draw_time_series, draw_smore,draw_time_series_bus
+# output csv file
+experiment([model1, model2, model3], SIMULATION_LENGTH, ITERATIONS, output_report=True, output = 'results.csv')
+df = pd.read_csv('results.csv')  # load file
+
+draw_time_series(df)             # time-series for utility of servers 
+draw_time_series_bus(df)         # time-series for utility of vehicles 
+draw_smore(df) .                 # box-plot for utility
+```
+The function outputs following visualization. 
+
+![Time-series](data/ts.png) ![Boxplot](data/box.png) 
 
 
 ## Documentation
