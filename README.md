@@ -60,7 +60,20 @@ r3s = {1: {depot:[0,1], weg_east:[0,2], com_east:[0,3], com_west:[0,5], weg_west
 # create a Route object for each of the 3 routes   
 route1 = Route([depot, weg_east, com_east, ctown, com_west, weg_west, depot], r1d, r1s, number=1)   
 route2 = Route([com_east, ctown, com_west, com_east], r2d, r2s, number=2)   
-route3 = Route([depot, weg_east, com_east, com_west, weg_west, depot], r3d, r3s, number=3)   
+route3 = Route([depot, weg_east, com_east, com_west, weg_west, depot], r3d, r3s, number=3) 
+
+# specify schedule for each bus
+b1 = [1, 1, 1, 1, 1, 1]
+b2 = [1, 2, 2, 2, 3, 1]
+b3 = [3, 1, 1, 1, 1, 1]
+b4 = [1, 3, 2, 3, 2, 2]
+b5 = [2, 2, 1, 2, 1, 1]
+b6 = [1, 1, 1, 2, 3, 1]
+b7 = [1, 2, 2, 2, 3, 3]
+
+from experiment import create_map
+ithaca = create_map([b1, b2, b3, b4, b5, b6, b7], arrival_data='data/ArrivalRates.xlsx', name='map1')
+ithaca.simulate(60*18, animate=True, debug=False)
 ```
 ### Debugging
 PySimio supports command-line debugging by printing each discrete event, processing one event at a time when prompted by the user. 
@@ -97,7 +110,7 @@ df = pd.read_csv('results.csv')  # load file
 
 draw_time_series(df)             # time-series for utility of servers 
 draw_time_series_bus(df)         # time-series for utility of vehicles 
-draw_smore(df) .                 # box-plot for utility
+draw_smore(df)                   # box-plot for utility
 ```
 The function uses the seaborn package and outputs the following visualizations:  
 
@@ -115,4 +128,24 @@ r1s = {2: {depot: [2.5, 1]}}
 indicates when switching from route 1 to route 2 for a bus currently at the depot, the bus must wait until it has travelled 2.5km (i.e. it reaches Commons-Eastbound) before executing the route change, and once the route change has been executed the next stop is indexed by #1 in the new route (i.e. Collegetown).
 
 ### Optimization
-As these models contain complex interactions that make it difficult to compute summary statistics in a closed-form solution, PySimio conducts optimization through Bayesian optimization.
+As these models contain complex interactions that make it difficult to compute summary statistics in a closed-form solution, PySimio conducts optimization through Bayesian optimization. Although Bayesian optimization supports the optimization of any black-box function, assumptions about the distribution of functions considered make it more suitable for functions that are less sensitive to small changes in their input, as illustrated below:   
+
+![Optimization](images/bayesian_opt.png)  
+
+To conduct optimization, define a function from the space of variables you have control over (e.g. schedules for each bus) to a target variable that you want to optimize (e.g. average waiting time).
+```Python
+def avg_waiting_time(x21, x22, x23, x24, x25, x26):
+    # this is pseudocode
+    create_map(x21, x22, x23, x24, x25, x26)                
+    return stats['average waiting time'].values.mean()
+```
+You will then need to provide a dictionary specifying the type of each variable (real/integer/categorical/ordinal), a starting point, and total number of iterations. Our implementation will save the dictionary of optimal parameters found as a .pkl file.
+```Python
+parameters = dict(
+    x21=('categorical', [1, 2, 3], 2), x22=('categorical', [1, 2, 3], 2), x23=('categorical', [1, 2, 3], 1),
+    x24=('categorical', [1, 2, 3], 1), x25=('categorical', [1, 2, 3], 3), x26=('categorical', [1, 2, 3], 1),
+)
+opt = pysmac.SMAC_optimizer()
+value, parameters = opt.minimize(avg_waiting_time, 1000, parameters)    # 1000 iterations
+save_obj(parameters, 'lowest_waiting_time')
+```
