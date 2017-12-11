@@ -64,18 +64,13 @@ def thread_process(models):
 
     results = []
     for i in range(iteration):
-
         m.simulate(max_time, debug=debug)   # run simulation
-
         # collect statistics
         stats = m.collect_stats()
         stats["model"] = m.name
         stats['iteration']=i
-
         m.reset()  # reset the simulation
-
         results.append(stats)
-
     return results
 
 
@@ -100,27 +95,20 @@ def experiment(models, max_time, iteration, output_report=True, output='reports.
 
     # shared variable to combine each simulation results
     results = []
-
     thread = Pool(len(models))  # initialize threads for each model
     # create keyword-arguments
     args = [{'model': m, 'debug': debug, 'max_time': max_time, 'results': results, 'iteration': iteration}
             for i, m in enumerate(models)]
     stats = thread.map(thread_process, args)  # run multiprocessing
-
     stats = list(chain(*stats))
-
     thread.terminate()  # kill the thread
-
     if printing:
         print(pd.DataFrame(stats).groupby('model').mean())
-
         print("experiment done")
-
     # generate the file
     if output_report:
         out = 'reports/'
         pd.DataFrame(stats).to_csv(out + output, index=False)
-
     return pd.DataFrame(stats)
 
 
@@ -130,39 +118,13 @@ if __name__ == '__main__':
     RATE = 7
 
     # by ratio
-    b1 = [1, 1, 1, 1, 1, 1]
-    b2 = [1, 2, 2, 2, 1, 1]
-    b3 = [1, 2, 2, 2, 2, 1]
-    b4 = [2, 2, 2, 2, 2, 2]
-    b5 = [2, 2, 2, 3, 3, 2]
-    b6 = [3, 2, 2, 3, 3, 2]
-    b7 = [3, 3, 3, 3, 3, 3]
-
-    # yuji best
     # b1 = [1, 1, 1, 1, 1, 1]
-    # b2 = [2, 2, 1, 1, 3, 1]
-    # b3 = [2, 1, 1, 1, 2, 3]
-    # b4 = [1, 2, 2, 1, 1, 1]
-    # b5 = [3, 3, 2, 2, 3, 2]
-    # b6 = [1, 1, 2, 3, 2, 1]
-    # b7 = [1, 2, 2, 1, 1, 1]
-
-    # shortest queue length
-    # b12 = [1, 1, 1, 1, 1, 1]
-    # b22 = [2, 2, 1, 1, 1, 1]
-    # b32 = [1, 2, 2, 1, 1, 2]
-    # b42 = [2, 1, 2, 3, 2, 1]
-    # b52 = [3, 1, 1, 1, 1, 1]
-    # b62 = [1, 1, 3, 2, 3, 1]
-    # b72 = [1, 2, 2, 2, 3, 3]
-
-    b1 = [1, 1, 1, 1, 1, 1]
-    b2 = [2, 2, 1, 1, 3, 1]
-    b3 = [2, 1, 1, 1, 2, 3]
-    b4 = [1, 2, 2, 1, 1, 1]
-    b5 = [3, 3, 2, 2, 3, 2]
-    b6 = [1, 1, 2, 3, 2, 1]
-    b7 = [1, 2, 2, 1, 1, 1]
+    # b2 = [1, 2, 2, 2, 1, 1]
+    # b3 = [1, 2, 2, 2, 2, 1]
+    # b4 = [2, 2, 2, 2, 2, 2]
+    # b5 = [2, 2, 2, 3, 3, 2]
+    # b6 = [3, 2, 2, 3, 3, 2]
+    # b7 = [3, 3, 3, 3, 3, 3]
 
     # # hand picked
     # b41 = [1, 1, 1, 1, 1, 1]
@@ -172,7 +134,16 @@ if __name__ == '__main__':
     # b45 = [2, 2, 2, 3, 3, 2]
     # b46 = [3, 3, 2, 3, 3, 3]
     # b47 = [3, 3, 3, 3, 3, 3]
-    #
+
+    # shortest queue length
+    b1 = [1, 1, 1, 1, 1, 1]
+    b2 = [2, 2, 1, 1, 3, 1]
+    b3 = [2, 1, 1, 1, 2, 3]
+    b4 = [1, 2, 2, 1, 1, 1]
+    b5 = [3, 3, 2, 2, 3, 2]
+    b6 = [1, 1, 2, 3, 2, 1]
+    b7 = [1, 2, 2, 1, 1, 1]
+
     # shortest avg time
     b51 = [1, 1, 1, 1, 1, 1]
     b52 = [2, 2, 1, 1, 3, 1]
@@ -181,9 +152,8 @@ if __name__ == '__main__':
     b55 = [3, 2, 2, 2, 2, 2]
     b56 = [1, 1, 2, 3, 2, 1]
     b57 = [3, 2, 1, 1, 1, 1]
-    #
-    #
-    # # lowest dead
+
+    # lowest hypothermia
     b61 = [1, 1, 1, 1, 1, 1]
     b62 = [1, 2, 2, 2, 3, 1]
     b63 = [3, 1, 1, 1, 1, 1]
@@ -192,32 +162,17 @@ if __name__ == '__main__':
     b66 = [1, 1, 1, 2, 3, 1]
     b67 = [1, 2, 2, 2, 3, 3]
 
-
     route1 = [1, 1, 1, 1, 1, 1]
     route2 = [2, 2, 2, 2, 2, 2]
     route3 = [3, 3, 3, 3, 3, 3]
 
-    # model1 = create_map(routes_per_bus=[b1, b2], name='115')
+    # create map object
     model1 = create_map(routes_per_bus=[route1, route1, route1, route1, route1, route1, route1], name='700')
-    # model3= create_map(routes_per_bus=[b41, b42, b43, b44, b45, b46, b47], name='hand')
-    # model2= create_map(routes_per_bus=[b12, b22, b32, b42, b52, b62, b72], name='opt-queue')
-    model3= create_map(routes_per_bus=[b1, b2, b3, b4, b5, b6, b7], name='opt-queue')
-    model4= create_map(routes_per_bus=[b51, b52, b53, b54, b55, b56, b57], name='opt-time')
-    model5= create_map(routes_per_bus=[b61, b62, b63, b64, b65, b66, b67], name='opt-2hr')
+    model2= create_map(routes_per_bus=[b1, b2, b3, b4, b5, b6, b7], name='opt-queue')
+    model3= create_map(routes_per_bus=[b51, b52, b53, b54, b55, b56, b57], name='opt-time')
+    model4= create_map(routes_per_bus=[b61, b62, b63, b64, b65, b66, b67], name='opt-2hr')
 
-    # model2 = create_map(routes_per_bus=[route1, route1, route1, route1, route2, route3, route3], name='412')
-    # model3 = create_map(routes_per_bus=[route1, route1, route1, route1, route2, route2, route3], name='421')
-    # model4 = create_map(routes_per_bus=[route1, route1, route1, route2, route2, route2, route3], name='331')
-    # model5 = create_map(routes_per_bus=[route1, route2, route2, route2, route2, route3, route3], name='241')
-    # model6 = create_map(routes_per_bus=[route1, route2, route2, route2, route2, route2, route3], name='151')
-    # model5 = create_map(routes_per_bus=[route1, route2, route2, route2, route2, route2, route3], name='151')
-    # model6 = create_map(routes_per_bus=[route1, route1, route1, route1, route1, route1, route1], name='m1')
-    # model7 = create_map(routes_per_bus=[route1, route1, route1, route1, route1, route1, route1], name='m2')
-    # model8 = create_map(routes_per_bus=[route1, route1, route1, route1, route1, route1, route1], name='m3')
-    # model6 = create_map(routes_per_bus=[b1, b2, b3, b4, b5, b6, b7], name='yuji')
-    # model7 = create_map(routes_per_bus=[b12, b22, b32, b42, b52, b62, b72], name='kenta')
-    # model8 = create_map(routes_per_bus=[b13, b23, b33, b43, b53, b63, b73], name='kenta-opt')
+    model = [model1, model2, model3, model4]
 
-    model = [model1, model3, model4, model5]
-    experiment(model, ITERATION, 30, output_report=True, output='ex7.csv')
-    # model2.simulate(60*1)
+    # run experiment!
+    experiment(model, ITERATION, 30, output_report=True, output='out.csv')
