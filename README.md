@@ -98,10 +98,9 @@ draw_time_series(df)             # time-series for utility of servers
 draw_time_series_bus(df)         # time-series for utility of vehicles 
 draw_smore(df) .                 # box-plot for utility
 ```
-The function outputs following visualization. 
+The function uses seaborn package and outputs following visualizations 
 
-![Time-series](data/ts.png) ![Boxplot](data/box.png) 
-
+<img src="data/ts.png"  float = "left" width="45%"> <img src="data/box.png" float = "left" width="45%"> 
 
 ## Documentation
 
