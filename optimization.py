@@ -114,11 +114,7 @@ if __name__ == "__main__":
     )
 
     opt = pysmac.SMAC_optimizer()
-<<<<<<< HEAD
     value, parameters = opt.minimize(avg_queue_length, 1000, parameters)
-=======
-    value, parameters = opt.minimize(dead_people, 500, parameters)
->>>>>>> 09a7ad71ac9d701164a9c5888dcc9ff5a67e0568
 
     print(('Lowest function value found: %f' % value))
     print(('Parameter setting %s' % parameters))
