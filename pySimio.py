@@ -30,6 +30,7 @@ class Map:
         self.surface = None
         self.path_occupancy = {}            # origin -> destination -> list of occupancy
         self.path_travel = {}               # origin -> destination -> list of travels
+        self.total_dead = 0
 
     def simulate(self, max_time, debug=False, animate=False, **settings):
         """Run simulation of this map
@@ -171,6 +172,7 @@ class Map:
             b.avg_standing /= max_time
             waiting_t = np.array([value for (key, value) in sorted(b.avg_occupancy_t.items())])
             b.avg_occupancy_t = waiting_t/30
+            self.total_dead += b.dead_people
 
         for bs in self.bus_stops.keys():
             bs = self.bus_stops[bs]
@@ -241,12 +243,14 @@ class Map:
                 stats[bs.name + " waiting time total"] = total_waiting/total_people
 
         stats['total distance'] = total_traveled  # total distance traveled
+        stats['total dead people'] = self.total_dead
         return stats
 
     def reset(self):
         """ reset simulation """
         # TODO : make this cleaner
         self.prev_time = 0
+        self.total_dead = 0
         # reset the stats for each bus
         for bus in self.buses:
             bus.reset()
@@ -298,6 +302,7 @@ class Bus:
         # TODO: other relevant performance metrics?
         self.avg_occupancy = 0
         self.avg_standing = 0
+        self.dead_people = 0
 
         self.avg_occupancy_t = {}                          # hour -> average occupancy dict
 
@@ -357,6 +362,8 @@ class Bus:
                 stop.num_waiting_hr -= 1
                 # stop.num_waiting_hr = max(0, stop.num_waiting_hr)
                 person.waiting_time = boarding_time - person.start_time  # record waiting time
+                if person.waiting_time > 120:
+                    self.dead_people += 1
                 person.origin.add_waiting_time(person.destination, person.waiting_time) # update the origin waiting time
                 boarding_time += np.random.triangular(0, 1/60, 5/60)   # boarding times have triangular distribution
                 stop.update(boarding_time)  # people arrive while bus is boarding
@@ -364,11 +371,6 @@ class Bus:
                 if person in people_just_arrived:
                     stop.avg_num_waiting += person.waiting_time
                     stop.avg_num_waiting_t[hour] += person.waiting_time
-
-
-        if count > 1000:
-            pass
-            # print(stop.name, int(time/60), count)
 
         return boarding_time
 
@@ -448,6 +450,7 @@ class Bus:
         self.avg_occupancy = 0
         self.avg_standing = 0
         self.avg_occupancy_t = {}
+        self.dead_people = 0
 
 
 class BusStop:
