@@ -28,7 +28,7 @@ def generate_simulation_result(x21, x22, x23, x24, x25, x26,
     b7 = [x71, x72, x73, x74, x75, x76]
 
     model = create_map(routes_per_bus=[b1, b2, b3, b4, b5, b6, b7], name='model')
-    return experiment([model], 60*18, 20, output_report=False, printing=False)
+    return experiment([model], 60*18, 10, output_report=False, printing=False)
 
 
 def avg_waiting_time(x21, x22, x23, x24, x25, x26,
@@ -79,6 +79,22 @@ def avg_occupancy(x21, x22, x23, x24, x25, x26,
     return stats[stats.keys()[stats.keys().str.contains('avg occupancy') & stats.keys().str.contains('Bus')]].mean().values.mean()
 
 
+def dead_people(x21, x22, x23, x24, x25, x26,
+                x31, x32, x33, x34, x35, x36,
+                x41, x42, x43, x44, x45, x46,
+                x51, x52, x53, x54, x55, x56,
+                x61, x62, x63, x64, x65, x66,
+                x71, x72, x73, x74, x75, x76):
+
+    stats = generate_simulation_result(x21, x22, x23, x24, x25, x26,
+                                       x31, x32, x33, x34, x35, x36,
+                                       x41, x42, x43, x44, x45, x46,
+                                       x51, x52, x53, x54, x55, x56,
+                                       x61, x62, x63, x64, x65, x66,
+                                       x71, x72, x73, x74, x75, x76)
+    return stats['total dead people'].values.mean()
+
+
 if __name__ == "__main__":
 
     parameters = dict(
@@ -97,9 +113,9 @@ if __name__ == "__main__":
     )
 
     opt = pysmac.SMAC_optimizer()
-    value, parameters = opt.minimize(avg_waiting_time, 500, parameters)
+    value, parameters = opt.minimize(dead_people, 500, parameters)
 
     print(('Lowest function value found: %f' % value))
     print(('Parameter setting %s' % parameters))
 
-    save_obj(parameters, 'lowest_waiting_time')
+    save_obj(parameters, 'dead_people')
