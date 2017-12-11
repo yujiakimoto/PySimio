@@ -128,28 +128,81 @@ if __name__ == '__main__':
 
     ITERATION = 60*18
     RATE = 7
+    # b1 = [1, 1, 1, 1, 1, 1]
+    # b2 = [2, 2, 2, 3, 1, 1]
+    # b3 = [3, 2, 3, 2, 3, 1]
+    # b4 = [1, 3, 2, 3, 2, 2]
+    # b5 = [2, 2, 1, 2, 2, 1]
+    # b6 = [1, 2, 2, 2, 3, 1]
+    # b7 = [3, 2, 3, 1, 3, 3]
 
-    b1 = [1, 2, 3, 2, 1, 3]
-    b2 = [1, 2, 2, 2, 1, 3]
-    b3 = [1, 2, 2, 2, 2, 2]
-    b4 = [2, 2, 2, 2, 2, 2]
-    b5 = [2, 2, 2, 3, 3, 3]
-    b6 = [3, 2, 2, 3, 3, 3]
-    b7 = [3, 3, 3, 3, 3, 3]
+    # yuji best
+    b1 = [1, 1, 1, 1, 1, 1]
+    b2 = [2, 2, 1, 1, 3, 1]
+    b3 = [2, 1, 1, 1, 2, 3]
+    b4 = [1, 2, 2, 1, 1, 1]
+    b5 = [3, 3, 2, 2, 3, 2]
+    b6 = [1, 1, 2, 3, 2, 1]
+    b7 = [1, 2, 2, 1, 1, 1]
+    #
+    # b12 = [1, 1, 1, 1, 1, 1]
+    # b22 = [1, 3, 1, 1, 1, 1]
+    # b32 = [1, 2, 1, 1, 1, 1]
+    # b42 = [1, 2, 2, 2, 2, 2]
+    # b52 = [1, 2, 2, 3, 2, 2]
+    # b62 = [1, 2, 2, 3, 2, 2]
+    # b72 = [1, 3, 3, 3, 3, 3]
+
+    # b12 = [1, 1, 1, 1, 1, 1]
+    # b22 = [2, 2, 2, 1, 1, 1]
+    # b32 = [1, 2, 1, 1, 3, 1]
+    # b42 = [2, 1, 2, 3, 2, 1]
+    # b52 = [3, 1, 2, 1, 1, 1]
+    # b62 = [1, 1, 3, 2, 3, 1]
+    # b72 = [2, 2, 2, 1, 3, 3]
+
+    # best so far
+    b12 = [1, 1, 1, 1, 1, 1]
+    b22 = [2, 2, 1, 1, 1, 1]
+    b32 = [1, 2, 2, 1, 1, 2]
+    b42 = [2, 1, 2, 3, 2, 1]
+    b52 = [3, 1, 1, 1, 1, 1]
+    b62 = [1, 1, 3, 2, 3, 1]
+    b72 = [1, 2, 2, 2, 3, 3]
+
+    # b12 = [1, 1, 1, 1, 1, 1]
+    # b22 = [2, 2, 1, 2, 1, 1]
+    # b32 = [1, 2, 2, 1, 2, 2]
+    # b42 = [1, 1, 2, 3, 1, 1]
+    # b52 = [3, 1, 1, 1, 1, 1]
+    # b62 = [1, 1, 2, 1, 1, 1]
+    # b72 = [3, 2, 2, 1, 1, 3]
+
+    # hand picked
+    b43 = [1, 1, 1, 1, 1, 1]
+    b13 = [2, 1, 2, 2, 3, 3]
+    b23 = [1, 2, 1, 2, 2, 3]
+    b33 = [1, 1, 1, 2, 1, 1]
+    b53 = [1, 2, 1, 1, 3, 1]
+    b63 = [3, 2, 1, 1, 2, 2]
+    b73 = [3, 1, 1, 3, 2, 1]
 
     route1 = [1, 1, 1, 1, 1, 1]
-    route2 = [2, 1, 2, 2, 2, 2]
+    route2 = [2, 2, 2, 2, 2, 2]
     route3 = [3, 3, 3, 3, 3, 3]
 
-    model1 = create_map(routes_per_bus=[b1, b2, b3, b4, b5, b6, b7], name='115')
-    model1.simulate(60, debug=True)
-
-    # model2 = create_map(routes_per_bus=[route1, route1, route1, route1, route1, route1, route1], name='700')
+    # model1 = create_map(routes_per_bus=[b1, b2], name='115')
+    model2 = create_map(routes_per_bus=[route1, route1, route1, route1, route1, route1, route1], name='700')
     # model3 = create_map(routes_per_bus=[route1, route1, route1, route1, route1, route2, route3], name='511')
     # model4 = create_map(routes_per_bus=[route1, route1, route1, route2, route2, route3, route3], name='322')
     # model5 = create_map(routes_per_bus=[route1, route2, route2, route2, route2, route2, route3], name='151')
-    # model6 = create_map(routes_per_bus=[b1, b2, b3, b4, b5, b6, b7], name='m2')
+    # model6 = create_map(routes_per_bus=[route1, route1, route1, route1, route1, route1, route1], name='m1')
+    # model7 = create_map(routes_per_bus=[route1, route1, route1, route1, route1, route1, route1], name='m2')
+    # model8 = create_map(routes_per_bus=[route1, route1, route1, route1, route1, route1, route1], name='m3')
+    model6 = create_map(routes_per_bus=[b1, b2, b3, b4, b5, b6, b7], name='yuji')
+    model7 = create_map(routes_per_bus=[b12, b22, b32, b42, b52, b62, b72], name='kenta')
+    model8 = create_map(routes_per_bus=[b13, b23, b33, b43, b53, b63, b73], name='kenta-opt')
 
-    # model = [model2, model3, model4]
-    # experiment(model, ITERATION, 20, output_report=True, output='base.csv')
+    model = [model2,model6, model7, model8]
+    experiment(model, ITERATION, 30, output_report=True, output='base.csv')
     # model2.simulate(60*1)

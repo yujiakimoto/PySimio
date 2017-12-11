@@ -98,6 +98,7 @@ def dead_people(x21, x22, x23, x24, x25, x26,
 if __name__ == "__main__":
 
     parameters = dict(
+
         x21=('categorical', [1, 2, 3], 2), x22=('categorical', [1, 2, 3], 2), x23=('categorical', [1, 2, 3], 2),
         x24=('categorical', [1, 2, 3], 3), x25=('categorical', [1, 2, 3], 1), x26=('categorical', [1, 2, 3], 1),
         x31=('categorical', [1, 2, 3], 3), x32=('categorical', [1, 2, 3], 2), x33=('categorical', [1, 2, 3], 3),

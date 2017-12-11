@@ -36,4 +36,4 @@ if __name__ == '__main__':
     # ctown - com
     ctown_com = generate_arrival(rates['Ctown to Com'].values)
 
-    print(len(ctown_com))
+    print(ctown_com)
