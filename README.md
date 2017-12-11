@@ -88,18 +88,18 @@ Our experiments make the best use of multiprocessing library for more efficient 
 ### Visualization
 PySimio records the simulation results in csv format, which makes the data analysis very easy. This library contains three functions to automatically output time-series and boxplot of utilities. 
 ```Python
-#store experiment results in csv format 
+# store experiment results in csv format 
 import pandas as pd
-from analysis import draw_time_series, draw_smore,draw_time_series_bus
+from analysis import draw_time_series, draw_smore, draw_time_series_bus
 # output csv file
-experiment([model1, model2, model3], SIMULATION_LENGTH, ITERATIONS, output_report=True, output = 'results.csv')
+experiment([model1, model2, model3], SIMULATION_LENGTH, ITERATIONS, output_report=True, output='results.csv')
 df = pd.read_csv('results.csv')  # load file
 
 draw_time_series(df)             # time-series for utility of servers 
 draw_time_series_bus(df)         # time-series for utility of vehicles 
 draw_smore(df) .                 # box-plot for utility
 ```
-The function uses seaborn package and outputs following visualizations 
+The function uses the seaborn package and outputs the following visualizations:  
 
 <img src="data/ts.png"  float = "left" width="45%"> <img src="data/box.png" float = "left" width="45%"> 
 
@@ -115,3 +115,4 @@ r1s = {2: {depot: [2.5, 1]}}
 indicates when switching from route 1 to route 2 for a bus currently at the depot, the bus must wait until it has travelled 2.5km (i.e. it reaches Commons-Eastbound) before executing the route change, and once the route change has been executed the next stop is indexed by #1 in the new route (i.e. Collegetown).
 
 ### Optimization
+As these models contain complex interactions that make it difficult to compute summary statistics in a closed-form solution, PySimio conducts optimization through Bayesian optimization.
