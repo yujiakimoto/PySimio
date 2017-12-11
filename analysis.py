@@ -33,6 +33,7 @@ def draw_time_series(df, directory = None, save = False):
         df_time[k] = data
     # add model for grouping
     df_time['model'] = df['model']
+    df_time = df_time.sort_values(by = 'model')
     df_data = []
     # creat a dataframe to use seaborn
     for i, data in df_time.iterrows():
@@ -40,13 +41,13 @@ def draw_time_series(df, directory = None, save = False):
         for k in data.keys():
             if k != 'model':
                 for hour,obs in enumerate(data[k]):
-                    df_data.append({'stats':k, 'hour':hour, 'observation': obs, 'simulation' : i, 'model' : data['model']})
+                    df_data.append({'stats':k, '.5 hour':hour, 'observation': obs, 'simulation' : i, 'model' : data['model']})
     tf = pd.DataFrame(df_data)
     # for each column, create a time-series
     for k in list(set(tf['stats'])):
         tmp = tf[tf['stats'] == k]
         plt.title(k)
-        ax = sns.tsplot(time="hour", value="observation", unit = 'simulation', condition="model",data=tmp, ci=[68, 95])
+        ax = sns.tsplot(time=".5 hour", value="observation", unit = 'simulation', condition="model",data=tmp, ci=[68, 95])
         if save:
             if not os.path.exists(directory):
                 os.makedirs(directory)
@@ -83,6 +84,7 @@ def draw_time_series_bus(df, directory = None, save = False):
         df_time[k] = data
     # add model for grouping
     df_time['model'] = df['model']
+    df_time = df_time.sort_values(by = 'model')
     df_data = []
     # creat a dataframe to use seaborn
     for i, data in df_time.iterrows():
@@ -90,13 +92,13 @@ def draw_time_series_bus(df, directory = None, save = False):
         for k in data.keys():
             if k != 'model':
                 for hour,obs in enumerate(data[k]):
-                    df_data.append({'stats':k, 'hour':hour, 'observation': obs, 'simulation' : i, 'model' : data['model']})
+                    df_data.append({'stats':k, '.5 hour':hour, 'observation': obs, 'simulation' : i, 'model' : data['model']})
     tf = pd.DataFrame(df_data)
     # for each column, create a time-series
     for k in list(set(tf['stats'])):
         tmp = tf[tf['stats'] == k]
         plt.title(k)
-        ax = sns.tsplot(time="hour", value="observation", unit = 'simulation', condition="model",data=tmp, ci=[68, 95])
+        ax = sns.tsplot(time=".5 hour", value="observation", unit = 'simulation', condition="model",data=tmp, ci=[68, 95])
         if save:
             if not os.path.exists(directory):
                 os.makedirs(directory)
@@ -118,6 +120,7 @@ def draw_smore(df, directory = None, save = False):
                             ~df.keys().str.contains('iteration')&\
                             ~df.keys().str.contains('Bus')]]
     # generate boxplot for each column
+    df_smore = df_smore.sort_values(by = 'model')
     for k in df_smore.keys():
         if k != 'model':
             plt.title(k)

@@ -83,22 +83,22 @@ if __name__ == "__main__":
 
     parameters = dict(
 
-        x21=('categorical', [1, 2, 3], 2), x22=('categorical', [1, 2, 3], 2), x23=('categorical', [1, 2, 3], 2),
-        x24=('categorical', [1, 2, 3], 3), x25=('categorical', [1, 2, 3], 1), x26=('categorical', [1, 2, 3], 1),
-        x31=('categorical', [1, 2, 3], 3), x32=('categorical', [1, 2, 3], 2), x33=('categorical', [1, 2, 3], 3),
-        x34=('categorical', [1, 2, 3], 2), x35=('categorical', [1, 2, 3], 3), x36=('categorical', [1, 2, 3], 1),
-        x41=('categorical', [1, 2, 3], 1), x42=('categorical', [1, 2, 3], 3), x43=('categorical', [1, 2, 3], 2),
-        x44=('categorical', [1, 2, 3], 3), x45=('categorical', [1, 2, 3], 2), x46=('categorical', [1, 2, 3], 2),
-        x51=('categorical', [1, 2, 3], 2), x52=('categorical', [1, 2, 3], 2), x53=('categorical', [1, 2, 3], 1),
-        x54=('categorical', [1, 2, 3], 2), x55=('categorical', [1, 2, 3], 2), x56=('categorical', [1, 2, 3], 1),
-        x61=('categorical', [1, 2, 3], 1), x62=('categorical', [1, 2, 3], 2), x63=('categorical', [1, 2, 3], 2),
-        x64=('categorical', [1, 2, 3], 2), x65=('categorical', [1, 2, 3], 3), x66=('categorical', [1, 2, 3], 1),
-        x71=('categorical', [1, 2, 3], 3), x72=('categorical', [1, 2, 3], 2), x73=('categorical', [1, 2, 3], 3),
-        x74=('categorical', [1, 2, 3], 1), x75=('categorical', [1, 2, 3], 3), x76=('categorical', [1, 2, 3], 3),
+        x21=('categorical', [1, 2, 3], 2), x22=('categorical', [1, 2, 3], 2), x23=('categorical', [1, 2, 3], 1),
+        x24=('categorical', [1, 2, 3], 1), x25=('categorical', [1, 2, 3], 3), x26=('categorical', [1, 2, 3], 1),
+        x31=('categorical', [1, 2, 3], 2), x32=('categorical', [1, 2, 3], 1), x33=('categorical', [1, 2, 3], 1),
+        x34=('categorical', [1, 2, 3], 1), x35=('categorical', [1, 2, 3], 2), x36=('categorical', [1, 2, 3], 3),
+        x41=('categorical', [1, 2, 3], 1), x42=('categorical', [1, 2, 3], 2), x43=('categorical', [1, 2, 3], 2),
+        x44=('categorical', [1, 2, 3], 1), x45=('categorical', [1, 2, 3], 1), x46=('categorical', [1, 2, 3], 1),
+        x51=('categorical', [1, 2, 3], 3), x52=('categorical', [1, 2, 3], 3), x53=('categorical', [1, 2, 3], 2),
+        x54=('categorical', [1, 2, 3], 2), x55=('categorical', [1, 2, 3], 3), x56=('categorical', [1, 2, 3], 2),
+        x61=('categorical', [1, 2, 3], 1), x62=('categorical', [1, 2, 3], 1), x63=('categorical', [1, 2, 3], 2),
+        x64=('categorical', [1, 2, 3], 3), x65=('categorical', [1, 2, 3], 2), x66=('categorical', [1, 2, 3], 1),
+        x71=('categorical', [1, 2, 3], 1), x72=('categorical', [1, 2, 3], 2), x73=('categorical', [1, 2, 3], 2),
+        x74=('categorical', [1, 2, 3], 1), x75=('categorical', [1, 2, 3], 1), x76=('categorical', [1, 2, 3], 1),
     )
 
     opt = pysmac.SMAC_optimizer()
-    value, parameters = opt.minimize(avg_waiting_time, 500, parameters)
+    value, parameters = opt.minimize(avg_queue_length, 1000, parameters)
 
     print(('Lowest function value found: %f' % value))
     print(('Parameter setting %s' % parameters))

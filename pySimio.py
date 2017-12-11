@@ -99,13 +99,13 @@ class Map:
 
             # update the utility
             for b in self.buses:
-                b.avg_occupancy += delta_time * b.occupancy                       # average occupancy of each bus
-                b.avg_standing += delta_time * max(b.occupancy - b.num_seats, 0)  # average people standing for each bus
+                b.avg_occupancy += delta_time * len(b.passengers)                       # average occupancy of each bus
+                b.avg_standing += delta_time * max(len(b.passengers) - b.num_seats, 0)  # average people standing for each bus
                 if hour not in b.avg_occupancy_t.keys():
                     # b.avg_occupancy_t[hour-1] += delta_time * b.occupancy
                     b.avg_occupancy_t[hour] = 0
                 else:
-                    b.avg_occupancy_t[hour] += delta_time * b.occupancy
+                    b.avg_occupancy_t[hour] += delta_time * len(b.passengers)
 
             for bs in self.bus_stops.keys():
                 bs = self.bus_stops[bs]
