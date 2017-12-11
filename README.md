@@ -83,6 +83,7 @@ model3 = create_map(routes_per_bus=[route1, route1, route1, route2, route2, rout
 
 experiment([model1, model2, model3], SIMULATION_LENGTH, ITERATIONS)
 ```
+Our experiments make the best use of multiprocessing library for more efficient computation
 
 ### Visualization
 PySimio records the simulation results in csv format, which makes the data analysis very easy. This library contains three functions to automatically output time-series and boxplot of utilities. 
