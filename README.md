@@ -130,7 +130,7 @@ indicates when switching from route 1 to route 2 for a bus currently at the depo
 ### Optimization
 As these models contain complex interactions that make it difficult to compute summary statistics in a closed-form solution, PySimio conducts optimization through Bayesian optimization. Although Bayesian optimization supports the optimization of any black-box function, assumptions about the distribution of functions considered make it more suitable for functions that are less sensitive to small changes in their input, as illustrated below:   
 
-![Optimization](images/bayesian_opt.png)  
+![Optimization](images/bayesian_opt.PNG)  
 
 To conduct optimization, define a function from the space of variables you have control over (e.g. schedules for each bus) to a target variable that you want to optimize (e.g. average waiting time).
 ```Python
