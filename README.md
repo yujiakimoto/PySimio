@@ -142,8 +142,8 @@ def avg_waiting_time(x21, x22, x23, x24, x25, x26):
 You will then need to provide a dictionary specifying the type of each variable (real/integer/categorical/ordinal), a starting point, and total number of iterations. Our implementation will save the dictionary of optimal parameters found as a .pkl file.
 ```Python
 parameters = dict(
-  x21=('categorical', [1, 2, 3], 2), x22=('categorical', [1, 2, 3], 2), x23=('categorical', [1, 2, 3], 1),
-  x24=('categorical', [1, 2, 3], 1), x25=('categorical', [1, 2, 3], 3), x26=('categorical', [1, 2, 3], 1),
+    x21=('categorical', [1,2,3], 2), x22=('categorical', [1,2,3], 2), x23=('categorical', [1,2,3], 1),
+    x24=('categorical', [1,2,3], 1), x25=('categorical', [1,2,3], 3), x26=('categorical', [1,2,3], 1),
 )
 opt = pysmac.SMAC_optimizer()
 value, parameters = opt.minimize(avg_waiting_time, 1000, parameters)    # 1000 iterations
